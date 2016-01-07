@@ -1,8 +1,8 @@
 /**
  *
  */
-
 'use strict';
+
 const util = require('util');
 const fs = require('fs');
 const EventEmitter = require('events');
@@ -40,36 +40,53 @@ Method.prototype.placeholderFn = function () {
     return [].slice.call(arguments);
 };
 
+// Returns an array of arguments that is to be passed to 'fn'
+//  prevResult is what was returned from the previous Method's 'fn'
+Method.prototype.getArguments = function (prevResult) {
+    // if aArgs not an Array - make it one
+    if (Object.prototype.toString.call(this.aArgs) !== '[object Array]') {
+        this.aArgs = this.aArgs == null ? [] : new Array(this.aArgs);
+    }
+    // if prevResult not an Array - make it one
+    if (Object.prototype.toString.call(prevResult) !== '[object Array]') {
+        prevResult = prevResult == null ? [] : new Array(prevResult);
+    }
+    // use the arguments that were passed when the Method was created
+    //   if none - use arguments that were returned by the previous method
+    return this.aArgs.length > 0 ? this.aArgs : prevResult;
+};
+
+Method.prototype.insertCallbackOntoArguments = function (callbackFn) {
+    if (this.callbackArgIdx === -1) {
+        this.aArgs.push(callbackFn)
+    }
+    else {
+        this.aArgs.splice(this.callbackArgIdx, 0, callbackFn);
+    }
+};
+
 // Run the Methods that have been placed on the Method stack
 Method.prototype.run = function (target, stackControl) {
-    // drill down to the placeholder Method at bottom of the Method stack
+    // recursive drill down to the placeholder Method at bottom of the Method stack
     if (this.prevMethod) {
-        var prevResult = this.prevMethod.run(target, stackControl); // recursive
-        // if the result is the stackControl object - exit - do not process remaining Methods
+        var prevResult = this.prevMethod.run(target, stackControl);
+        // if hit an asynchronous Method exit the stack with info about that Method
         if (prevResult === stackControl) {
             return stackControl;
         }
-        // use the arguments that were passed when the Method was created
-        //   if none - use arguments that were returned by the previous method
-        if (!this.aArgs) {
-            if (Object.prototype.toString.call(prevResult) === '[object Array]') {
-                this.aArgs = prevResult; // previous Method returned an Array - so we are good
-            }
-            else {
-                this.aArgs = new Array(prevResult); // otherwize make an Array
-            }
-        }
+        // get the arguments that will be passed to this 'fn'
+        this.aArgs = this.getArguments(prevResult);
     }
-    // if async Method need to stop execution of the stack - resume when async done
+    // if is async Method need to stop execution of the stack - resume when async done
     if (this.isAsync) {
-        // remember the async function to call and it's arguments
-        //  and where the callback is located in the arguments (if any)
+        // insert our callback (this.run) into argument list
+        this.insertCallbackOntoArguments(stackControl.callbackFn);
+        // load stackControl with the function to run and it's arguments
         stackControl.fn = this.fn;
         stackControl.aArgs = this.aArgs;
-        stackControl.callbackArgIdx = this.callbackArgIdx;
         // make this Method a placeholder function (for re-entry when async function is done)
         this.setAsPlaceholder();
-        // signal to exit the stack by returning with the stackControl object
+        // return with info required to run the asynchronous function
         return stackControl;
     }
     // is a synchronous Method so just run the function
@@ -126,18 +143,14 @@ MethodChainer.prototype.run = function () {
         // set it's arguments
         bottomMethod.aArgs = [].slice.call(arguments);
     }
-    // Info required to run async functions will be in inserted into stackControl object
-    var stackControl = {};
+    // pass callback function that is to be used to resume processing methodStack
+    var stackControl = {
+        callbackFn: this.run.bind(this) // the callback is myself - so we resume processing methodStack
+    };
     // run the Method stack
     this.methodStack.run(this.target, stackControl);
     // if stackControl contains an asynchronous function - run it
     if (stackControl.fn) {
-        if (stackControl.callbackArgIdx === -1) {
-            stackControl.aArgs.push(this.run.bind(this))
-        }
-        else {
-            stackControl.aArgs.splice(stackControl.callbackArgIdx, 0, this.run.bind(this));
-        }
         stackControl.fn.apply(this.target, stackControl.aArgs);
     }
 };
@@ -152,8 +165,8 @@ function InheritChainerCalls() {
     this.methodChainer = new MethodChainer(this);
 }
 // Add a Method to the list of chainable Methods
-InheritChainerCalls.prototype.chainAdd = function (method) {
-    this.methodChainer.add(method);
+InheritChainerCalls.prototype.chainAdd = function (methods) {
+    this.methodChainer.add(methods);
 };
 
 // Push a method onto the methodStack
@@ -179,20 +192,24 @@ InheritChainerCalls.prototype.chainEmit = function (eventName, method) {
 function Mine() {
     // init inherited 'InheritChainerCalls'
     InheritChainerCalls.call(this);
-//    this.chainer.push(new Method(this.hi1, ['starter'])); // overriding args
     this.chainPush(new Method(this.hi1));
     this.chainEmit('push', new Method(this.hi2, null, true));
     this.chainEmit('push', new Method(this.hi3));
     this.chainEmit('push', new Method(this.hi4));
     this.chainPush(new Method(this.readMyFile, ['./logs/myfile.json'], true));
     this.chainPush(new Method(this.processMyFile));
-//    this.chainEmit('run');
-    this.chainRun();
+    //    this.chainEmit('run');
+    // this.chainRun();
 }
 
 // Inherit functions from InheritChainerCalls prototype
 util.inherits(Mine, InheritChainerCalls);
 
+Mine.prototype.chainAdd = function (methods) {
+    methods.forEach(function (method) {
+        Mine.prototype[method.fn.name] = method.fn;
+    })
+};
 Mine.prototype.hi1 = function (lastguy) {
     console.log('hi1');
     return 'hi1';
@@ -241,3 +258,32 @@ function inc() {
     console.log('counter: ' + counter.toString());
 
 }
+var implement = [
+    {
+        isAsync: true,
+        fn: function tryit10(cb) {
+            for (var i = 0; i < 10; i++) {
+                console.log('tryit10 at number: %d', i);
+            }
+            setTimeout(function () {
+                console.log('hi2');
+                cb();
+            }.bind(this), 4000);
+
+            console.log(this.hi1);
+        }
+    },
+    {
+        isAsync: false,
+        fn: function tryit2() {
+            for (var i = 0; i < 2; i++) {
+                console.log('tryit2 at number: %d', i);
+            }
+        }
+    }
+];
+
+//mine.chainAdd(implement);
+mine.chainPush(new Method(implement[0].fn, [], implement[0].isAsync, 0));
+mine.chainPush(new Method(implement[1].fn, null, implement[1].isAsync));
+mine.chainRun();
