@@ -24,10 +24,15 @@ function Method(fn, aArgs, isAsync, callbackArgIdx) {
     this.prevMethod = null;
 }
 
-// Note: a Placeholder Method returns the arguments passed to it
+// A Placeholder Method returns the arguments passed to it
 //  (as if it were not even in the Method chain)
 
-// Reset a Method to be a placeholder
+// The Placeholder function returns the arguments passed to it
+Method.prototype.placeholderFn = function () {
+    return [].slice.call(arguments);
+};
+
+// Reset a Method to become a placeholder
 Method.prototype.setAsPlaceholder = function () {
     this.fn = this.placeholderFn;
     this.aArgs = null;
@@ -35,13 +40,9 @@ Method.prototype.setAsPlaceholder = function () {
     this.callbackArgIdx = -1;
     this.prevMethod = null;
 };
-// The Placeholder function returns the arguments passed to it
-Method.prototype.placeholderFn = function () {
-    return [].slice.call(arguments);
-};
 
 // Returns an array of arguments that is to be passed to 'fn'
-//  prevResult is what was returned from the previous Method's 'fn'
+//  given prevResult which was returned from the previous Method's 'fn'
 Method.prototype.getArguments = function (prevResult) {
     // if aArgs not an Array - make it one
     if (Object.prototype.toString.call(this.aArgs) !== '[object Array]') {
@@ -56,6 +57,8 @@ Method.prototype.getArguments = function (prevResult) {
     return this.aArgs.length > 0 ? this.aArgs : prevResult;
 };
 
+// Insert the given callback function into the Method argument list
+//  callbackArgIdx is where to insert it (-1 = the end of list)
 Method.prototype.insertCallbackOntoArguments = function (callbackFn) {
     if (this.callbackArgIdx === -1) {
         this.aArgs.push(callbackFn)
@@ -77,7 +80,7 @@ Method.prototype.run = function (target, stackControl) {
         // get the arguments that will be passed to this 'fn'
         this.aArgs = this.getArguments(prevResult);
     }
-    // if is async Method need to stop execution of the stack - resume when async done
+    // if is an async Method - put info in stackControl for processing
     if (this.isAsync) {
         // insert our callback (this.run) into argument list
         this.insertCallbackOntoArguments(stackControl.callbackFn);
@@ -154,7 +157,6 @@ MethodChainer.prototype.run = function () {
         stackControl.fn.apply(this.target, stackControl.aArgs);
     }
 };
-
 
 /*************************************
  * Helper object that has commonly used MethodChainer functions in prototype
