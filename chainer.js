@@ -7,16 +7,36 @@ const util = require('util');
 const fs = require('fs');
 const EventEmitter = require('events');
 
+function argsToArray() {
+    var aArgs = [];
+    if (arguments.length === 1 && typeof arguments[0] === 'undefined') {
+        return null;
+    }
+    for (var i = 0, l = arguments.length; i < l; i++) {
+        aArgs.push(arguments[i]);
+    }
+    return aArgs.length === 0 ? null : aArgs;
+}
+
+var chainAddMethods = function (constructor, instance, methods) {
+    methods.forEach(function (method) {
+        constructor.prototype[method.fn.name] = function () {
+            instance.chainPush(new Method(method.callbackName, method.fn, argsToArray.apply(this, arguments)));
+            return this;
+        };
+    })
+};
+
+
 /*************************************
  * Returns a Method object which can be chained with other Method objects
  *
  * @param callbackName      name of callback in fn function signature
  * @param fn                function that this Method calls
  * @param aArgs             arguments passed to 'fn'
- * @param callbackArgIdx    if 'fn' has a callback in 'aArgs' where is it?
  * @constructor
  */
-function Method(callbackName, fn, aArgs, callbackArgIdx) {
+function Method(callbackName, fn, aArgs) {
     // !important - order of execution makes a difference
     this.setAsPlaceholder();
     if (typeof callbackName === 'undefined') return;
@@ -24,33 +44,19 @@ function Method(callbackName, fn, aArgs, callbackArgIdx) {
     this.callbackName = callbackName;
     this.callbackName = this.callbackName === '' ? null : this.callbackName;
     this.fn = fn || this.placeholderFn;
-    // this.parseDecorators(decorators);
     this.aArgs = aArgs || null;
 
     this.fnSig = this.fn.toString().split('\n')[0];
-    this.fnSig = this.fnSig.slice(this.fnSig.indexOf('(')+1).replace(') {\r', '').replace(/\s/g, '').split(",");
+    this.fnSig = this.fnSig.slice(this.fnSig.indexOf('(') + 1).replace(') {\r', '').replace(/\s/g, '').split(",");
 
     if (this.callbackName && this.fnSig.indexOf(this.callbackName) === -1) {
         throw new Error('CallbackName:"' + this.callbackName + '" is not in "'
                 + this.fn.toString().split('\n')[0].replace(' {\r', '') + '"');
     }
-    this.callbackArgIdx = callbackArgIdx || -1;
 }
 
-// The Placeholder function returns the arguments passed to it
-Method.prototype.parseDecorators = function (decorators) {
-    var dtors = [];
-    if (typeof decorators === 'string') {
-        dtors.push(decorators);
-    }
-    dtors.forEach(function (dtor) {
-        if (dtor === 'async') {
-            this.isAsync = true;
-        }
-    }.bind(this))
-};
 
-// A Placeholder Method returns the arguments passed to it
+// The Placeholder Method returns the arguments passed to it
 //  (as if it were not even in the Method chain)
 
 // Reset a Method to be a placeholder
@@ -61,7 +67,6 @@ Method.prototype.setAsPlaceholder = function () {
     this.aArgs = null;
     this.isAsync = false;
     this.fnSig = [];
-    this.callbackArgIdx = -1;
 };
 
 // The function of the Placeholder returns the arguments passed to it
@@ -171,7 +176,7 @@ MethodChainer.prototype.push = function (method) {
 };
 
 // Sequentially run Methods from the bottom of methodStack to the top
-MethodChainer.prototype.run = function () {
+MethodChainer.prototype.run = function callbackFn() {
     // got arguments so place them in the placeholder Method at the bottom of the stack
     if (arguments.length) {
         var bottomMethod = this.methodStack;
@@ -231,79 +236,50 @@ InheritChainerCalls.prototype.chainEmit = function (eventName, method) {
  * @constructor
  */
 function Mine() {
-    // init inherited 'InheritChainerCalls'
     InheritChainerCalls.call(this);
-    this.chainPush(new Method('', this.hi1));
-    this.chainEmit('push', new Method('callback', this.hi2));
-    this.chainEmit('push', new Method('', this.hi3));
-    this.chainEmit('push', new Method('', this.hi4));
-    //this.chainPush(new Method('async',this.readMyFile, ['./logs/myfile.json'], true));
-    //this.chainPush(new Method('sync',this.processMyFile));
-    //    this.chainEmit('run');
-    // this.chainRun();
 }
-
 // Inherit functions from InheritChainerCalls prototype
 util.inherits(Mine, InheritChainerCalls);
 
-Mine.prototype.chainAdd = function (methods) {
-    methods.forEach(function (method) {
-        Mine.prototype[method.fn.name] = method.fn;
-    })
-};
-Mine.prototype.hi1 = function (lastguy) {
-    console.log('hi1');
-    return 'hi1';
-};
-Mine.prototype.hi2 = function (lastguy, callback) {
-    console.log('wait a bit...');
-    setTimeout(function () {
-        console.log('last guy: ' + lastguy);
-        console.log('hi2');
-        console.log('...done waiting');
-        callback('hi2');
-    }.bind(this), 4000);
-    return 'hi2';
-};
-Mine.prototype.hi3 = function (lastguy) {
-    console.log('last guy: ' + lastguy);
-    console.log('hi3');
-    return 'hi3';
-};
-Mine.prototype.hi4 = function (lastguy) {
-    console.log('last guy: ' + lastguy);
-    console.log('hi4');
-    return 'hi4';
-};
-
-/*
- Mine.prototype.readMyFile = function (inFilePath, cb) {
- console.log('read the file: %s', inFilePath);
- fs.readFile(inFilePath, cb);
- };
- Mine.prototype.processMyFile = function (err, data) {
- if (err) throw err;
- var MyData = JSON.parse(data);
- console.log('what was read :');
- console.log(util.inspect(MyData));
- };
- */
-
-
-var mine = new Mine();
-
-
-//console.log(util.inspect(chainer.methods));
-
-var counter = 0;
-
-function inc() {
-    console.log('counter: ' + counter.toString());
-
-}
-var implement = [
+var implementation = [
     {
-        isAsync: true,
+        callbackName: '',
+        fn: function hi1(lastguy) {
+            console.log('hi1');
+            return 'hi1';
+        }
+    },
+    {
+        callbackName: 'callback',
+        fn: function hi2(lastguy, callback) {
+            console.log('wait a bit...');
+            setTimeout(function () {
+                console.log('last guy: ' + lastguy);
+                console.log('hi2');
+                console.log('...done waiting');
+                callback('hi2');
+            }.bind(this), 4000);
+            return 'hi2';
+        }
+    },
+    {
+        callbackName: '',
+        fn: function hi3(lastguy) {
+            console.log('last guy: ' + lastguy);
+            console.log('hi3');
+            return 'hi3';
+        }
+    },
+    {
+        callbackName: '',
+        fn: function hi4(lastguy) {
+            console.log('last guy: ' + lastguy);
+            console.log('hi4');
+            return 'hi4';
+        }
+    },
+    {
+        callbackName: 'cb',
         fn: function tryit10(cb) {
             var s = arguments;
             for (var i = 0; i < 10; i++) {
@@ -318,7 +294,7 @@ var implement = [
         }
     },
     {
-        isAsync: false,
+        callbackName: '',
         fn: function tryit2() {
             for (var i = 0; i < 2; i++) {
                 console.log('tryit2 at number: %d', i);
@@ -326,14 +302,14 @@ var implement = [
         }
     },
     {
-        isAsync: true,
+        callbackName: 'cb',
         fn: function readMyFile(inFilePath, cb) {
             console.log('read the file: %s', inFilePath);
             fs.readFile(inFilePath, cb);
         }
     },
     {
-        isAsync: false,
+        callbackName: '',
         fn: function processMyFile(err, data) {
             if (err) throw err;
             var MyData = JSON.parse(data);
@@ -343,17 +319,11 @@ var implement = [
     }
 ];
 
-var mychainAdd = function (constructor, methods) {
-    methods.forEach(function (method) {
-        constructor.prototype[method.fn.name] = method.fn;
-    })
-};
+var mine = new Mine();
+chainAddMethods(Mine, mine, implementation);
 
 
-mychainAdd(Mine, implement);
-
-
-//mine.chainAdd(implement);
-mine.chainPush(new Method('cb',implement[0].fn, []));
-mine.chainPush(new Method('',implement[1].fn, null));
+mine.hi1().hi2().tryit10().readMyFile('./logs/myfile.json').processMyFile().tryit2();
 mine.chainRun();
+
+
