@@ -21,7 +21,11 @@ function argsToArray() {
 var chainAddMethods = function (constructor, instance, methods) {
     methods.forEach(function (method) {
         constructor.prototype[method.fn.name] = function () {
-            instance.chainPush(new Method(method.callbackName, method.fn, argsToArray.apply(this, arguments)));
+            instance.chainPush(
+                    new Method(
+                            method.callbackName == null ? null : method.callbackName,
+                            method.fn,
+                            argsToArray.apply(this, arguments)));
             return this;
         };
     })
@@ -148,9 +152,6 @@ function MethodChainer(target) {
     // Methods will be bound ('this') to target object
     this.target = target;
 
-    // create empty list of Methods that can be chained in a sequence using . (Dot Notation)
-    this.methodList = {};
-
     // create the Method stack which represents the sequence of chained Methods
     //  put a placeholder Method on it
     //  note: technically methodStack is a linked list via method.prevMethod
@@ -210,10 +211,6 @@ MethodChainer.prototype.run = function callbackFn() {
 function InheritChainerCalls() {
     this.methodChainer = new MethodChainer(this);
 }
-// Add a Method to the list of chainable Methods
-InheritChainerCalls.prototype.chainAdd = function (methods) {
-    this.methodChainer.add(methods);
-};
 
 // Push a method onto the methodStack
 InheritChainerCalls.prototype.chainPush = function (method) {
@@ -243,7 +240,6 @@ util.inherits(Mine, InheritChainerCalls);
 
 var implementation = [
     {
-        callbackName: '',
         fn: function hi1(lastguy) {
             console.log('hi1');
             return 'hi1';
@@ -263,7 +259,6 @@ var implementation = [
         }
     },
     {
-        callbackName: '',
         fn: function hi3(lastguy) {
             console.log('last guy: ' + lastguy);
             console.log('hi3');
@@ -271,7 +266,6 @@ var implementation = [
         }
     },
     {
-        callbackName: '',
         fn: function hi4(lastguy) {
             console.log('last guy: ' + lastguy);
             console.log('hi4');
@@ -281,7 +275,6 @@ var implementation = [
     {
         callbackName: 'cb',
         fn: function tryit10(cb) {
-            var s = arguments;
             for (var i = 0; i < 10; i++) {
                 console.log('tryit10 at number: %d', i);
             }
@@ -294,7 +287,6 @@ var implementation = [
         }
     },
     {
-        callbackName: '',
         fn: function tryit2() {
             for (var i = 0; i < 2; i++) {
                 console.log('tryit2 at number: %d', i);
@@ -309,7 +301,6 @@ var implementation = [
         }
     },
     {
-        callbackName: '',
         fn: function processMyFile(err, data) {
             if (err) throw err;
             var MyData = JSON.parse(data);
@@ -323,7 +314,7 @@ var mine = new Mine();
 chainAddMethods(Mine, mine, implementation);
 
 
-mine.hi1().hi2().tryit10().readMyFile('./logs/myfile.json').processMyFile().tryit2();
-mine.chainRun();
+var achain = mine.hi1().hi2('hi kim').tryit10().readMyFile('./logs/myfile.json').processMyFile().tryit2();
+achain.chainRun();
 
 
