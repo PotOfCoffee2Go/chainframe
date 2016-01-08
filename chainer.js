@@ -10,43 +10,80 @@ const EventEmitter = require('events');
 /*************************************
  * Returns a Method object which can be chained with other Method objects
  *
+ * @param callbackName      name of callback in fn function signature
  * @param fn                function that this Method calls
  * @param aArgs             arguments passed to 'fn'
- * @param isAsync           is 'fn' an asynchronous function?
  * @param callbackArgIdx    if 'fn' has a callback in 'aArgs' where is it?
  * @constructor
  */
-function Method(fn, aArgs, isAsync, callbackArgIdx) {
+function Method(callbackName, fn, aArgs, callbackArgIdx) {
+    // !important - order of execution makes a difference
+    this.setAsPlaceholder();
+    if (typeof callbackName === 'undefined') return;
+
+    this.callbackName = callbackName;
+    this.callbackName = this.callbackName === '' ? null : this.callbackName;
     this.fn = fn || this.placeholderFn;
+    // this.parseDecorators(decorators);
     this.aArgs = aArgs || null;
-    this.isAsync = isAsync || false;
+
+    this.fnSig = this.fn.toString().split('\n')[0];
+    this.fnSig = this.fnSig.slice(this.fnSig.indexOf('(')+1).replace(') {\r', '').replace(/\s/g, '').split(",");
+
+    if (this.callbackName && this.fnSig.indexOf(this.callbackName) === -1) {
+        throw new Error('CallbackName:"' + this.callbackName + '" is not in "'
+                + this.fn.toString().split('\n')[0].replace(' {\r', '') + '"');
+    }
     this.callbackArgIdx = callbackArgIdx || -1;
-    this.prevMethod = null;
 }
+
+// The Placeholder function returns the arguments passed to it
+Method.prototype.parseDecorators = function (decorators) {
+    var dtors = [];
+    if (typeof decorators === 'string') {
+        dtors.push(decorators);
+    }
+    dtors.forEach(function (dtor) {
+        if (dtor === 'async') {
+            this.isAsync = true;
+        }
+    }.bind(this))
+};
 
 // A Placeholder Method returns the arguments passed to it
 //  (as if it were not even in the Method chain)
 
-// The Placeholder function returns the arguments passed to it
-Method.prototype.placeholderFn = function () {
-    return [].slice.call(arguments);
-};
-
-// Reset a Method to become a placeholder
+// Reset a Method to be a placeholder
 Method.prototype.setAsPlaceholder = function () {
+    this.prevMethod = null;
+    this.callbackName = null;
     this.fn = this.placeholderFn;
     this.aArgs = null;
     this.isAsync = false;
+    this.fnSig = [];
     this.callbackArgIdx = -1;
-    this.prevMethod = null;
+};
+
+// The function of the Placeholder returns the arguments passed to it
+Method.prototype.placeholderFn = function () {
+    var aArgs = [];
+    if (arguments.length === 1 && typeof arguments[0] === 'undefined') {
+        return aArgs;
+    }
+    for (var i = 0, l = arguments.length; i < l; i++) {
+        aArgs.push(arguments[i]);
+    }
+    return aArgs;
 };
 
 // Returns an array of arguments that is to be passed to 'fn'
 //  given prevResult which was returned from the previous Method's 'fn'
 Method.prototype.getArguments = function (prevResult) {
-    // if aArgs not an Array - make it one
-    if (Object.prototype.toString.call(this.aArgs) !== '[object Array]') {
-        this.aArgs = this.aArgs == null ? [] : new Array(this.aArgs);
+    // if aArgs not null then insure that it is an Array
+    if (this.aArgs != null) {
+        if (Object.prototype.toString.call(this.aArgs) !== '[object Array]') {
+            this.aArgs = this.aArgs == null ? [] : new Array(this.aArgs);
+        }
     }
     // if prevResult not an Array - make it one
     if (Object.prototype.toString.call(prevResult) !== '[object Array]') {
@@ -54,17 +91,16 @@ Method.prototype.getArguments = function (prevResult) {
     }
     // use the arguments that were passed when the Method was created
     //   if none - use arguments that were returned by the previous method
-    return this.aArgs.length > 0 ? this.aArgs : prevResult;
+    return this.aArgs != null ? this.aArgs : prevResult;
 };
 
 // Insert the given callback function into the Method argument list
 //  callbackArgIdx is where to insert it (-1 = the end of list)
 Method.prototype.insertCallbackOntoArguments = function (callbackFn) {
-    if (this.callbackArgIdx === -1) {
-        this.aArgs.push(callbackFn)
-    }
-    else {
-        this.aArgs.splice(this.callbackArgIdx, 0, callbackFn);
+
+    var idx = this.fnSig.indexOf(this.callbackName);
+    if (idx !== -1) {
+        this.aArgs[idx] = callbackFn;
     }
 };
 
@@ -81,8 +117,8 @@ Method.prototype.run = function (target, stackControl) {
         this.aArgs = this.getArguments(prevResult);
     }
     // if is an async Method - put info in stackControl for processing
-    if (this.isAsync) {
-        // insert our callback (this.run) into argument list
+    if (this.callbackName) {
+        // insert our callback into argument list
         this.insertCallbackOntoArguments(stackControl.callbackFn);
         // load stackControl with the function to run and it's arguments
         stackControl.fn = this.fn;
@@ -144,7 +180,10 @@ MethodChainer.prototype.run = function () {
             bottomMethod = bottomMethod.prevMethod;
         }
         // set it's arguments
-        bottomMethod.aArgs = [].slice.call(arguments);
+        bottomMethod.aArgs = [];
+        for (var i = 0, l = arguments.length; i < l; i++) {
+            bottomMethod.aArgs.push(arguments[i]);
+        }
     }
     // pass callback function that is to be used to resume processing methodStack
     var stackControl = {
@@ -187,19 +226,19 @@ InheritChainerCalls.prototype.chainEmit = function (eventName, method) {
 };
 
 
-/**
+/*************************************
  * Test of chainable object
  * @constructor
  */
 function Mine() {
     // init inherited 'InheritChainerCalls'
     InheritChainerCalls.call(this);
-    this.chainPush(new Method(this.hi1));
-    this.chainEmit('push', new Method(this.hi2, null, true));
-    this.chainEmit('push', new Method(this.hi3));
-    this.chainEmit('push', new Method(this.hi4));
-    this.chainPush(new Method(this.readMyFile, ['./logs/myfile.json'], true));
-    this.chainPush(new Method(this.processMyFile));
+    this.chainPush(new Method('', this.hi1));
+    this.chainEmit('push', new Method('callback', this.hi2));
+    this.chainEmit('push', new Method('', this.hi3));
+    this.chainEmit('push', new Method('', this.hi4));
+    //this.chainPush(new Method('async',this.readMyFile, ['./logs/myfile.json'], true));
+    //this.chainPush(new Method('sync',this.processMyFile));
     //    this.chainEmit('run');
     // this.chainRun();
 }
@@ -237,16 +276,18 @@ Mine.prototype.hi4 = function (lastguy) {
     return 'hi4';
 };
 
-Mine.prototype.readMyFile = function (inFilePath, cb) {
-    console.log('read the file: %s', inFilePath);
-    fs.readFile(inFilePath, cb);
-};
-Mine.prototype.processMyFile = function (err, data) {
-    if (err) throw err;
-    var MyData = JSON.parse(data);
-    console.log('what was read :');
-    console.log(util.inspect(MyData));
-};
+/*
+ Mine.prototype.readMyFile = function (inFilePath, cb) {
+ console.log('read the file: %s', inFilePath);
+ fs.readFile(inFilePath, cb);
+ };
+ Mine.prototype.processMyFile = function (err, data) {
+ if (err) throw err;
+ var MyData = JSON.parse(data);
+ console.log('what was read :');
+ console.log(util.inspect(MyData));
+ };
+ */
 
 
 var mine = new Mine();
@@ -264,11 +305,12 @@ var implement = [
     {
         isAsync: true,
         fn: function tryit10(cb) {
+            var s = arguments;
             for (var i = 0; i < 10; i++) {
                 console.log('tryit10 at number: %d', i);
             }
             setTimeout(function () {
-                console.log('hi2');
+                console.log('tryit10');
                 cb();
             }.bind(this), 4000);
 
@@ -282,10 +324,36 @@ var implement = [
                 console.log('tryit2 at number: %d', i);
             }
         }
+    },
+    {
+        isAsync: true,
+        fn: function readMyFile(inFilePath, cb) {
+            console.log('read the file: %s', inFilePath);
+            fs.readFile(inFilePath, cb);
+        }
+    },
+    {
+        isAsync: false,
+        fn: function processMyFile(err, data) {
+            if (err) throw err;
+            var MyData = JSON.parse(data);
+            console.log('what was read :');
+            console.log(util.inspect(MyData));
+        }
     }
 ];
 
+var mychainAdd = function (constructor, methods) {
+    methods.forEach(function (method) {
+        constructor.prototype[method.fn.name] = method.fn;
+    })
+};
+
+
+mychainAdd(Mine, implement);
+
+
 //mine.chainAdd(implement);
-mine.chainPush(new Method(implement[0].fn, [], implement[0].isAsync, 0));
-mine.chainPush(new Method(implement[1].fn, null, implement[1].isAsync));
+mine.chainPush(new Method('cb',implement[0].fn, []));
+mine.chainPush(new Method('',implement[1].fn, null));
 mine.chainRun();
