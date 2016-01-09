@@ -7,28 +7,18 @@ const util = require('util');
 const fs = require('fs');
 const EventEmitter = require('events');
 
-function argsToArray() {
+// Convert arguments to an array
+var argsToArray = function () {
     var aArgs = [];
+    // when there is an arguments with no defined values - return null
     if (arguments.length === 1 && typeof arguments[0] === 'undefined') {
         return null;
     }
+    // push and return the values on an Array
     for (var i = 0, l = arguments.length; i < l; i++) {
         aArgs.push(arguments[i]);
     }
     return aArgs.length === 0 ? null : aArgs;
-}
-
-var chainAddMethods = function (constructor, instance, methods) {
-    methods.forEach(function (method) {
-        constructor.prototype[method.fn.name] = function () {
-            instance.chainPush(
-                    new Method(
-                            method.callbackName == null ? null : method.callbackName,
-                            method.fn,
-                            argsToArray.apply(this, arguments)));
-            return this;
-        };
-    })
 };
 
 
@@ -75,14 +65,7 @@ Method.prototype.setAsPlaceholder = function () {
 
 // The function of the Placeholder returns the arguments passed to it
 Method.prototype.placeholderFn = function () {
-    var aArgs = [];
-    if (arguments.length === 1 && typeof arguments[0] === 'undefined') {
-        return aArgs;
-    }
-    for (var i = 0, l = arguments.length; i < l; i++) {
-        aArgs.push(arguments[i]);
-    }
-    return aArgs;
+    return argsToArray.apply(this,arguments);
 };
 
 // Returns an array of arguments that is to be passed to 'fn'
@@ -169,6 +152,19 @@ function MethodChainer(target) {
 // Inherit functions from 'EventEmitter' prototype
 util.inherits(MethodChainer, EventEmitter);
 
+MethodChainer.prototype.add = function (constructor, instance, methods) {
+    methods.forEach(function (method) {
+        constructor.prototype[method.fn.name] = function () {
+            instance.chainPush(
+                    new Method(
+                            method.callbackName == null ? null : method.callbackName,
+                            method.fn,
+                            argsToArray.apply(this, arguments)));
+            return this;
+        };
+    })
+};
+
 // Links 'method' to the current Method on the top of the methodStack
 //  and makes 'method' the topmost Method on methodStack
 MethodChainer.prototype.push = function (method) {
@@ -211,6 +207,11 @@ MethodChainer.prototype.run = function callbackFn() {
 function InheritChainerCalls() {
     this.methodChainer = new MethodChainer(this);
 }
+// Push a method onto the methodStack
+InheritChainerCalls.prototype.chainAdd = function (constructor, instance, methods) {
+    this.methodChainer.add(constructor, instance, methods);
+};
+
 
 // Push a method onto the methodStack
 InheritChainerCalls.prototype.chainPush = function (method) {
@@ -278,12 +279,11 @@ var implementation = [
             for (var i = 0; i < 10; i++) {
                 console.log('tryit10 at number: %d', i);
             }
+            console.log('start wait...');
             setTimeout(function () {
-                console.log('tryit10');
+                console.log('...done wait');
                 cb();
             }.bind(this), 4000);
-
-            console.log(this.hi1);
         }
     },
     {
@@ -311,10 +311,30 @@ var implementation = [
 ];
 
 var mine = new Mine();
-chainAddMethods(Mine, mine, implementation);
+mine.chainAdd(Mine, mine, implementation);
 
 
-var achain = mine.hi1().hi2('hi kim').tryit10().readMyFile('./logs/myfile.json').processMyFile().tryit2();
-achain.chainRun();
+mine
+        .hi1()
+        .hi2('hi kim')
+        .hi2('hi kim')
+        .tryit10()
+        .readMyFile('./logs/myfile.json')
+        .processMyFile()
+        .hi3()
+        .tryit2()
+        .tryit10();
+
+mine
+        .hi1()
+        .hi2('hi kim')
+        .hi2('hi kim')
+        .tryit10()
+        .readMyFile('./logs/myfile.json')
+        .processMyFile()
+        .hi3()
+        .tryit2()
+        .tryit10()
+        .chainRun();
 
 
