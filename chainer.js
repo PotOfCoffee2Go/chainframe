@@ -7,7 +7,7 @@ const util = require('util');
 const fs = require('fs');
 const EventEmitter = require('events');
 
-// Convert arguments to an array
+// Generic function that converts arguments to an array
 var argsToArray = function () {
     var aArgs = [];
     // when there is an arguments with no defined values - return null
@@ -31,7 +31,7 @@ var argsToArray = function () {
  * @constructor
  */
 function Method(callbackName, fn, aArgs) {
-    // !important - order of execution makes a difference
+    // !important - the order the statements below are executed makes a difference
     this.setAsPlaceholder();
     if (typeof callbackName === 'undefined') return;
 
@@ -40,9 +40,11 @@ function Method(callbackName, fn, aArgs) {
     this.fn = fn || this.placeholderFn;
     this.aArgs = aArgs || null;
 
+    // Extract the 'fn' function signature into array so we can pass parameters in proper places
     this.fnSig = this.fn.toString().split('\n')[0];
-    this.fnSig = this.fnSig.slice(this.fnSig.indexOf('(') + 1).replace(') {\r', '').replace(/\s/g, '').split(",");
+    this.fnSig = /\((.*?)\)/.exec(this.fnSig)[1].replace(/\s/g, '').split(",");
 
+    // Find the name of the callback in the signature - throw error if not found
     if (this.callbackName && this.fnSig.indexOf(this.callbackName) === -1) {
         throw new Error('CallbackName:"' + this.callbackName + '" is not in "'
                 + this.fn.toString().split('\n')[0].replace(' {\r', '') + '"');
