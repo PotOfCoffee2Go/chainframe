@@ -1,5 +1,5 @@
 {
-  "name": "chain-man",
+  "name": "chainframe",
   "version": "0.5.0",
   "description": "Provides method chaining for asynchronous and synchronous functions",
   "main": "chainer.js",
