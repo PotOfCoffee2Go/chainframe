@@ -2,107 +2,125 @@
  * Created by PotOfCoffee2Go on 1/11/2016.
  *
  */
-"use strict";
+'use strict'; // always!
 
-var util = require('util');
-var fs = require('fs');
-var InheritChainerCalls = require('../chainer').InheritChainerCalls;
-
+// util needed to inherit ChainFrame prototype functions
+//  and of course - we require ChainFrame itself
+const util = require('util');
+const ChainFrame = require('../chainer').ChainFrame;
 
 /*************************************
- * Test of chainable object
+ * Define Test object of chainable objects
+ *  Minimum requied to implement ChainFrame
+ *   (of course, you can add additional variables for storing stuff)
  * @constructor
  */
-function Mine() {
-    InheritChainerCalls.call(this);
+function Test() {
+    // Init inherited ChainFrame object
+    ChainFrame.call(this);
 }
-// Inherit functions from InheritChainerCalls prototype
-util.inherits(Mine, InheritChainerCalls);
+// Inherit functions from ChainFrame's prototype
+util.inherits(Test, ChainFrame);
+/*************************************/
 
-var implementation = [
-    {
-        fn: function hi1(lastguy) {
-            console.log('hi1');
-            return 'hi1';
-        }
-    },
-    {
-        callbackName: 'callback',
-        fn: function hi2(lastguy, callback) {
-            console.log('wait a bit...');
-            setTimeout(function () {
-                console.log('last guy: ' + lastguy);
-                console.log('hi2');
-                console.log('...done waiting');
-                callback('hi2');
-            }.bind(this), 4000);
-            return 'hi2';
-        }
-    },
-    {
-        fn: function hi3(lastguy) {
-            console.log('last guy: ' + lastguy);
-            console.log('hi3');
-            return 'hi3';
-        }
-    },
-    {
-        fn: function hi4(lastguy) {
-            console.log('last guy: ' + lastguy);
-            console.log('hi4');
-            return 'hi4';
-        }
-    },
-    {
-        callbackName: 'cb',
-        fn: function tryit10(cb) {
-            for (var i = 0; i < 10; i++) {
-                console.log('tryit10 at number: %d', i);
-            }
-            console.log('start wait...');
-            setTimeout(function () {
-                console.log('...done wait');
-                cb();
-            }.bind(this), 4000);
-        }
-    },
-    {
-        fn: function tryit2() {
-            for (var i = 0; i < 2; i++) {
-                console.log('tryit2 at number: %d', i);
-            }
-        }
-    },
-    {
-        callbackName: 'cb',
-        fn: function readMyFile(inFilePath, cb) {
-            console.log('read the file: %s', inFilePath);
-            fs.readFile(inFilePath, cb);
-        }
-    },
-    {
-        fn: function processMyFile(err, data) {
-            if (err) throw err;
-            var MyData = JSON.parse(data);
-            console.log('what was read :');
-            console.log(util.inspect(MyData));
+
+// We'll be reading a file
+var fs = require('fs');
+
+// Define chainable functions
+//  The function name defined in variable 'fn' is important - it will be used as the 'chain' name.
+//   For example, the first two functions below ('function1' and 'function2') are chained 
+//   by the statement 'test.function1().function2()'
+
+//   The values returned by functions will be passed to the next Method in your chain
+
+//   For asynchronous functions, the 'callbackParam' informs ChainFrame the parameter which is
+//     the callback called by the async function when complete.
+//   The absence of the 'callbackParam' variable indicates the function is synchronous
+
+//   Also note: 'this' by default is the instance of your Test object. Of course, you can use 
+//    javascript's 'bind' to change as needed.
+
+var testMethods = [{
+    fn: function function1(previousMethod) {
+        console.log('---------------');
+        console.log('Chain to sync Method - function1');
+        console.log('Previous method returned: ' + previousMethod);
+        return 'value returned by function1';
+    }
+}, {
+    callbackParam: 'callback',
+    fn: function function2(previousMethod, callback) {
+        console.log('---------------');
+        console.log('Chain to async Method - function2');
+        console.log('Previous method returned: ' + previousMethod);
+        console.log('wait 4 seconds...');
+        setTimeout(function() {
+            console.log('...done waiting');
+            callback('value returned by function2');
+        }.bind(this), 4000);
+    }
+}, {
+    callbackParam: 'cb',
+    fn: function repeat10Async(cb) {
+        console.log('---------------');
+        console.log('Chain to async Method - repeat10Async');
+        console.log('Repeat a function 10 times....');
+        var interval = null, intervalCounter = 0;
+        var repeatFn = function(){
+             if(intervalCounter++ <= 9) {
+                  console.log('     number: %d', intervalCounter);
+             } else {
+                    clearInterval(interval);
+                    console.log('...repeating done');
+                    cb();
+             }
+        };
+        interval = setInterval(repeatFn,1000)
+    }
+}, {
+    fn: function repeat2Sync() {
+        console.log('---------------');
+        console.log('Chain to sync Method - repeat2Sync');
+        for (var i = 1; i < 3; i++) {
+            console.log('     number: %d', i);
         }
     }
-];
+}, {
+    callbackParam: 'cb',
+    fn: function readTestFile(inFilePath, cb) {
+        console.log('---------------');
+        console.log('Chain to async Method - readTestFile');
+        console.log('Read the file: %s', inFilePath);
+        console.log("  and pass fs.readFile()'s callback arguments (err, data) to next in chain");
+        fs.readFile(inFilePath, cb);
+    }
+}, {
+    fn: function displayTestFile(err, data) {
+        console.log('---------------');
+        console.log('Chain to sync Method - displayTestFile');
+        if (err) throw err;
+        var MyData = JSON.parse(data);
+        console.log('Content read :');
+        console.log(util.inspect(MyData));
+    }
+}];
 
-var mine = new Mine();
-mine.chainAdd(Mine, mine, implementation);
+// Create an instance of 'Test' object
+var test = new Test();
+// Add the functions defined in 'testMethods' to the instance
+//  @param Test is the constructor
+//  @param test is the instance
+//  @param testMethods is an Array of chainable functions
+test.chainFrameAdd(Test, test, testMethods);
 
-
-mine
-        .hi1()
-        .hi2()
-        .hi2('hi kim')
-        .tryit10()
-        .readMyFile('../logs/myfile.json')
-        .processMyFile()
-        .hi3()
-        .tryit2()
-        .tryit10()
-        .chainRun();
-
+// Run a chain
+test
+    .function1()
+    .function2()
+    .function2('arguments overridden - see the chain!')
+    .repeat10Async()
+    .readTestFile('./test.json')
+    .displayTestFile()
+    .repeat2Sync()
+    .chainRun();
