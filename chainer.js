@@ -150,19 +150,6 @@ function MethodChainer(target) {
 // Inherit functions from 'EventEmitter' prototype
 util.inherits(MethodChainer, EventEmitter);
 
-MethodChainer.prototype.add = function (constructor, methods) {
-    methods.forEach(function (method) {
-        constructor.prototype[method.fn.name] = function () {
-            this.chainPush(
-                    new Method(
-                            method.callbackParam == null ? null : method.callbackParam,
-                            method.fn,
-                            argsToArray.apply(this, arguments)));
-            return this;
-        };
-    })
-};
-
 // Links 'method' to the current Method on the top of the methodStack
 //  and makes 'method' the topmost Method on methodStack
 MethodChainer.prototype.push = function (method) {
@@ -208,15 +195,22 @@ MethodChainer.prototype.run = function callbackFn() {
  */
 exports.ChainFrame = function (ctor, methods) {
     this._methodChainer = new MethodChainer(this);
-    this.chainFrameAddPrototype(ctor, methods);
 };
 
 // Add methods to the chain framework
-exports.ChainFrame.prototype.chainFrameAddPrototype = function (ctor, methods) {
+exports.ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
    // Add the functions defined in 'methods' array to prototype
-    this._methodChainer.add(ctor, methods);
+    methods.forEach(function (method) {
+        ctor.prototype[method.fn.name] = function () {
+            this.chainPush(
+                    new Method(
+                            method.callbackParam == null ? null : method.callbackParam,
+                            method.fn,
+                            argsToArray.apply(this, arguments)));
+            return this;
+        };
+    })
 };
-
 
 // Push a method onto the chainer's methodStack
 exports.ChainFrame.prototype.chainPush = function (method) {

@@ -87,15 +87,6 @@ var testMethods = [
     }
 }];
 
-
-var test2Methods = [{
-    fn: function function123() {
-        console.log('---------------');
-        console.log('Chain to sync Method - function1');
-        return 'Doctor Who';
-    }
-}];
-
 /*************************************
  *  Test object inherits ChainFrame
  *
@@ -104,12 +95,15 @@ var test2Methods = [{
  */
 function Test() {
     // Init inherited ChainFrame object
-    ChainFrame.call(this,Test,testMethods);
+    ChainFrame.call(this);
 }
 // Inherit functions from ChainFrame's prototype
 Test.prototype = Object.create(ChainFrame.prototype);
 // Set Test as the constructor
 Test.prototype.constructor = Test;
+// Add to prototype methods defined in testMethods
+Test.prototype.chainFrameAddPrototypes.call(new Test(), Test, testMethods);
+
 /*************************************/
 
 // Create an instance of Test
