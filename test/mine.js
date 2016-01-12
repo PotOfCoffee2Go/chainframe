@@ -4,7 +4,7 @@
  */
 'use strict'; // always!
 
-const ChainFrame = require('../chainer').ChainFrame;
+const ChainFrame = require('../chainframe').ChainFrame;
 
 // We'll be reading a file
 const fs = require('fs');
@@ -14,80 +14,86 @@ const fs = require('fs');
 //   For example, the first two functions below ('function1' and 'function2') are chained 
 //   by the statement 'test.function1().function2()'
 
-//   Values returned will be passed to the next Method in your chain.
+//   Values returned will be passed to the next Method in the chain.
 
-//   For asynchronous functions, the 'callbackParam' is the name of the callback parameter.
+//   For asynchronous functions, 'callbackParam' is the name of the callback parameter.
+//   ChainFrame passes its own function in that parameter to process the callback
+
 //   The absence of the 'callbackParam' variable indicates the function is synchronous
 
-//   Also note: 'this' by default is the instance of your object inherited from ChainFrame.
+//   Also note: 'this' by default is the instance of your object.
 //    Of course, you can use javascript's 'bind' to change as needed.
 
 var testMethods = [
-{
-    fn: function function1() {
-        console.log('---------------');
-        console.log('Chain to sync Method - function1');
-        return 'This string was returned by function1';
-    }
-}, {
-    callbackParam: 'callback',
-    fn: function function2(previousMethodResults, callback) {
-        console.log('---------------');
-        console.log('Chain to async Method - function2');
-        console.log('Previous method returned: ' + previousMethodResults);
-        console.log('wait 4 seconds...');
-        setTimeout(function() {
-            console.log('...done waiting');
-            callback('This string was returned by function2');
-        }.bind(this), 4000);
-    }
-}, {
-    callbackParam: 'cb',
-    fn: function repeat10Async(cb) {
-        console.log('---------------');
-        console.log('Chain to async Method - repeat10Async');
-        console.log('Repeat a function 10 times...');
-        var interval = null, intervalCounter = 0;
-        var repeatFn = function(){
-             if(intervalCounter++ <= 9) {
-                  console.log('     number: %d', intervalCounter);
-             } else {
+    {    // Synchronous function named 'function1'
+        fn: function function1(text1, text2) {
+            console.log('---------------');
+            console.log('text1: %s text2: %s', text1, text2);
+            console.log('Chain to sync Method - function1');
+            return text1 + ' ' + text2;
+        }
+    }, { // Asynchronous function named 'function2'
+         //  The callback parameter is 'allDone'
+        callbackParam: 'allDone',
+        fn: function function2(previousMethodResults, allDone) {
+            console.log('---------------');
+            console.log('Chain to async Method - function2');
+            console.log('Previous method returned: ' + previousMethodResults);
+            console.log('wait 4 seconds...');
+            setTimeout(function () {
+                console.log('...done waiting');
+                allDone(previousMethodResults);
+            }.bind(this), 4000);
+        }
+    }, {
+        callbackParam: 'cb',
+        fn: function repeat10Async(cb) {
+            console.log('---------------');
+            console.log('Chain to async Method - repeat10Async');
+            console.log('Repeat a function 10 times...');
+            var interval = null, intervalCounter = 0;
+            var repeatFn = function () {
+                if (intervalCounter++ <= 9) {
+                    console.log('     number: %d', intervalCounter);
+                } else {
                     clearInterval(interval);
                     console.log('...repeating done');
                     cb();
-             }
-        };
-        interval = setInterval(repeatFn,1000)
-    }
-}, {
-    fn: function repeat2Sync() {
-        console.log('---------------');
-        console.log('Chain to sync Method - repeat2Sync');
-        for (var i = 1; i < 3; i++) {
-            console.log('     number: %d', i);
+                }
+            };
+            interval = setInterval(repeatFn, 1000)
         }
-    }
-}, {
-    callbackParam: 'cb',
-    fn: function readTestFile(inFilePath, cb) {
-        console.log('---------------');
-        console.log('Chain to async Method - readTestFile');
-        console.log('Read the file: %s', inFilePath);
-        console.log("  and pass fs.readFile()'s callback arguments (err, data) to next in chain");
-        fs.readFile(inFilePath, cb);
-    }
-}, {
-    fn: function displayTestFile(err, data) {
-        console.log('---------------');
-        console.log('Chain to sync Method - displayTestFile');
-        if (err) throw err;
-        var MyData = JSON.parse(data);
-        console.log('Content read :');
-        console.log(MyData);
-    }
-}];
+    }, {
+        fn: function repeat2Sync() {
+            console.log('---------------');
+            console.log('Chain to sync Method - repeat2Sync');
+            for (var i = 1; i < 3; i++) {
+                console.log('     number: %d', i);
+            }
+        }
+    }, {
+        callbackParam: 'cb',
+        fn: function readTestFile(inFilePath, cb) {
+            console.log('---------------');
+            console.log('Chain to async Method - readTestFile');
+            console.log('Read the file: %s', inFilePath);
+            console.log("  and pass fs.readFile()'s callback arguments (err, data) to next in chain");
+            fs.readFile(inFilePath, cb);
+        }
+    }, {
+        fn: function displayTestFile(err, data) {
+            console.log('---------------');
+            console.log('Chain to sync Method - displayTestFile');
+            if (err) throw err;
+            var MyData = JSON.parse(data);
+            console.log('Content read :');
+            console.log(MyData);
+        }
+    }];
 
 /*************************************
+
+ /*************************************
  *  Test object inherits ChainFrame
  *
  * Declare 'Test' as object of chainable methods
@@ -102,7 +108,7 @@ Test.prototype = Object.create(ChainFrame.prototype);
 // Set Test as the constructor
 Test.prototype.constructor = Test;
 // Add to prototype methods defined in testMethods
-Test.prototype.chainFrameAddPrototypes.call(new Test(), Test, testMethods);
+Test.prototype.chainFrameAddPrototypes.call(void 0, Test, testMethods);
 
 /*************************************/
 
@@ -111,12 +117,12 @@ var test = new Test();
 
 // Run a chain
 test
-    .function1()
-    .function2()
-    .function2()
-    .function2('the old ball and chain')
-    .repeat10Async()
-    .readTestFile('./test.json')
-    .displayTestFile()
-    .repeat2Sync()
-    .chainRun();
+        .function1('hello', 'world')
+        .function2()
+        .function2()
+        .function2('the old ball and chain')
+        .repeat10Async()
+        .readTestFile('../test/test.json')
+        .displayTestFile()
+        .repeat2Sync()
+        .chainRun();
