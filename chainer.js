@@ -7,7 +7,7 @@ const util = require('util');
 const fs = require('fs');
 const EventEmitter = require('events');
 
-// Generic function that converts arguments to an array
+// Converts arguments to an array
 var argsToArray = function () {
     var aArgs = [];
     // when there is an arguments with no defined values - return null
@@ -31,13 +31,15 @@ var argsToArray = function () {
  * @constructor
  */
 function Method(callbackName, fn, aArgs) {
-    // !important - the order the statements below are executed makes a difference
+    // !important - the order of statements below make a difference
     this.setAsPlaceholder();
+
+    // Method() without arguments returns a placeholder
     if (typeof callbackName === 'undefined') return;
 
     this.callbackName = callbackName;
     this.callbackName = this.callbackName === '' ? null : this.callbackName;
-    this.fn = fn || this.placeholderFn;
+    this.fn = fn || this.fn;
     this.aArgs = aArgs || null;
 
     // Extract the 'fn' function signature into array so we can pass parameters in proper places
@@ -59,15 +61,10 @@ function Method(callbackName, fn, aArgs) {
 Method.prototype.setAsPlaceholder = function () {
     this.prevMethod = null;
     this.callbackName = null;
-    this.fn = this.placeholderFn;
+    this.fn = function () {return argsToArray.apply(this, arguments);};
     this.aArgs = null;
     this.isAsync = false;
     this.fnSig = [];
-};
-
-// The function of the Placeholder returns the arguments passed to it
-Method.prototype.placeholderFn = function () {
-    return argsToArray.apply(this,arguments);
 };
 
 // Returns an array of arguments that is to be passed to 'fn'
@@ -206,137 +203,31 @@ MethodChainer.prototype.run = function callbackFn() {
  *  inherit into your subtypes for easy access to MethodChainer
  * @constructor
  */
-function InheritChainerCalls() {
+exports.InheritChainerCalls = function InheritChainerCalls() {
     this.methodChainer = new MethodChainer(this);
-}
+};
+
 // Push a method onto the methodStack
-InheritChainerCalls.prototype.chainAdd = function (constructor, instance, methods) {
+exports.InheritChainerCalls.prototype.chainAdd = function (constructor, instance, methods) {
     this.methodChainer.add(constructor, instance, methods);
 };
 
 
 // Push a method onto the methodStack
-InheritChainerCalls.prototype.chainPush = function (method) {
+exports.InheritChainerCalls.prototype.chainPush = function (method) {
     this.methodChainer.push(method);
 };
 
 // Run Methods on the methodStack
-InheritChainerCalls.prototype.chainRun = function (method) {
+exports.InheritChainerCalls.prototype.chainRun = function (method) {
     this.methodChainer.run(method);
 };
 
 // Emit an add, push, or run event to MethodChainer - does same as functions above
-InheritChainerCalls.prototype.chainEmit = function (eventName, method) {
+exports.InheritChainerCalls.prototype.chainEmit = function (eventName, method) {
     this.methodChainer.emit(eventName, method);
 };
 
 
-/*************************************
- * Test of chainable object
- * @constructor
- */
-function Mine() {
-    InheritChainerCalls.call(this);
-}
-// Inherit functions from InheritChainerCalls prototype
-util.inherits(Mine, InheritChainerCalls);
-
-var implementation = [
-    {
-        fn: function hi1(lastguy) {
-            console.log('hi1');
-            return 'hi1';
-        }
-    },
-    {
-        callbackName: 'callback',
-        fn: function hi2(lastguy, callback) {
-            console.log('wait a bit...');
-            setTimeout(function () {
-                console.log('last guy: ' + lastguy);
-                console.log('hi2');
-                console.log('...done waiting');
-                callback('hi2');
-            }.bind(this), 4000);
-            return 'hi2';
-        }
-    },
-    {
-        fn: function hi3(lastguy) {
-            console.log('last guy: ' + lastguy);
-            console.log('hi3');
-            return 'hi3';
-        }
-    },
-    {
-        fn: function hi4(lastguy) {
-            console.log('last guy: ' + lastguy);
-            console.log('hi4');
-            return 'hi4';
-        }
-    },
-    {
-        callbackName: 'cb',
-        fn: function tryit10(cb) {
-            for (var i = 0; i < 10; i++) {
-                console.log('tryit10 at number: %d', i);
-            }
-            console.log('start wait...');
-            setTimeout(function () {
-                console.log('...done wait');
-                cb();
-            }.bind(this), 4000);
-        }
-    },
-    {
-        fn: function tryit2() {
-            for (var i = 0; i < 2; i++) {
-                console.log('tryit2 at number: %d', i);
-            }
-        }
-    },
-    {
-        callbackName: 'cb',
-        fn: function readMyFile(inFilePath, cb) {
-            console.log('read the file: %s', inFilePath);
-            fs.readFile(inFilePath, cb);
-        }
-    },
-    {
-        fn: function processMyFile(err, data) {
-            if (err) throw err;
-            var MyData = JSON.parse(data);
-            console.log('what was read :');
-            console.log(util.inspect(MyData));
-        }
-    }
-];
-
-var mine = new Mine();
-mine.chainAdd(Mine, mine, implementation);
-
-
-mine
-        .hi1()
-        .hi2('hi kim')
-        .hi2('hi kim')
-        .tryit10()
-        .readMyFile('./logs/myfile.json')
-        .processMyFile()
-        .hi3()
-        .tryit2()
-        .tryit10();
-
-mine
-        .hi1()
-        .hi2('hi kim')
-        .hi2('hi kim')
-        .tryit10()
-        .readMyFile('./logs/myfile.json')
-        .processMyFile()
-        .hi3()
-        .tryit2()
-        .tryit10()
-        .chainRun();
 
 
