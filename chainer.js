@@ -150,10 +150,10 @@ function MethodChainer(target) {
 // Inherit functions from 'EventEmitter' prototype
 util.inherits(MethodChainer, EventEmitter);
 
-MethodChainer.prototype.add = function (constructor, instance, methods) {
+MethodChainer.prototype.add = function (constructor, methods) {
     methods.forEach(function (method) {
         constructor.prototype[method.fn.name] = function () {
-            instance.chainPush(
+            this.chainPush(
                     new Method(
                             method.callbackParam == null ? null : method.callbackParam,
                             method.fn,
@@ -206,13 +206,15 @@ MethodChainer.prototype.run = function callbackFn() {
  * Inherit into your subtypes for easy access to MethodChainer
  * @constructor
  */
-exports.ChainFrame = function () {
+exports.ChainFrame = function (ctor, methods) {
     this._methodChainer = new MethodChainer(this);
+    this.chainFrameAddPrototype(ctor, methods);
 };
 
 // Add methods to the chain framework
-exports.ChainFrame.prototype.chainFrameAdd = function (constructor, instance, methods) {
-    this._methodChainer.add(constructor, instance, methods);
+exports.ChainFrame.prototype.chainFrameAddPrototype = function (ctor, methods) {
+   // Add the functions defined in 'methods' array to prototype
+    this._methodChainer.add(ctor, methods);
 };
 
 
