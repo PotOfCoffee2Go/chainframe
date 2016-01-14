@@ -63,7 +63,6 @@ Method.prototype.setAsPlaceholder = function () {
     this.callbackParam = null;
     this.fn = function () {return argsToArray.apply(this, arguments);};
     this.aArgs = null;
-    this.isAsync = false;
     this.fnSig = [];
 };
 
@@ -125,11 +124,11 @@ Method.prototype.run = function (target, stackControl) {
 };
 
 /*************************************
- * Returns MethodChainer object that maintains the Method List and Method Stack
+ * Returns MethodStack object that maintains the chained Methods in a linked list
  * @param target    Methods will be bound (ie: 'this') to 'target' object
  * @constructor
  */
-function MethodChainer(target) {
+function MethodStack(target) {
     // Methods will be bound ('this') to target object
     this.target = target;
 
@@ -148,17 +147,18 @@ function MethodChainer(target) {
 }
 
 // Inherit functions from 'EventEmitter' prototype
-util.inherits(MethodChainer, EventEmitter);
+MethodStack.prototype = Object.create(EventEmitter.prototype);
+MethodStack.prototype.constructor = MethodStack;
 
 // Links 'method' to the current Method on the top of the methodStack
 //  and makes 'method' the topmost Method on methodStack
-MethodChainer.prototype.push = function (method) {
+MethodStack.prototype.push = function (method) {
     method.prevMethod = this.methodStack;
     this.methodStack = method;
 };
 
 // Sequentially run Methods from the first (bottom) Method of methodStack to the last (top)
-MethodChainer.prototype.run = function callbackFn() {
+MethodStack.prototype.run = function callbackFn() {
     // got arguments from the previous Method executed
     //  so place them in the aArgs variable of the placeholder Method first in the stack
     //  of the methodStack
@@ -176,7 +176,7 @@ MethodChainer.prototype.run = function callbackFn() {
     }
     // pass callback function into stackControl that is to be used to resume processing methodStack
     //  if/when an asynchronous funtion is encountered
-    //  note: the callback is myself - MethodChainer.prototype.run()
+    //  note: the callback is myself - MethodStack.prototype.run()
     var stackControl = {
         callbackFn: this.run.bind(this) 
     };
@@ -189,16 +189,18 @@ MethodChainer.prototype.run = function callbackFn() {
 };
 
 /*************************************
- * Exported object that has commonly used MethodChainer functions in its prototype
- * Inherit into your subtypes for easy access to MethodChainer
+ * Exported object that has commonly used MethodStack functions in its prototype
+ * Inherit into your subtypes for easy access to MethodStack
  * @constructor
  */
-exports.ChainFrame = function (ctor, methods) {
-    this._methodChainer = new MethodChainer(this);
+ function ChainFrame (ctor, methods) {
+    this._MethodStack = new MethodStack(this);
 };
 
-// Add methods to the chain framework
-exports.ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
+// Mechanism executed when javascript processes the chained statement
+// Create prototype functions that add methods to the chain framework method stack
+// Returns 'this' which is required for javascript to process the chain
+ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
    // Add the functions defined in 'methods' array to prototype
     methods.forEach(function (method) {
         ctor.prototype[method.fn.name] = function () {
@@ -213,11 +215,13 @@ exports.ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) 
 };
 
 // Push a method onto the chainer's methodStack
-exports.ChainFrame.prototype.chainPush = function (method) {
-    this._methodChainer.push(method);
+ChainFrame.prototype.chainPush = function (method) {
+    this._MethodStack.push(method);
 };
 
 // Run Methods on the chainer's methodStack
-exports.ChainFrame.prototype.chainRun = function (method) {
-    this._methodChainer.run(method);
+ChainFrame.prototype.chainRun = function (method) {
+    this._MethodStack.run(method);
 };
+
+module.exports = ChainFrame;

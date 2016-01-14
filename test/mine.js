@@ -4,7 +4,7 @@
  */
 'use strict'; // always!
 
-const ChainFrame = require('../chainframe').ChainFrame;
+const ChainFrame = require('../chainframe');
 
 // We'll be reading a file
 const fs = require('fs');
