@@ -2,14 +2,12 @@
  * Created by PotOfCoffee2Go on 1/11/2016.
  *
  */
-'use strict'; // always!
+'use strict';
 
+// 
 const ChainFrame = require('../chainframe');
 
-// We'll be reading a file
-const fs = require('fs');
-
-// Define chainable functions
+// Define some functions 
 //  The function name defined in variable 'fn' is important as it will be used as the 'chain' name.
 //   For example, the first two functions below ('function1' and 'function2') are chained 
 //   by the statement 'test.function1().function2()'
@@ -23,6 +21,8 @@ const fs = require('fs');
 
 //   Also note: 'this' by default is the instance of your object.
 //    Of course, you can use javascript's 'bind' to change as needed.
+
+const fs = require('fs');
 
 var testMethods = [
     {    // Synchronous function named 'function1'
@@ -70,6 +70,7 @@ var testMethods = [
             for (var i = 1; i < 3; i++) {
                 console.log('     number: %d', i);
             }
+            return '2';
         }
     }, {
         callbackParam: 'cb',
@@ -91,7 +92,12 @@ var testMethods = [
         }
     }];
 
-/*************************************
+/*************************************/
+function function3(nbr) {
+    console.log('---------------');
+    console.log('Chain to sync Method - function3');
+    console.log('Got the number ' + nbr);
+}
 
  /*************************************
  *  Test object inherits ChainFrame
@@ -109,6 +115,16 @@ Test.prototype = Object.create(ChainFrame.prototype);
 Test.prototype.constructor = Test;
 // Add to prototype methods defined in testMethods
 Test.prototype.chainFrameAddPrototypes.call(void 0, Test, testMethods);
+// Add to prototype methods defined in testMethods
+Test.prototype.chainFrameAddPrototypes.call(void 0, Test, function3);
+// Add to prototype another method
+Test.prototype.chainFrameAddPrototypes.call(void 0, Test,     
+    {    // Synchronous function named 'function4'
+        fn: function function4() {
+            console.log('---------------');
+            console.log('Chain to sync Method - function4');
+    }
+});
 
 /*************************************/
 
@@ -125,4 +141,6 @@ test
         .readTestFile('../test/test.json')
         .displayTestFile()
         .repeat2Sync()
+        .function3()
+        .function4()
         .chainRun();

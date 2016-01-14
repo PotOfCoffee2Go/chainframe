@@ -1,13 +1,12 @@
 /**
  *
  */
-'use strict'; // always!
+'use strict';
 
-const util = require('util');
 const EventEmitter = require('events');
 
 // Converts arguments to an array
-var argsToArray = function () {
+function argsToArray() {
     var aArgs = [];
     // when there are an arguments but no defined values - return null
     if (arguments.length === 1 && typeof arguments[0] === 'undefined') {
@@ -20,7 +19,6 @@ var argsToArray = function () {
     // return the Array or null when no arguments
     return aArgs.length === 0 ? null : aArgs;
 };
-
 
 /*************************************
  * Returns a Method object which can be chained with other Method objects
@@ -43,11 +41,13 @@ function Method(callbackParam, fn, aArgs) {
     this.aArgs = aArgs || null;
 
     // Extract the 'fn' function signature into array so we can pass parameters in proper places
-    this.fnSig = this.fn.toString().split('\n')[0];
-    this.fnSig = /\((.*?)\)/.exec(this.fnSig)[1].replace(/\s/g, '').split(",");
+    // Parse what is in parentheses into an Array.
+    //  ie: 'function (param1, param2, param3)'' into ['param1', 'param2', 'param3']
+    this.signature = this.fn.toString().split('\n')[0];
+    this.signature = /\((.*?)\)/.exec(this.signature)[1].replace(/\s/g, '').split(",");
 
     // Find the name of the callback in the signature - throw error if not found
-    if (this.callbackParam && this.fnSig.indexOf(this.callbackParam) === -1) {
+    if (this.callbackParam && this.signature.indexOf(this.callbackParam) === -1) {
         throw new Error('CallbackName:"' + this.callbackParam + '" is not in "'
                 + this.fn.toString().split('\n')[0].replace(' {\r', '') + '"');
     }
@@ -63,7 +63,7 @@ Method.prototype.setAsPlaceholder = function () {
     this.callbackParam = null;
     this.fn = function () {return argsToArray.apply(this, arguments);};
     this.aArgs = null;
-    this.fnSig = [];
+    this.signature = [];
 };
 
 // Returns an array of arguments that is to be passed to 'fn'
@@ -72,7 +72,7 @@ Method.prototype.getArguments = function (prevResult) {
     // if aArgs not null then insure that it is an Array - if not an Array make it one
     if (this.aArgs != null) {
         if (Object.prototype.toString.call(this.aArgs) !== '[object Array]') {
-            this.aArgs = this.aArgs == null ? [] : new Array(this.aArgs);
+            this.aArgs = new Array(this.aArgs);
         }
     }
     // similarly, if prevResult not an Array - make it one
@@ -87,7 +87,7 @@ Method.prototype.getArguments = function (prevResult) {
 // Insert the given callback function into the Method argument list
 Method.prototype.insertCallbackOntoArguments = function (callbackFn) {
 
-    var idx = this.fnSig.indexOf(this.callbackParam);
+    var idx = this.signature.indexOf(this.callbackParam);
     if (idx !== -1) {
         this.aArgs[idx] = callbackFn;
     }
@@ -193,7 +193,7 @@ MethodStack.prototype.run = function callbackFn() {
  * Inherit into your subtypes for easy access to MethodStack
  * @constructor
  */
- function ChainFrame (ctor, methods) {
+ function ChainFrame () {
     this._MethodStack = new MethodStack(this);
 };
 
@@ -201,6 +201,13 @@ MethodStack.prototype.run = function callbackFn() {
 // Create prototype functions that add methods to the chain framework method stack
 // Returns 'this' which is required for javascript to process the chain
 ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
+        console.log(Object.prototype.toString.call(methods));
+    if (Object.prototype.toString.call(methods) === '[object Function]') {
+        methods = new Array({fn:methods});
+    }
+    if (Object.prototype.toString.call(methods) !== '[object Array]') {
+        methods = new Array(methods);
+    }
    // Add the functions defined in 'methods' array to prototype
     methods.forEach(function (method) {
         ctor.prototype[method.fn.name] = function () {
@@ -214,14 +221,14 @@ ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
     })
 };
 
-// Push a method onto the chainer's methodStack
+// Push a method onto the method stack
 ChainFrame.prototype.chainPush = function (method) {
     this._MethodStack.push(method);
 };
 
-// Run Methods on the chainer's methodStack
-ChainFrame.prototype.chainRun = function (method) {
-    this._MethodStack.run(method);
+// Run Methods on the method stack
+ChainFrame.prototype.chainRun = function () {
+    this._MethodStack.run();
 };
 
 module.exports = ChainFrame;
