@@ -200,7 +200,7 @@ MethodStack.prototype.run = function callbackFn() {
 // Mechanism executed when javascript processes the chained statement
 // Create prototype functions that add methods to the chain framework method stack
 // Returns 'this' which is required for javascript to process the chain
-ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
+ChainFrame.prototype.addChainPrototype = function (ctor, methods) {
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({fn:methods});
     }

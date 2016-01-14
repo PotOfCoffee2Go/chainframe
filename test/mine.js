@@ -114,11 +114,11 @@ Test.prototype = Object.create(ChainFrame.prototype);
 // Set Test as the constructor
 Test.prototype.constructor = Test;
 // Add to prototype methods defined in testMethods
-Test.prototype.chainFrameAddPrototypes.call(void 0, Test, testMethods);
+Test.prototype.addChainPrototype(Test, testMethods);
 // Add to prototype methods defined in testMethods
-Test.prototype.chainFrameAddPrototypes.call(void 0, Test, function3);
+Test.prototype.addChainPrototype(Test, function3);
 // Add to prototype another method
-Test.prototype.chainFrameAddPrototypes.call(void 0, Test,     
+Test.prototype.addChainPrototype(Test,     
     {    // Synchronous function named 'function4'
         fn: function function4() {
             console.log('---------------');
