@@ -70,7 +70,7 @@ var testMethods = [
             for (var i = 1; i < 3; i++) {
                 console.log('     number: %d', i);
             }
-            return '2';
+            return 2;
         }
     }, {
         callbackParam: 'cb',
@@ -96,7 +96,7 @@ var testMethods = [
 function function3(nbr) {
     console.log('---------------');
     console.log('Chain to sync Method - function3');
-    console.log('Got the number ' + nbr);
+    console.log('Got the number %d',nbr);
 }
 
  /*************************************

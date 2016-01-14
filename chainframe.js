@@ -71,13 +71,13 @@ Method.prototype.setAsPlaceholder = function () {
 Method.prototype.getArguments = function (prevResult) {
     // if aArgs not null then insure that it is an Array - if not an Array make it one
     if (this.aArgs != null) {
-        if (Object.prototype.toString.call(this.aArgs) !== '[object Array]') {
-            this.aArgs = new Array(this.aArgs);
+        if (Array.isArray(this.aArgs) === false) {
+            this.aArgs = Array.of(this.aArgs);
         }
     }
     // similarly, if prevResult not an Array - make it one
-    if (Object.prototype.toString.call(prevResult) !== '[object Array]') {
-        prevResult = prevResult == null ? [] : new Array(prevResult);
+    if (Array.isArray(prevResult) === false) {
+        prevResult = prevResult == null ? [] : Array.of(prevResult);
     }
     // use the arguments that were passed when the Method was created
     //   if none - use arguments that were returned by the previous Method
@@ -201,7 +201,6 @@ MethodStack.prototype.run = function callbackFn() {
 // Create prototype functions that add methods to the chain framework method stack
 // Returns 'this' which is required for javascript to process the chain
 ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
-        console.log(Object.prototype.toString.call(methods));
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({fn:methods});
     }
@@ -211,7 +210,7 @@ ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
    // Add the functions defined in 'methods' array to prototype
     methods.forEach(function (method) {
         ctor.prototype[method.fn.name] = function () {
-            this.chainPush(
+            this._MethodStack.push(
                     new Method(
                             method.callbackParam == null ? null : method.callbackParam,
                             method.fn,
@@ -219,11 +218,6 @@ ChainFrame.prototype.chainFrameAddPrototypes = function (ctor, methods) {
             return this;
         };
     })
-};
-
-// Push a method onto the method stack
-ChainFrame.prototype.chainPush = function (method) {
-    this._MethodStack.push(method);
 };
 
 // Run Methods on the method stack
