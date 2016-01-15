@@ -2,13 +2,13 @@
   "name": "chainframe",
   "version": "0.5.0",
   "description": "Provides method chaining for asynchronous and synchronous functions",
-  "main": "chainer.js",
+  "main": "chainframe.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "chain",
     "method",
+    "chain",
     "manager"
   ],
   "author": "PotOfCoffee2Go",

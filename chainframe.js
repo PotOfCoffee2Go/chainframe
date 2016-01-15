@@ -18,7 +18,7 @@ function argsToArray() {
     }
     // return the Array or null when no arguments
     return aArgs.length === 0 ? null : aArgs;
-};
+}
 
 /*************************************
  * Returns a Method object which can be chained with other Method objects
@@ -200,7 +200,7 @@ MethodStack.prototype.run = function callbackFn() {
 // Mechanism executed when javascript processes the chained statement
 // Create prototype functions that add methods to the chain framework method stack
 // Returns 'this' which is required for javascript to process the chain
-ChainFrame.prototype.addChainPrototype = function (ctor, methods) {
+ChainFrame.prototype.addChainable = function (ctor, methods) {
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({fn:methods});
     }
@@ -221,7 +221,7 @@ ChainFrame.prototype.addChainPrototype = function (ctor, methods) {
 };
 
 // Run Methods on the method stack
-ChainFrame.prototype.chainRun = function () {
+ChainFrame.prototype.runChain = function () {
     this._MethodStack.run();
 };
 
