@@ -43,8 +43,10 @@ function Method(callbackParam, fn, aArgs) {
     // Extract the 'fn' function signature into array so we can pass parameters in proper places
     // Parse what is in parentheses into an Array.
     //  ie: 'function (param1, param2, param3)'' into ['param1', 'param2', 'param3']
-    this.signature = this.fn.toString().split('\n')[0];
-    this.signature = /\((.*?)\)/.exec(this.signature)[1].replace(/\s/g, '').split(",");
+    if (this.callbackParam) {
+        this.signature = this.fn.toString().split('\n')[0];
+        this.signature = /\((.*?)\)/.exec(this.signature)[1].replace(/\s/g, '').split(",");
+    }
 
     // Find the name of the callback in the signature - throw error if not found
     if (this.callbackParam && this.signature.indexOf(this.callbackParam) === -1) {
@@ -178,7 +180,7 @@ MethodStack.prototype.run = function callbackFn() {
     //  if/when an asynchronous funtion is encountered
     //  note: the callback is myself - MethodStack.prototype.run()
     var stackControl = {
-        callbackFn: this.run.bind(this) 
+        callbackFn: this.run.bind(this)
     };
     // run the Method stack
     this.methodStack.run(this.target, stackControl);
@@ -193,21 +195,21 @@ MethodStack.prototype.run = function callbackFn() {
  * Inherit into your subtypes for easy access to MethodStack
  * @constructor
  */
- function ChainFrame () {
+function ChainFrame() {
     this._MethodStack = new MethodStack(this);
-};
+}
 
 // Mechanism executed when javascript processes the chained statement
 // Create prototype functions that add methods to the chain framework method stack
 // Returns 'this' which is required for javascript to process the chain
-ChainFrame.prototype.addChainable = function (ctor, methods) {
+ChainFrame.prototype.addPrototype = function (ctor, methods, callbackParam) {
     if (Object.prototype.toString.call(methods) === '[object Function]') {
-        methods = new Array({fn:methods});
+        methods = new Array({callbackParam: callbackParam, fn: methods});
     }
     if (Object.prototype.toString.call(methods) !== '[object Array]') {
         methods = new Array(methods);
     }
-   // Add the functions defined in 'methods' array to prototype
+    // Add the functions defined in 'methods' array to prototype
     methods.forEach(function (method) {
         ctor.prototype[method.fn.name] = function () {
             this._MethodStack.push(
@@ -218,11 +220,54 @@ ChainFrame.prototype.addChainable = function (ctor, methods) {
             return this;
         };
     })
+    return this;
+};
+
+// Mechanism executed when javascript processes the chained statement
+// Create prototype functions that add methods to the chain framework method stack
+// Returns 'this' which is required for javascript to process the chain
+ChainFrame.prototype.addMethod = function (methods, callbackParam) {
+    if (Object.prototype.toString.call(methods) === '[object Function]') {
+        methods = new Array({callbackParam: callbackParam, fn: methods});
+    }
+    if (Object.prototype.toString.call(methods) !== '[object Array]') {
+        methods = new Array(methods);
+    }
+    // Add the functions defined in 'methods' array to prototype
+    methods.forEach(function (method) {
+        this[method.fn.name] = function () {
+            this._MethodStack.push(
+                    new Method(
+                            method.callbackParam == null ? null : method.callbackParam,
+                            method.fn,
+                            argsToArray.apply(this, arguments)));
+            return this;
+        };
+    }.bind(this));
+    return this;
 };
 
 // Run Methods on the method stack
 ChainFrame.prototype.runChain = function () {
     this._MethodStack.run();
+    return this;
 };
+
+// Add event listener
+ChainFrame.prototype.on = function (event, fn) {
+    this._MethodStack.on(event, fn);
+    return this;
+};
+
+// emit event
+ChainFrame.prototype.emit = function () {
+    this._MethodStack.push(
+            new Method(
+                    null,
+                    function() {this._MethodStack.emit.apply(this._MethodStack, arguments)}.bind(this),
+                    argsToArray.apply(this, arguments)));
+    return this;
+};
+
 
 module.exports = ChainFrame;
