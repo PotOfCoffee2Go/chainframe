@@ -13,7 +13,10 @@ function show(text) {
     return text;
 }
 var counter = 0;
-function incCounter(){counter++;return counter;}
+function incCounter() {
+    counter++;
+    return counter;
+}
 
 function getPath() {return '../test/test.json';}
 function readFile(inFilePath, cb) {fs.readFile(inFilePath, cb);}
@@ -21,7 +24,7 @@ function showData(err, data) {
     if (err) throw err;
     show('Data read:');
     show(data.toString());
-    return 'showFile is done'
+    return ['myEvent', 'showFile is done']
 }
 
 function myEvent(data) {
@@ -32,43 +35,58 @@ function getMyEventData(data) {return ['myEvent', data];}
 var chain = new ChainFrame();
 chain
         .on('myEvent', myEvent)
-        .addMethod(show)
+        .addPrototype(ChainFrame, show)
         .addMethod(getPath)
         .addMethod(readFile, 'cb') // 'cb' is name of callback in signature of readFile(inFilePath,cb)
         .addMethod(showData)
         .addMethod(getMyEventData);
 
 // Run method chain:
-//chain.emitr('myEvent','Hi kim').runChain();
-for(var i=0; i < 100; i++) {
-    chain
-            .show(incCounter())
-            .getPath()
-            .show()
-            .readFile()
-            .showData()
-}
-for(var i=0; i < 100; i++) {
-    chain
-            .show(incCounter())
-            .getPath()
-            .show()
-            .readFile()
-            .showData()
-}
-chain.runChain();
 
+chain
+        .show('hi kim')
+        .getPath()
+        .readFile()
+        .showData()
+        .setChain('kimmy');
 
-console.log('--------------------------------------------');
+chain
+        .getChain('kimmy')
+        .getChain('kimmy')
+        .getChain('kimmy');
+chain
+        .runChain();
+
 /*
-for(var i=0; i < 10; i++) {
-    chain
-            .show(incCounter())
-            .getPath()
-            .show()
-            .readFile()
-            .showData()
-}
+ for(var i=0; i < 100; i++) {
+ chain
+ .show(incCounter())
+ .getPath()
+ .show()
+ .readFile()
+ .showData()
+ }
+ for(var i=0; i < 100; i++) {
+ chain
+ .show(incCounter())
+ .getPath()
+ .show()
+ .readFile()
+ .showData()
+ }
+ chain.runChain();
+
+
+ console.log('--------------------------------------------');
+
+ for(var i=0; i < 10; i++) {
+ chain
+ .show(incCounter())
+ .getPath()
+ .show()
+ .readFile()
+ .showData()
+ }
 
 
  setInterval(function () {
