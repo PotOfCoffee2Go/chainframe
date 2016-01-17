@@ -6,12 +6,11 @@
  *   * MethodStack  - lists of Method chains
  *   * ChainFrame   - contains reference to MethodStack
  *                     and functions exposed to users of the module
- *
  */
 
 'use strict';
 
-// Helper function to convert arguments to Array
+// Helper function to convert arguments to an Array
 //   arguments is 'almost' a JavaScript Array,
 //   returns arguments as an 'actual' JavaScript array
 function argumentsToArray() {
@@ -28,7 +27,7 @@ function argumentsToArray() {
     return aArgs.length === 0 ? null : aArgs;
 }
 
-/*************************************
+/**************************************************************************
  * Method
  *  object which can be chained with other Method objects
  *
@@ -68,6 +67,17 @@ function Method(callbackParam, fn, aArgs) {
     }
 }
 
+
+// Copy a Method
+Method.prototype.copy = function () {
+    var to = new Method();
+    to.previousMethod = null;
+    to.callbackParam = this.callbackParam;
+    to.fn = this.fn;
+    to.aArgs = this.aArgs;
+    to.signature = this.signature;
+    return to;
+};
 
 // Set a Method to be a placeholder
 //  the Placeholder 'fn' returns the arguments passed to it
@@ -132,18 +142,19 @@ Method.prototype.run = function (target, stackControl) {
     }
     // otherwise, is a synchronous Method - so just run it
     var result = this.fn.apply(target, this.aArgs);
-    // since this method has been run, replace its Method on the methodStack with a placeholder
+    // fn has been run so replace it as placeholder
     this.setAsPlaceholder();
     // and return the result
     return result;
 };
 
-// MethodStack will inherit from EventEmitter
+/**************************************************************************/
+// MethodStack inherits from nodejs EventEmitter
 //   but only as a convenience for users of the ChainFrame module
 //    since events are not used by ChainFrame itself
 const EventEmitter = require('events');
 
-/*************************************
+/**
  * MethodStack
  *  object that maintains current and named chain(s) of Methods
  * @param target object which Methods will be bound (ie: 'this')
@@ -158,14 +169,16 @@ function MethodStack(target) {
     //  technically, methodStack is a linked list of Methods via the 'previousMethod' property
     this.methodStack = new Method();
 
-    // initialize the nodejs EventEmitter
+    this.namedStacks = {};
+
+    // initialize the EventEmitter
     EventEmitter.call(this);
 }
-// Inherit functions from nodejs EventEmitter
+// Inherit functions from EventEmitter
 MethodStack.prototype = Object.create(EventEmitter.prototype);
 MethodStack.prototype.constructor = MethodStack;
 
-// push takes the the given Method and places on end of the methodStack
+// 'push' takes the the given Method and places on end of the methodStack
 MethodStack.prototype.push = function (method) {
     // link the current end Method of methodStack to the given Method
     method.previousMethod = this.methodStack;
@@ -203,7 +216,30 @@ MethodStack.prototype.run = function callbackFn() {
     }
 };
 
-/*************************************
+// Copy a methodStack
+MethodStack.prototype.copy = function (currentMethod) {
+    var workArray = [];
+    while (currentMethod) {
+        workArray.push(currentMethod.copy());
+        currentMethod = currentMethod.previousMethod;
+    }
+    for (var i = workArray.length - 2; i > -1; i--) {
+        workArray[i].previousMethod = workArray[i + 1];
+    }
+    return workArray.length > 0 ? workArray[0] : new Method();
+};
+
+// Store methodStack to a named Method stack
+MethodStack.prototype.set = function (name) {
+    this.namedStacks[name] = this.copy(this.methodStack);
+};
+
+// Get a named Method stack into methodStack
+MethodStack.prototype.get = function (name) {
+    this.namedStacks[name] = this.copy(this.methodStack);
+};
+
+/**************************************************************************
  * ChainFrame
  *  object that exposes higher level chaining functions
  *  references an instance of MethodStack
@@ -268,11 +304,13 @@ ChainFrame.prototype.on = function (event, fn) {
     return this;
 };
 
-// EventEmitter 'emit' function to emit an event
+// Apply to EventEmitter's emit() function to emit an event
 ChainFrame.prototype.emit = function () {
     this._methodStack.push(
             new Method(
                     null,
+                    // need to apply() to 'this._methodStack' (instead of 'this')
+                    //  (EventEmitter is kinda touchy in referencing it's event listeners)
                     function () {this._methodStack.emit.apply(this._methodStack, arguments)}.bind(this),
                     argumentsToArray.apply(this, arguments)));
     return this;
