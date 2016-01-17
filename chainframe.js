@@ -1,9 +1,19 @@
 /**
+ * Created by PotOfCoffee2Go on 1/6/2016.
+ *
+ * This file contains three object definitions:
+ *   * Method       - information about function to be chained
+ *   * MethodStack  - lists of Method chains
+ *   * ChainFrame   - contains reference to MethodStack
+ *                     and functions exposed to users of the module
  *
  */
+
 'use strict';
 
-// Convert arguments (which is 'almost' a JavaScript Array) to an 'actual' JavaScript array
+// Helper function to convert arguments to Array
+//   arguments is 'almost' a JavaScript Array,
+//   returns arguments as an 'actual' JavaScript array
 function argumentsToArray() {
     var aArgs = [];
     // when there are arguments but none of them defined values - return null
@@ -19,7 +29,8 @@ function argumentsToArray() {
 }
 
 /*************************************
- * Returns a Method object which can be chained with other Method objects
+ * Method
+ *  object which can be chained with other Method objects
  *
  * @param callbackParam     name of callback in fn function signature
  * @param fn                function that this Method calls
@@ -133,8 +144,9 @@ Method.prototype.run = function (target, stackControl) {
 const EventEmitter = require('events');
 
 /*************************************
- * MethodStack maintains the currently chained Methods in a linked list
- * @param target Methods will be bound (ie: 'this') to 'target' object
+ * MethodStack
+ *  object that maintains current and named chain(s) of Methods
+ * @param target object which Methods will be bound (ie: 'this')
  * @constructor
  */
 function MethodStack(target) {
@@ -192,7 +204,9 @@ MethodStack.prototype.run = function callbackFn() {
 };
 
 /*************************************
- * ChainFrame itself - exposes higher level chaining functions
+ * ChainFrame
+ *  object that exposes higher level chaining functions
+ *  references an instance of MethodStack
  *
  * @constructor
  */
@@ -201,17 +215,14 @@ function ChainFrame() {
     this._methodStack = new MethodStack(this);
 }
 
-// Add chained functions to the prototype
+// Add chain-able function(s) to the prototype
 ChainFrame.prototype.addPrototype = function (ctor, methods, callbackParam) {
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({callbackParam: callbackParam, fn: methods});
     }
-    if (Object.prototype.toString.call(methods) !== '[object Array]') {
-        methods = new Array(methods);
-    }
     // Add the functions defined in 'methods' array to prototype
     methods.forEach(function (method) {
-        // Wrapper of the Method that returns 'this' to allow chaining
+        // Wrapper around the function that returns 'this' - allows chaining
         ctor.prototype[method.fn.name] = function () {
             this._methodStack.push(
                     new Method(
@@ -224,19 +235,15 @@ ChainFrame.prototype.addPrototype = function (ctor, methods, callbackParam) {
     return this;
 };
 
-// Add chained functions to an instance
+// Add chain-able functions to an instance
 ChainFrame.prototype.addMethod = function (methods, callbackParam) {
     // Allow a single function to be added to instance - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({callbackParam: callbackParam, fn: methods});
     }
-    // Allow an Array of functions to be added to instance
-    if (Object.prototype.toString.call(methods) !== '[object Array]') {
-        methods = new Array(methods);
-    }
-    // Add the functions defined in 'methods' array to prototype
+    // Add the functions defined in 'methods' array to instance
     methods.forEach(function (method) {
-        // Wrapper of the Method that returns 'this' to allow chaining
+        // Wrapper around the function that returns 'this' - allows chaining
         this[method.fn.name] = function () {
             this._methodStack.push(
                     new Method(
@@ -255,7 +262,7 @@ ChainFrame.prototype.runChain = function () {
     return this;
 };
 
-// EventEmitter 'on' function to add event listener
+// EventEmitter 'on' function to add an event listener
 ChainFrame.prototype.on = function (event, fn) {
     this._methodStack.on(event, fn);
     return this;
@@ -271,5 +278,5 @@ ChainFrame.prototype.emit = function () {
     return this;
 };
 
-// ChainFrame blushes - it's exposed
+// Expose ChainFrame prototype - (sounds kinda naughty)
 module.exports = ChainFrame;
