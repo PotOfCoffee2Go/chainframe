@@ -36,10 +36,10 @@ var chain = new ChainFrame();
 chain
         .on('myEvent', myEvent)
         .addPrototype(ChainFrame, show)
-        .addMethod(getPath)
-        .addMethod(readFile, 'cb') // 'cb' is name of callback in signature of readFile(inFilePath,cb)
-        .addMethod(showData)
-        .addMethod(getMyEventData);
+        .addInstance(getPath)
+        .addInstance(readFile, 'cb') // 'cb' is name of callback in signature of readFile(inFilePath,cb)
+        .addInstance(showData)
+        .addInstance(getMyEventData);
 
 // Run method chain:
 
