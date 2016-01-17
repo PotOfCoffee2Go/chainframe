@@ -20,29 +20,22 @@
  * @constructor
  */
 function Method(callbackParam, fn, aArgs) {
-    // start off by initializing a placeholder Method
-    this.init();
-
-    // new Method() without arguments? return the placeholder
-    if (typeof callbackParam === 'undefined') return;
-
-    // function to run - if not given then use the placeholder function
-    this.fn = fn || this.fn;
-    // arguments that where passed inline in the chain statement
-    this.aArgs = aArgs || null;
-    // callbackParam indicates 'fn' is an async function
+    // callbackParam indicates parameter that is callback in fn signature
+    // function to run - if not given then use a placeholder
+    // arguments to pass to fn
     this.callbackParam = callbackParam || null;
-    // callbackParam that's an empty string is same as a null
-    this.callbackParam = this.callbackParam === '' ? null : this.callbackParam;
+    this.fn = fn || function () {};
+    this.aArgs = aArgs || null;
 
-    // for async functions insure name of the callback is in the signature
+    // for async functions, insure name of the callback is in the signature
+    //  get the first line of 'fn's definition
+    //  parse the signature parameters into an Array - ie: what is between the '()'s
+    //  sadly, gotta throw an error if callbackParam not in the signature
+    this.signature = [];
     if (this.callbackParam) {
-        // get the first line of 'fn's definition
         var fnFirstLine = this.fn.toString().split('\n')[0];
-        // parse the signature parameters into an Array - ie: what is between the '()'s
         this.signature = /\((.*?)\)/.exec(fnFirstLine)[1].replace(/\s/g, '').split(",");
 
-        // if callbackParam not in the signature? sadly, gotta throw an error
         if (this.signature.indexOf(this.callbackParam) === -1) {
             throw new Error("callbackParam: '" + this.callbackParam + "' is not in signature of - '"
                     + fnFirstLine.substring(0, fnFirstLine.indexOf(')') + 1)) + "'";
@@ -60,118 +53,110 @@ Method.prototype.clone = function () {
     return copy;
 };
 
-// Set a Method to be a placeholder
-//  the Placeholder 'fn' returns the arguments passed to it
-//  (is as if it were not even in the chain)
-Method.prototype.init = function () {
-    this.callbackParam = null;
-    this.fn = function () {};
-    this.aArgs = null;
-    this.signature = [];
-};
-
 /**************************************************************************/
-// MethodStack inherits from nodejs EventEmitter
+// MethodStacks inherits from nodejs EventEmitter
 //   but only as a convenience for users of the ChainFrame module
 //    since events are not used by ChainFrame itself
 const EventEmitter = require('events');
 
 /**
- * MethodStack
+ * MethodStacks
  *  object that maintains current and named chain(s) of Methods
  *
  * @param target object which Methods will be bound (ie: 'this')
  * @constructor
  */
-function MethodStack(target) {
+function MethodStacks(target) {
     // the 'target' object will be 'this' of functions called by ChainFrame
-    this.target = target;
-    // create buildStack by placing a placeholder Method on it
-    //   is the current sequence of chained Methods that are being built
-    this.buildStack = [];
-    // create runStack by placing a placeholder Method on it
-    //   is the current sequence of chained Methods that are currently executing
-    this.runStack = [];
+    // current sequence of chained Methods that are being built
+    // current sequence of chained Methods that are currently running
     // Place to store stacks named by the module user
-    this.namedStacks = {};
     // initialize the EventEmitter
+    this.target = target;
+    this.buildStack = [];
+    this.runStack = [];
+    this.namedStacks = {};
     EventEmitter.call(this);
 }
-// Inherit functions from EventEmitter
-MethodStack.prototype = Object.create(EventEmitter.prototype);
-MethodStack.prototype.constructor = MethodStack;
+// Inherit prototype from EventEmitter
+MethodStacks.prototype = Object.create(EventEmitter.prototype);
+MethodStacks.prototype.constructor = MethodStacks;
 
-// push the given Method and places on end of the buildStack
-MethodStack.prototype.push = function (method) {
-    // link the current end Method of runStack to the given Method
+// Push a Method onto buildStack
+MethodStacks.prototype.push = function (method) {
     this.buildStack.push(method);
 };
 
 // Sequentially run Methods from runStack
-MethodStack.prototype.run = function () {
-    // runStack is empty
-    if (this.runStack.length === 0) return;
+MethodStacks.prototype.run = function () {
+    // runStack is empty so all done
+    if (this.runStack.length === 0) {
+        return;
+    }
 
     var method = this.runStack[0];
-    // when no arguments passed when chain built - use the arguments for previous method
+    // if no arguments given when Method built
+    //  use the arguments returned from previous method
     if (method.aArgs.length < 1) {
         method.aArgs = arguments;
     }
-    // if is an asynchronous Method - make us (this.run()) the callback
+
+    // callbackParam indicates the Method is asynchronous
+    //  insert our self 'this.run()' as callback parameter into argument list
+    //  done with Method so remove from stack
+    //  run the async fn
     if (method.callbackParam) {
-        var methodInfo = {
-            fn: method.fn,
-            aArgs: method.aArgs
-        };
-        // insert our callback into argument list
         var idx = method.signature.indexOf(method.callbackParam);
         method.aArgs[idx] = this.run.bind(this);
         method.aArgs.length = method.signature.length;
-        // load methodInfo with the function to run and it's arguments
-        // make this Method a placeholder function (for re-entry when async function is done)
-        // return with info required to run the function asynchronously
+        var methodInfo = {fn: method.fn, aArgs: method.aArgs};
         this.runStack.shift();
         methodInfo.fn.apply(this.target, method.aArgs);
         return;
     }
-    // otherwise, is a synchronous Method - so just run it and return the result
+
+    // otherwise, is synchronous so run 'fn'
+    //  done with Method so remove from stack
+    //  call our self 'this.run()' to process next Method
     var result = method.fn.apply(this.target, method.aArgs);
-    // run the Method stack - will return prematurely if/when aysnc function is hit
-    //  if an async function has be hit, run it -
     this.runStack.shift();
     // run the next method in the chain
     this.run(result);
-    // We are at the end of the runStack
 };
 
 // Copy a Method Stack
-MethodStack.prototype.clone = function (srcStack, dstStack) {
+MethodStacks.prototype.clone = function (srcStack, dstStack) {
     for (var i = 0, l = srcStack.length; i < l; i++) {
         dstStack.push(srcStack[i].clone());
     }
 };
 
 // Store buildStack to a named Method stack
-MethodStack.prototype.set = function (name) {
+MethodStacks.prototype.set = function (name) {
     this.namedStacks[name] = [];
     this.clone(this.buildStack, this.namedStacks[name]);
 };
 
 // Get a named Method stack into buildStack
-MethodStack.prototype.get = function (name) {
+MethodStacks.prototype.get = function (name) {
     this.clone(this.namedStacks[name], this.buildStack);
+};
+
+// Empty a stack
+MethodStacks.prototype.clear = function (stack) {
+    stack = [];
 };
 
 /**************************************************************************
  * ChainFrame
  *  object that exposes higher level chaining functions
- *  references an instance of MethodStack
+ *  references an instance of MethodStacks
  *
  * @constructor
  */
 function ChainFrame() {
     // create a Method stack
-    this._methodStack = new MethodStack(this);
+    this._methodStack = new MethodStacks(this);
 }
 
 // Add chain-able function(s) to the prototype
