@@ -12,6 +12,8 @@ function show(text) {
     console.log(text);
     return text;
 }
+var counter = 0;
+function incCounter(){counter++;return counter;}
 
 function getPath() {return '../test/test.json';}
 function readFile(inFilePath, cb) {fs.readFile(inFilePath, cb);}
@@ -22,8 +24,11 @@ function showData(err, data) {
     return 'showFile is done'
 }
 
-function myEvent(data) {console.log('Got Event: myEvent');console.log(data);}
-function getMyEventData(data) {return ['myEvent',data];}
+function myEvent(data) {
+    console.log('Got Event: myEvent');
+    console.log(data);
+}
+function getMyEventData(data) {return ['myEvent', data];}
 var chain = new ChainFrame();
 chain
         .on('myEvent', myEvent)
@@ -35,12 +40,50 @@ chain
 
 // Run method chain:
 //chain.emitr('myEvent','Hi kim').runChain();
-chain
-        .getPath()
-        .show()
-        .readFile()
-        .showData()
-        .show()
-        .getMyEventData('this is myEvent data!')
-        .emit()
-        .runChain();
+for(var i=0; i < 100; i++) {
+    chain
+            .show(incCounter())
+            .getPath()
+            .show()
+            .readFile()
+            .showData()
+}
+for(var i=0; i < 100; i++) {
+    chain
+            .show(incCounter())
+            .getPath()
+            .show()
+            .readFile()
+            .showData()
+}
+chain.runChain();
+
+
+console.log('--------------------------------------------');
+/*
+for(var i=0; i < 10; i++) {
+    chain
+            .show(incCounter())
+            .getPath()
+            .show()
+            .readFile()
+            .showData()
+}
+
+
+ setInterval(function () {
+ chain
+ .runChain();
+ chain
+ .getPath()
+ .show()
+ .readFile()
+ .showData()
+ .show()
+ .getMyEventData('this is myEvent data!')
+ .emit()
+ .runChain();
+
+
+ }, 4000);
+ */

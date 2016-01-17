@@ -157,6 +157,9 @@ const EventEmitter = require('events');
 /**
  * MethodStack
  *  object that maintains current and named chain(s) of Methods
+ *
+ *  technically, stacks are linked lists of Methods via the 'previousMethod' property
+ *
  * @param target object which Methods will be bound (ie: 'this')
  * @constructor
  */
@@ -164,11 +167,15 @@ function MethodStack(target) {
     // the 'target' object will be 'this' of functions called by ChainFrame
     this.target = target;
 
-    // create methodStack which represents the current sequence of chained Methods
-    //  start by placing a placeholder Method on it
-    //  technically, methodStack is a linked list of Methods via the 'previousMethod' property
-    this.methodStack = new Method();
+    // create buildStack by placing a placeholder Method on it
+    //   is the current sequence of chained Methods that are being built
+    this.buildStack = new Method();
 
+    // create runStack by placing a placeholder Method on it
+    //   is the current sequence of chained Methods that are currently executing
+    this.runStack = new Method();
+
+    // Place to store stacks named by the module user
     this.namedStacks = {};
 
     // initialize the EventEmitter
@@ -178,20 +185,20 @@ function MethodStack(target) {
 MethodStack.prototype = Object.create(EventEmitter.prototype);
 MethodStack.prototype.constructor = MethodStack;
 
-// 'push' takes the the given Method and places on end of the methodStack
+// 'push' takes the the given Method and places on end of the buildStack
 MethodStack.prototype.push = function (method) {
-    // link the current end Method of methodStack to the given Method
-    method.previousMethod = this.methodStack;
-    // make the given Method end of methodStack
-    this.methodStack = method;
+    // link the current end Method of runStack to the given Method
+    method.previousMethod = this.buildStack;
+    // make the given Method end of runStack
+    this.buildStack = method;
 };
 
-// Sequentially run Methods from the first (bottom of methodStack) to the last (top)
-MethodStack.prototype.run = function callbackFn() {
+// Sequentially run Methods from the first (bottom of runStack) to the last (top)
+MethodStack.prototype.run = function () {
     // got arguments returned from the previous Method?
-    //  place them in the aArgs variable of the current Method on methodStack
+    //  place them in the aArgs variable of the current Method on runStack
     if (arguments.length) {
-        var firstMethod = this.methodStack;
+        var firstMethod = this.runStack;
         // work our way down to the first Method of the stack (will be a placeholded)
         while (firstMethod.previousMethod) {
             firstMethod = firstMethod.previousMethod;
@@ -208,15 +215,16 @@ MethodStack.prototype.run = function callbackFn() {
     };
     // run the Method stack - will return prematurely if/when aysnc function is hit
     //  if an async function has be hit, run it -
-    this.methodStack.run(this.target, stackControl);
+    this.runStack.run(this.target, stackControl);
     // if stackControl contains an asynchronous function - run it
     //   this function (MethodStack.prototype.run) will continue when it does its callback
     if (stackControl.fn) {
         stackControl.fn.apply(this.target, stackControl.aArgs);
     }
+    // We are at the end of the runStack
 };
 
-// Copy a methodStack
+// Copy a Method Stack
 MethodStack.prototype.copy = function (currentMethod) {
     var workArray = [];
     while (currentMethod) {
@@ -229,14 +237,14 @@ MethodStack.prototype.copy = function (currentMethod) {
     return workArray.length > 0 ? workArray[0] : new Method();
 };
 
-// Store methodStack to a named Method stack
+// Store runStack to a named Method stack
 MethodStack.prototype.set = function (name) {
-    this.namedStacks[name] = this.copy(this.methodStack);
+    this.namedStacks[name] = this.copy(this.runStack);
 };
 
-// Get a named Method stack into methodStack
+// Get a named Method stack into runStack
 MethodStack.prototype.get = function (name) {
-    this.namedStacks[name] = this.copy(this.methodStack);
+    this.runStack = this.copy(this.namedStacks[name]);
 };
 
 /**************************************************************************
@@ -294,7 +302,20 @@ ChainFrame.prototype.addMethod = function (methods, callbackParam) {
 
 // Run Methods on the method stack
 ChainFrame.prototype.runChain = function () {
+    this._methodStack.runStack = this._methodStack.copy(this._methodStack.buildStack);
     this._methodStack.run();
+    return this;
+};
+
+// Set a name to the Methods on the method stack
+ChainFrame.prototype.setChain = function (name) {
+    this._methodStack.set(name);
+    return this;
+};
+
+// Get the Methods on the method stack by name
+ChainFrame.prototype.getChain = function (name) {
+    this._methodStack.get(name);
     return this;
 };
 
