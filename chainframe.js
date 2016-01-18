@@ -98,13 +98,13 @@ function MethodStacks(target) {
     // current sequence of chained Methods that are being built
     // current sequence of chained Methods that are currently running
     // Place to store reusable Method stacks named by the module user
-    // hasRun indicator that this ChainFrame's chain is or has been run
+    // isRunning indicator that this ChainFrame's chain is running
     // initialize the EventEmitter
     this.target = target;
     this.buildStack = new Stack();
     this.runStack = new Stack();
     this.namedStacks = {};
-    this.hasRun = false;
+    this.isRunning = false;
     EventEmitter.call(this);
 }
 // Inherit prototype from EventEmitter
@@ -118,7 +118,7 @@ MethodStacks.prototype.push = function (method) {
 
 // Sequentially run Methods from runStack
 MethodStacks.prototype.run = function () {
-    this.hasRun = true;
+    this.isRunning = true;
 
     // runStack is empty so all done
     if (this.runStack.length === 0) {
@@ -164,6 +164,16 @@ MethodStacks.prototype.set = function (name) {
 // Get a named Method stack into buildStack
 MethodStacks.prototype.get = function (name) {
     this.namedStacks[name].clone(this.buildStack);
+};
+
+// Get run flag
+MethodStacks.prototype.getRun = function () {
+    return this.isRunning;
+};
+
+// Set run flag
+MethodStacks.prototype.resetRun = function () {
+    this.isRunning = false;
 };
 
 
@@ -235,13 +245,19 @@ ChainFrame.prototype.addInstance = function (methods, callbackParam) {
 
 // Run the chained Methods
 ChainFrame.prototype.runChain = function () {
-    // can only run a chain once
-    //   well, unless the ChainFrame module user handles conflicts
-    // move the Methods on the build stack to the run stack
-    // run 'em
-    if (this._methodStack.hasRun) throw new Error('Can run a chain only once!');
+    // can only run a single chain at a time
+    if (this.getRun()) throw new Error('a chain is already running!');
 
+    // move the Methods on the build stack to the run stack
+    // push function to reset the running indicator
     this._methodStack.buildStack.clone(this._methodStack.runStack);
+    this._methodStack.runStack.push(
+            new Method(
+                    null,
+                    function() {this.resetRun();},
+                    arguments));
+
+    // run the chain
     this._methodStack.run();
     return this;
 };
@@ -255,6 +271,17 @@ ChainFrame.prototype.setChain = function (name) {
 // Add the Methods named 'name' to the build stack
 ChainFrame.prototype.getChain = function (name) {
     this._methodStack.get(name);
+    return this;
+};
+
+// Get the running flag
+ChainFrame.prototype.getRun = function () {
+    return this._methodStack.getRun();
+};
+
+// Reset the running flag
+ChainFrame.prototype.resetRun = function () {
+    this._methodStack.resetRun();
     return this;
 };
 
