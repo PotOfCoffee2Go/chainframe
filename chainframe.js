@@ -80,7 +80,7 @@ Stack.prototype.clear = function () {
     this.length = 0;
 };
 
-/**************************************************************************/
+//*************************************************************************/
 // MethodStacks inherits from nodejs EventEmitter
 //   but only as a convenience for users of the ChainFrame module
 //    since events are not used by ChainFrame itself
@@ -97,12 +97,14 @@ function MethodStacks(target) {
     // the 'target' object will be 'this' of functions called by ChainFrame
     // current sequence of chained Methods that are being built
     // current sequence of chained Methods that are currently running
-    // Place to store reusable stacks named by the module user
+    // Place to store reusable Method stacks named by the module user
+    // hasRun indicator that this ChainFrame's chain is or has been run
     // initialize the EventEmitter
     this.target = target;
     this.buildStack = new Stack();
     this.runStack = new Stack();
     this.namedStacks = {};
+    this.hasRun = false;
     EventEmitter.call(this);
 }
 // Inherit prototype from EventEmitter
@@ -116,6 +118,8 @@ MethodStacks.prototype.push = function (method) {
 
 // Sequentially run Methods from runStack
 MethodStacks.prototype.run = function () {
+    this.hasRun = true;
+
     // runStack is empty so all done
     if (this.runStack.length === 0) {
         return;
@@ -176,7 +180,7 @@ function ChainFrame() {
 }
 
 // Note: addPrototype() and addInstance() do the same thing
-//       as their names imply -
+//       except as their names imply -
 //         addPrototype() adds the chain-able function to the prototype
 //         addInstance()  adds the chain-able function to the instance
 //       if you don't know WTF all of this is about - just use addInstance()
@@ -231,8 +235,12 @@ ChainFrame.prototype.addInstance = function (methods, callbackParam) {
 
 // Run the chained Methods
 ChainFrame.prototype.runChain = function () {
+    // can only run a chain once
+    //   well, unless the ChainFrame module user handles conflicts
     // move the Methods on the build stack to the run stack
     // run 'em
+    if (this._methodStack.hasRun) throw new Error('Can run a chain only once!');
+
     this._methodStack.buildStack.clone(this._methodStack.runStack);
     this._methodStack.run();
     return this;
