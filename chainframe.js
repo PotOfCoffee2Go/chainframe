@@ -31,12 +31,16 @@ function Method(callbackParam, fn, aArgs) {
     // for async functions, insure name of the callback is in the signature
     //  get the first line of 'fn's definition
     //  parse the signature parameters into an Array - ie: what is between the '()'s
-    //  sadly, gotta throw an error if callbackParam not in the signature
-    this.signature = [];
-    if (this.callbackParam) {
-        var fnFirstLine = this.fn.toString().split('\n')[0];
-        this.signature = /\((.*?)\)/.exec(fnFirstLine)[1].replace(/\s/g, '').split(",");
+    var fnFirstLine = this.fn.toString().split('\n')[0];
+    this.signature = /\((.*?)\)/.exec(fnFirstLine)[1].replace(/\s/g, '').split(",");
 
+    // look for the default parameter name of 'callback'
+    if (this.signature.indexOf('callback') !== -1) {
+        this.callbackParam = 'callback';
+    }
+
+    //  sadly, gotta throw an error if callbackParam not in the signature
+    if (this.callbackParam) {
         if (this.signature.indexOf(this.callbackParam) === -1) {
             throw new Error("callbackParam: '" + this.callbackParam + "' is not in signature of - '"
                     + fnFirstLine.substring(0, fnFirstLine.indexOf(')') + 1)) + "'";
@@ -189,14 +193,14 @@ function ChainFrame() {
     this._methodStack = new MethodStacks(this);
 }
 
-// Note: addPrototype() and addInstance() do the same thing
+// Note: addToPrototype() and addToInstance() do the same thing
 //       except as their names imply -
-//         addPrototype() adds the chain-able function to the prototype
-//         addInstance()  adds the chain-able function to the instance
-//       if you don't know WTF all of this is about - just use addInstance()
+//         addToPrototype() adds the chain-able function to the prototype
+//         addToInstance()  adds the chain-able function to the instance
+//       if you don't know WTF all of this is about - just use addToInstance()
 
 // Add chain-able function(s) to the prototype
-ChainFrame.prototype.addPrototype = function (ctor, methods, callbackParam) {
+ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
     // Allow a single function to be added to prototype - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({callbackParam: callbackParam, fn: methods});
@@ -215,12 +219,12 @@ ChainFrame.prototype.addPrototype = function (ctor, methods, callbackParam) {
             return this; // return this to allow Methods to be chained
         };
     });
-    // return this to allow 'addPrototype()'s to be chained
+    // return this to allow 'addToPrototype()'s to be chained
     return this;
 };
 
 // Add chain-able functions to an instance
-ChainFrame.prototype.addInstance = function (methods, callbackParam) {
+ChainFrame.prototype.addToInstance = function (methods, callbackParam) {
     // Allow a single function to be added to instance - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({callbackParam: callbackParam, fn: methods});

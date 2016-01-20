@@ -21,8 +21,8 @@ Test.prototype = Object.create(ChainFrame.prototype);
 Test.prototype.constructor = Test;
 // Add functions to Test’s prototype to make them chainable:
 
-Test.prototype.addPrototype(Test, first);
-Test.prototype.addPrototype(Test, second);
+Test.prototype.addToPrototype(Test, first);
+Test.prototype.addToPrototype(Test, second);
 // Create a couple method chains:
 
 var test = new Test();

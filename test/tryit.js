@@ -35,11 +35,11 @@ function getMyEventData(data) {return ['myEvent', data];}
 var chain = new ChainFrame();
 chain
         .on('myEvent', myEvent)
-        .addPrototype(ChainFrame, show)
-        .addInstance(getPath)
-        .addInstance(readFile, 'cb') // 'cb' is name of callback in signature of readFile(inFilePath,cb)
-        .addInstance(showData)
-        .addInstance(getMyEventData);
+        .addToPrototype(ChainFrame, show)
+        .addToInstance(getPath)
+        .addToInstance(readFile, 'cb') // 'cb' is name of callback in signature of readFile(inFilePath,cb)
+        .addToInstance(showData)
+        .addToInstance(getMyEventData);
 
 // Run method chain:
 
