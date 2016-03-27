@@ -116,11 +116,11 @@ Test.prototype.constructor = Test;
 
 // Different ways to add chainable functions
 // Add to prototype methods defined in testMethods
-Test.prototype.addPrototype(Test, testMethods); // Array of methods
+Test.prototype.addToPrototype(Test, testMethods); // Array of methods
 // Add to prototype function3 
-Test.prototype.addPrototype(Test, function3);   // Single function
+Test.prototype.addToPrototype(Test, function3);   // Single function
 // Add to prototype another function - function4
-Test.prototype.addPrototype(Test,               // Inline
+Test.prototype.addToPrototype(Test,               // Inline
     {    // Synchronous function named 'function4'
         fn: function function4() {
             console.log('---------------');

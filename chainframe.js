@@ -1,31 +1,15 @@
 /**
  * Created by PotOfCoffee2Go on 1/6/2016.
  *
- * This file contains three object definitions:
+ * This file contains four object definitions:
  *   * Method       - information about function to be chained
- *   * MethodStack  - lists of Method chains
- *   * ChainFrame   - contains reference to MethodStack
+ *   * Stack        - array with a few additional functions added
+ *   * MethodStack  - stacks of Method chains
+ *   * ChainFrame   - references instance of MethodStack
  *                     and functions exposed to users of the module
  */
 
 'use strict';
-
-// Helper function to convert arguments to an Array
-//   arguments is 'almost' a JavaScript Array,
-//   returns arguments as an 'actual' JavaScript array
-function argumentsToArray() {
-    var aArgs = [];
-    // when there are arguments but none of them defined values - return null
-    if (arguments.length === 1 && typeof arguments[0] === 'undefined') {
-        return null;
-    }
-    // push the arguments onto Array
-    for (var i = 0, l = arguments.length; i < l; i++) {
-        aArgs.push(arguments[i]);
-    }
-    // return an Array of the arguments - or null if there are still no values
-    return aArgs.length === 0 ? null : aArgs;
-}
 
 /**************************************************************************
  * Method
@@ -37,29 +21,26 @@ function argumentsToArray() {
  * @constructor
  */
 function Method(callbackParam, fn, aArgs) {
-    // start off by initializing as is a placeholder Method
-    this.setAsPlaceholder();
-
-    // new Method() without arguments? return the placeholder
-    if (typeof callbackParam === 'undefined') return;
-
-    // function to run - if not given then use the placeholder function
-    this.fn = fn || this.fn;
-    // arguments that where passed inline in the chain statement
-    this.aArgs = aArgs || null;
-    // callbackParam indicates 'fn' is an async function
+    // callbackParam indicates parameter that is callback in fn signature
+    // function to run - if not given then use a placeholder
+    // arguments to pass to fn
     this.callbackParam = callbackParam || null;
-    // callbackParam that's an empty string is same as a null
-    this.callbackParam = this.callbackParam === '' ? null : this.callbackParam;
+    this.fn = fn || function () {};
+    this.aArgs = aArgs || null;
 
-    // for async functions insure name of the callback is in the signature
+    // for async functions, insure name of the callback is in the signature
+    //  get the first line of 'fn's definition
+    //  parse the signature parameters into an Array - ie: what is between the '()'s
+    var fnFirstLine = this.fn.toString().split('\n')[0];
+    this.signature = /\((.*?)\)/.exec(fnFirstLine)[1].replace(/\s/g, '').split(",");
+
+    // look for the default parameter name of 'callback'
+    if (this.signature.indexOf('callback') !== -1) {
+        this.callbackParam = 'callback';
+    }
+
+    //  sadly, gotta throw an error if callbackParam not in the signature
     if (this.callbackParam) {
-        // get the first line of 'fn's definition
-        var fnFirstLine = this.fn.toString().split('\n')[0];
-        // parse the signature parameters into an Array - ie: what is between the '()'s
-        this.signature = /\((.*?)\)/.exec(fnFirstLine)[1].replace(/\s/g, '').split(",");
-
-        // if callbackParam not in the signature? sadly, gotta throw an error
         if (this.signature.indexOf(this.callbackParam) === -1) {
             throw new Error("callbackParam: '" + this.callbackParam + "' is not in signature of - '"
                     + fnFirstLine.substring(0, fnFirstLine.indexOf(')') + 1)) + "'";
@@ -67,225 +48,191 @@ function Method(callbackParam, fn, aArgs) {
     }
 }
 
-
 // Copy a Method
-Method.prototype.copy = function () {
-    var to = new Method();
-    to.previousMethod = null;
-    to.callbackParam = this.callbackParam;
-    to.fn = this.fn;
-    to.aArgs = this.aArgs;
-    to.signature = this.signature;
-    return to;
+Method.prototype.clone = function () {
+    var copy = new Method();
+    copy.callbackParam = this.callbackParam;
+    copy.fn = this.fn;
+    copy.aArgs = this.aArgs;
+    copy.signature = this.signature;
+    return copy;
 };
 
-// Set a Method to be a placeholder
-//  the Placeholder 'fn' returns the arguments passed to it
-//  (is as if it were not even in the chain)
-Method.prototype.setAsPlaceholder = function () {
-    this.previousMethod = null;
-    this.callbackParam = null;
-    this.fn = function () {return argumentsToArray.apply(this, arguments);};
-    this.aArgs = null;
-    this.signature = [];
-};
+/**************************************************************************
+ * Stack
+ *  object that is a array of a sequence of Methods
+ *
+ * @constructor
+ */
+function Stack() {
+    // initialize array
+    Array.call(this);
+}
+// Inherit prototype from Array
+Stack.prototype = Object.create(Array.prototype);
+Stack.prototype.constructor = Stack;
 
-// Given what was returned from the previous Method's 'fn'
-//  return an array of arguments that is to be passed to next Method 'fn'
-Method.prototype.getArguments = function (previousResult) {
-    // if aArgs not null then insure that it is an Array - if not an Array make it one
-    if (this.aArgs != null) {
-        if (Array.isArray(this.aArgs) === false) {
-            this.aArgs = Array.of(this.aArgs);
-        }
-    }
-    // similarly, if previousResult not an Array - make it one
-    if (Array.isArray(previousResult) === false) {
-        previousResult = previousResult == null ? [] : Array.of(previousResult);
-    }
-    // use the arguments that were passed inline when the Method was created
-    //   if none - use arguments that were returned by the previous Method
-    return this.aArgs != null ? this.aArgs : previousResult;
-};
-
-// Insert callback function into the argument list
-Method.prototype.insertCallbackOntoArguments = function (callbackFn) {
-    var idx = this.signature.indexOf(this.callbackParam);
-    if (idx !== -1) {
-        this.aArgs[idx] = callbackFn;
+// Copy a Stack
+Stack.prototype.clone = function (dstStack) {
+    for (var i = 0, l = this.length; i < l; i++) {
+        dstStack.push(this[i].clone());
     }
 };
 
-// Run the Methods that have been placed on the Method stack
-Method.prototype.run = function (target, stackControl) {
-    // recursive drill down to the placeholder Method at bottom (first) of the Method stack
-    if (this.previousMethod) {
-        var previousResult = this.previousMethod.run(target, stackControl);
-        // if hit an asynchronous Method exit running the stack with info about that Method
-        if (previousResult === stackControl) {
-            return stackControl;
-        }
-        // get the arguments that will be passed to this Method
-        this.aArgs = this.getArguments(previousResult);
-    }
-    // if is an async Method - put info in stackControl
-    if (this.callbackParam) {
-        // insert our callback into argument list
-        this.insertCallbackOntoArguments(stackControl.callbackFn);
-        // load stackControl with the function to run and it's arguments
-        stackControl.fn = this.fn;
-        stackControl.aArgs = this.aArgs;
-        // make this Method a placeholder function (for re-entry when async function is done)
-        this.setAsPlaceholder();
-        // return with info required to run the function asynchronously
-        return stackControl;
-    }
-    // otherwise, is a synchronous Method - so just run it
-    var result = this.fn.apply(target, this.aArgs);
-    // fn has been run so replace it as placeholder
-    this.setAsPlaceholder();
-    // and return the result
-    return result;
+// Empty a stack
+Stack.prototype.clear = function () {
+    this.length = 0;
 };
 
-/**************************************************************************/
-// MethodStack inherits from nodejs EventEmitter
+//*************************************************************************/
+// MethodStacks inherits from nodejs EventEmitter
 //   but only as a convenience for users of the ChainFrame module
 //    since events are not used by ChainFrame itself
 const EventEmitter = require('events');
 
 /**
- * MethodStack
+ * MethodStacks
  *  object that maintains current and named chain(s) of Methods
- *
- *  technically, stacks are linked lists of Methods via the 'previousMethod' property
  *
  * @param target object which Methods will be bound (ie: 'this')
  * @constructor
  */
-function MethodStack(target) {
+function MethodStacks(target) {
     // the 'target' object will be 'this' of functions called by ChainFrame
-    this.target = target;
-
-    // create buildStack by placing a placeholder Method on it
-    //   is the current sequence of chained Methods that are being built
-    this.buildStack = new Method();
-
-    // create runStack by placing a placeholder Method on it
-    //   is the current sequence of chained Methods that are currently executing
-    this.runStack = new Method();
-
-    // Place to store stacks named by the module user
-    this.namedStacks = {};
-
+    // current sequence of chained Methods that are being built
+    // current sequence of chained Methods that are currently running
+    // Place to store reusable Method stacks named by the module user
+    // isRunning indicator that this ChainFrame's chain is running
     // initialize the EventEmitter
+    this.target = target;
+    this.buildStack = new Stack();
+    this.runStack = new Stack();
+    this.namedStacks = {};
+    this.isRunning = false;
     EventEmitter.call(this);
 }
-// Inherit functions from EventEmitter
-MethodStack.prototype = Object.create(EventEmitter.prototype);
-MethodStack.prototype.constructor = MethodStack;
+// Inherit prototype from EventEmitter
+MethodStacks.prototype = Object.create(EventEmitter.prototype);
+MethodStacks.prototype.constructor = MethodStacks;
 
-// 'push' takes the the given Method and places on end of the buildStack
-MethodStack.prototype.push = function (method) {
-    // link the current end Method of runStack to the given Method
-    method.previousMethod = this.buildStack;
-    // make the given Method end of runStack
-    this.buildStack = method;
+// Push a Method onto buildStack
+MethodStacks.prototype.push = function (method) {
+    this.buildStack.push(method);
 };
 
-// Sequentially run Methods from the first (bottom of runStack) to the last (top)
-MethodStack.prototype.run = function () {
-    // got arguments returned from the previous Method?
-    //  place them in the aArgs variable of the current Method on runStack
-    if (arguments.length) {
-        var firstMethod = this.runStack;
-        // work our way down to the first Method of the stack (will be a placeholded)
-        while (firstMethod.previousMethod) {
-            firstMethod = firstMethod.previousMethod;
-        }
-        // set aArgs to the arguments returned by Method just run
-        firstMethod.aArgs = [];
-        for (var i = 0, l = arguments.length; i < l; i++) {
-            firstMethod.aArgs.push(arguments[i]);
-        }
+// Sequentially run Methods from runStack
+MethodStacks.prototype.run = function () {
+    this.isRunning = true;
+
+    // runStack is empty so all done
+    if (this.runStack.length === 0) {
+        return;
     }
-    // pass ChainFrame's callback function into stackControl
-    var stackControl = {
-        callbackFn: this.run.bind(this)
-    };
-    // run the Method stack - will return prematurely if/when aysnc function is hit
-    //  if an async function has be hit, run it -
-    this.runStack.run(this.target, stackControl);
-    // if stackControl contains an asynchronous function - run it
-    //   this function (MethodStack.prototype.run) will continue when it does its callback
-    if (stackControl.fn) {
-        stackControl.fn.apply(this.target, stackControl.aArgs);
+
+    var method = this.runStack[0];
+    // if no arguments given when Method built
+    //  use the arguments returned from previous method
+    if (method.aArgs.length < 1) {
+        method.aArgs = arguments;
     }
-    // We are at the end of the runStack
+
+    // callbackParam indicates the Method is asynchronous
+    //  insert our self 'this.run()' as callback parameter into argument list
+    //  done with Method so remove from stack
+    //  run the async fn
+    if (method.callbackParam) {
+        var idx = method.signature.indexOf(method.callbackParam);
+        method.aArgs[idx] = this.run.bind(this);
+        method.aArgs.length = method.signature.length;
+        var methodInfo = {fn: method.fn, aArgs: method.aArgs};
+        this.runStack.shift();
+        methodInfo.fn.apply(this.target, method.aArgs);
+        return;
+    }
+
+    // otherwise, is synchronous so run 'fn'
+    //  done with Method so remove from stack
+    //  call our self 'this.run()' to process next Method
+    var result = method.fn.apply(this.target, method.aArgs);
+    this.runStack.shift();
+    // run the next method in the chain
+    this.run(result);
 };
 
-// Copy a Method Stack
-MethodStack.prototype.copy = function (currentMethod) {
-    var workArray = [];
-    while (currentMethod) {
-        workArray.push(currentMethod.copy());
-        currentMethod = currentMethod.previousMethod;
-    }
-    for (var i = workArray.length - 2; i > -1; i--) {
-        workArray[i].previousMethod = workArray[i + 1];
-    }
-    return workArray.length > 0 ? workArray[0] : new Method();
+// Store buildStack to a named Method stack
+MethodStacks.prototype.set = function (name) {
+    this.namedStacks[name] = new Stack();
+    this.buildStack.clone(this.namedStacks[name]);
 };
 
-// Store runStack to a named Method stack
-MethodStack.prototype.set = function (name) {
-    this.namedStacks[name] = this.copy(this.runStack);
+// Get a named Method stack into buildStack
+MethodStacks.prototype.get = function (name) {
+    this.namedStacks[name].clone(this.buildStack);
 };
 
-// Get a named Method stack into runStack
-MethodStack.prototype.get = function (name) {
-    this.runStack = this.copy(this.namedStacks[name]);
+// Get run flag
+MethodStacks.prototype.getRun = function () {
+    return this.isRunning;
 };
+
+// Set run flag
+MethodStacks.prototype.resetRun = function () {
+    this.isRunning = false;
+};
+
 
 /**************************************************************************
  * ChainFrame
  *  object that exposes higher level chaining functions
- *  references an instance of MethodStack
+ *  references an instance of MethodStacks
  *
  * @constructor
  */
 function ChainFrame() {
     // create a Method stack
-    this._methodStack = new MethodStack(this);
+    this._methodStack = new MethodStacks(this);
 }
 
+// Note: addToPrototype() and addToInstance() do the same thing
+//       except as their names imply -
+//         addToPrototype() adds the chain-able function to the prototype
+//         addToInstance()  adds the chain-able function to the instance
+//       if you don't know WTF all of this is about - just use addToInstance()
+
 // Add chain-able function(s) to the prototype
-ChainFrame.prototype.addPrototype = function (ctor, methods, callbackParam) {
+ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
+    // Allow a single function to be added to prototype - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({callbackParam: callbackParam, fn: methods});
     }
-    // Add the functions defined in 'methods' array to prototype
+    // add the functions defined in 'methods' array to prototype
+    //  is a wrapper function that pushes the Method on a Stack
+    //   the wrapper function returns 'this' - which is the magic that allows chaining
+    //  the chain is not actually run until 'runChain()' is called
     methods.forEach(function (method) {
-        // Wrapper around the function that returns 'this' - allows chaining
         ctor.prototype[method.fn.name] = function () {
             this._methodStack.push(
                     new Method(
                             method.callbackParam == null ? null : method.callbackParam,
                             method.fn,
-                            argumentsToArray.apply(this, arguments)));
-            return this;
+                            arguments));
+            return this; // return this to allow Methods to be chained
         };
     });
+    // return this to allow 'addToPrototype()'s to be chained
     return this;
 };
 
 // Add chain-able functions to an instance
-ChainFrame.prototype.addMethod = function (methods, callbackParam) {
+ChainFrame.prototype.addToInstance = function (methods, callbackParam) {
     // Allow a single function to be added to instance - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
         methods = new Array({callbackParam: callbackParam, fn: methods});
     }
-    // Add the functions defined in 'methods' array to instance
+    // add the functions defined in 'methods' array to the instance
+    //  is a wrapper function that pushes the Method on a Stack
+    //   wrapper function returns 'this' - which is the magic that allows chaining
+    //  the chain is not actually run until 'runChain()' is called
     methods.forEach(function (method) {
         // Wrapper around the function that returns 'this' - allows chaining
         this[method.fn.name] = function () {
@@ -293,49 +240,72 @@ ChainFrame.prototype.addMethod = function (methods, callbackParam) {
                     new Method(
                             method.callbackParam == null ? null : method.callbackParam,
                             method.fn,
-                            argumentsToArray.apply(this, arguments)));
+                            arguments));
             return this;
         };
     }.bind(this));
     return this;
 };
 
-// Run Methods on the method stack
+// Run the chained Methods
 ChainFrame.prototype.runChain = function () {
-    this._methodStack.runStack = this._methodStack.copy(this._methodStack.buildStack);
+    // can only run a single chain at a time
+    if (this.getRun()) throw new Error('a chain is already running!');
+
+    // move the Methods on the build stack to the run stack
+    // push function to reset the running indicator
+    this._methodStack.buildStack.clone(this._methodStack.runStack);
+    this._methodStack.runStack.push(
+            new Method(
+                    null,
+                    function() {this.resetRun();},
+                    arguments));
+
+    // run the chain
     this._methodStack.run();
     return this;
 };
 
-// Set a name to the Methods on the method stack
+// Give a name to the Methods on the build stack
 ChainFrame.prototype.setChain = function (name) {
     this._methodStack.set(name);
     return this;
 };
 
-// Get the Methods on the method stack by name
+// Add the Methods named 'name' to the build stack
 ChainFrame.prototype.getChain = function (name) {
     this._methodStack.get(name);
     return this;
 };
 
-// EventEmitter 'on' function to add an event listener
+// Get the running flag
+ChainFrame.prototype.getRun = function () {
+    return this._methodStack.getRun();
+};
+
+// Reset the running flag
+ChainFrame.prototype.resetRun = function () {
+    this._methodStack.resetRun();
+    return this;
+};
+
+// Add an EventEmitter event listener
 ChainFrame.prototype.on = function (event, fn) {
     this._methodStack.on(event, fn);
     return this;
 };
 
-// Apply to EventEmitter's emit() function to emit an event
+// Emit to Event Emitter listener function(s)
 ChainFrame.prototype.emit = function () {
+    // need to apply() to 'this._methodStack' (instead of 'this')
+    //  (EventEmitter is kinda touchy in referencing it's event listeners)
     this._methodStack.push(
             new Method(
                     null,
-                    // need to apply() to 'this._methodStack' (instead of 'this')
-                    //  (EventEmitter is kinda touchy in referencing it's event listeners)
                     function () {this._methodStack.emit.apply(this._methodStack, arguments)}.bind(this),
-                    argumentsToArray.apply(this, arguments)));
+                    arguments));
     return this;
 };
 
-// Expose ChainFrame prototype - (sounds kinda naughty)
+// Expose ChainFrame's prototype - (sounds kinda naughty :)
 module.exports = ChainFrame;
