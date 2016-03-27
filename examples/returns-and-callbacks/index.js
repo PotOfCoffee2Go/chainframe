@@ -3,26 +3,25 @@
  *
  */
 
-var ChainFrame = require('../../ChainFrame');
-
 function log(text) {
     console.log(text);
 }
 
 function returnExample() {
-    return 'Example of return   - hello world';
-}
-
-function callbackExample(callback) {
-    callback('Example of callback - hello world');
+    return 'returnExample says   - hello world';
 }
 
 function asyncExample(callback) {
     setTimeout(function () {
-        callback('Example of async    - hello world');
+        callback('asyncExample says    - hello world');
     }, 4000)
 }
 
+function callbackExample(callback) {
+    callback('callbackExample says - hello world');
+}
+
+var ChainFrame = require('../../ChainFrame');
 var helloWorld = new ChainFrame();
 
 // Add functions to ChainFrame
@@ -37,9 +36,9 @@ helloWorld
         .log('beginning hello world example')
         .returnExample()
         .log()
-        .callbackExample()
-        .log()
         .asyncExample()
+        .log()
+        .callbackExample()
         .log()
         .log('end of hello world example')
         .log('')
