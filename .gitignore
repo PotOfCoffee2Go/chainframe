@@ -1,4 +1,5 @@
-# Logs and flotsam
+# ignore gh-pages, Logs and flotsam
+gh-pages
 logs
 *.log
 flotsam
