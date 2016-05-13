@@ -2,7 +2,9 @@
  * Created by PotOfCoffee2Go on 1/18/2016.
  *
  */
+var ChainFrame = require('../../ChainFrame');
 
+// Create some functions to be chained:
 function log(text) {
     console.log(text);
 }
@@ -21,10 +23,10 @@ function callbackExample(callback) {
     callback('callbackExample says - hello world');
 }
 
-var ChainFrame = require('../../ChainFrame');
+// Create instance ‘helloWorld’ of ChainFrame
 var helloWorld = new ChainFrame();
 
-// Add functions to ChainFrame
+// Add functions to the helloWorld instance
 helloWorld
         .addToInstance(log)
         .addToInstance(returnExample)
@@ -45,6 +47,5 @@ helloWorld
         .log('All of the above functions were virtually identical to ChainFrame');
 
 // Run chain
-helloWorld
-        .runChain();
+helloWorld.runChain();
 
