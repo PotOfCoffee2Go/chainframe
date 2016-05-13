@@ -5,6 +5,9 @@ to asynchronous and synchronous functions using JavaScript Dot Notation.
 No special coding is required when composing functions to make them _chainable_. Arguments to methods in
 the chain can be entered as parameters or passed from the return value of the previous method.
 
+> ChainFrame is not ready for prime-time yet - there are features that are
+ being added, still needs a test suite, etc. Comments are welcome.
+
 ### How is ChainFrame used
 Examples best show the capabilities of ChainFrame
 
