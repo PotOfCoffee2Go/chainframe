@@ -1,10 +1,11 @@
 /**
  * Created by PotOfCoffee2Go on 1/11/2016.
  *
+ * These need to be verified - possibly obsolete 5/14/2016
  */
 'use strict';
 
-// 
+//
 const ChainFrame = require('../chainframe');
 
 // Define some functions 
