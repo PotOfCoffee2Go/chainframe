@@ -56,12 +56,10 @@ Method.prototype.clone = function () {
     return copy;
 };
 
-/**************************************************************************
- * Stack
- *  object that is a array of a sequence of Methods
- *
- * @constructor
- */
+/// Stack
+///  object that is a array of a sequence of Methods
+///
+/// @constructor
 function Stack() {
     // initialize array
     Array.call(this);
@@ -82,10 +80,9 @@ Stack.prototype.clear = function () {
     this.length = 0;
 };
 
-//*************************************************************************/
-// MethodStack inherits from nodejs EventEmitter
-//   convenience for users of the ChainFrame module
-//   since events are not used by ChainFrame itself
+/// MethodStack inherits from nodejs EventEmitter
+///   convenience for users of the ChainFrame module
+///   since events are not used by ChainFrame itself
 const EventEmitter = require('events');
 
 /**
@@ -179,13 +176,11 @@ MethodStack.prototype.resetRun = function () {
 };
 
 
-/**************************************************************************
- * ChainFrame
- *  object that exposes higher level chaining functions
- *  references an instance of MethodStack
- *
- * @constructor
- */
+/// ChainFrame
+///  object that exposes higher level chaining functions
+///  references an instance of MethodStack
+///
+/// @constructor
 function ChainFrame() {
     // create a Method stack
     this._methodStack = new MethodStack(this);
@@ -305,5 +300,5 @@ ChainFrame.prototype.emit = function () {
     return this;
 };
 
-// Expose ChainFrame's prototype - (sounds kinda naughty :)
+/// Expose ChainFrame's prototype - (sounds kinda naughty :)
 module.exports = ChainFrame;
