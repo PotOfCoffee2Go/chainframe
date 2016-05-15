@@ -11,15 +11,13 @@
 
 'use strict';
 
-/**************************************************************************
- * Method
- *  object which can be chained with other Method objects
- *
- * @param callbackParam     name of callback in fn function signature
- * @param fn                function that this Method calls
- * @param aArgs             arguments passed to 'fn'
- * @constructor
- */
+/// Method
+///  object which can be chained with other Method objects
+///
+/// @param callbackParam     name of callback in fn function signature
+/// @param fn                function that this Method calls
+/// @param aArgs             arguments passed to 'fn'
+/// @constructor
 function Method(callbackParam, fn, aArgs) {
     // callbackParam indicates parameter that is callback in fn signature
     // function to run - if not given then use a placeholder
