@@ -32,30 +32,6 @@
                     $('html').fadeIn(500);
                 }, 200)
             });
-        },
-
-        initTinyMCE: function initTinyMCE(page) {
-            $.get(page, function (data) {
-                $('#contents').html(data);
-                tinymce.init({selector: 'textarea.tinymce-text'});
-            });
-        },
-
-        initSimpleMCE: function initSimpleMCE(page) {
-            $.get(page, function (data) {
-                $('#contents').html(data);
-                var simplemde = new SimpleMDE({element: $("#MySimpleID")[0]});
-                simplemde.value("This text will appear in the SimpleMCE editor");
-            });
-        },
-
-        initAceEditor: function initAceEditor(page) {
-            $.get(page, function (data) {
-                $('#contents').html(data);
-                var editor = ace.edit('ace-editor');
-                editor.setTheme('ace/theme/monokai');
-                editor.getSession().setMode('ace/mode/javascript');
-            });
         }
     };
 
@@ -63,7 +39,9 @@
     $.extend(ahg_ns, appHelpers);
 })();
 
+/// Update browser history
 (function () {
+    "use strict";
     var inHistory = false;
     var inRsrc = '';
 
@@ -87,10 +65,29 @@
         ahg_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos);
         inHistory = false;
     };
-    // Expose function to update browser history
+
+    /// Expose function to update browser history
     ahg_ns['updateHistory'] = updateHistory;
 })();
 
+(function () {
+    "use strict";
+    var input = [];        // Array of source lines
 
+    function gendoc(source) {
+        var src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/master/';
+        $.get(src + source, function (data) {
+            input = data.toString().split('\n');
+            ahg_ns.parseCode(src, input, function (toc, output) {
+                $('#contents').html(marked(toc.concat(output).join('\n')));
+                ahg_ns.processCodeBlocks();
+            })
+        })
+    }
+
+    /// Expose function to generate markup of source code
+    ahg_ns['gendoc'] = gendoc;
+
+})();
 
 

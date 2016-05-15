@@ -4,6 +4,7 @@
     // Insure code blocks has the highlight.js class
     function processCodeBlocks() {
         $('pre code').addClass('hljs');
+        $('.hljs').css('overflow-x', 'auto');
     }
 
     /// ----
@@ -231,6 +232,7 @@
         }
     });
 
-    /// Expose clickContentsLink
+    /// Expose clickContentsLink and processCodeBlocks
     ahg_ns['clickContentsLink'] = clickContentsLink;
+    ahg_ns['processCodeBlocks'] = processCodeBlocks;
 })();
