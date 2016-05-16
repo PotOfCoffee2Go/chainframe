@@ -1,23 +1,22 @@
 /**
  * Created by PotOfCoffee2Go on 1/6/2016.
  *
- * This file contains four object definitions:
- *   * Method       - information about function to be chained
- *   * Stack        - array with a few custom functions added
- *   * MethodStack  - stacks of Method chains
- *   * ChainFrame   - references instance of MethodStack
- *                     and functions exposed to users of the module
  */
-
 'use strict';
 
-/// Method
-///  object which can be chained with other Method objects
-///
-/// @param callbackParam     name of callback in fn function signature
-/// @param fn                function that this Method calls
-/// @param aArgs             arguments passed to 'fn'
-/// @constructor
+/// This file contains four object definitions:
+///  * **Method**       - information about function to be chained
+///  * **Stack**        - inherit of Array with a few custom functions added
+///  * **MethodStack**  - stacks of Method chains
+///  * **ChainFrame**   - High level interface to MethodStack
+
+/// ----
+/// Method - object which can be chained with other Method objects
+/// ----
+///   - @param callbackParam     name of callback in fn function signature
+///   - @param fn                function that this Method calls
+///   - @param aArgs             arguments passed to 'fn'
+///   - @constructor
 function Method(callbackParam, fn, aArgs) {
     // callbackParam indicates parameter that is callback in fn signature
     // function to run - if not given then use a placeholder
@@ -46,7 +45,7 @@ function Method(callbackParam, fn, aArgs) {
     }
 }
 
-// Copy a Method
+///   - Copy a Method
 Method.prototype.clone = function () {
     var copy = new Method();
     copy.callbackParam = this.callbackParam;
@@ -56,49 +55,47 @@ Method.prototype.clone = function () {
     return copy;
 };
 
-/// Stack
-///  object that is a array of a sequence of Methods
-///
-/// @constructor
+/// ----
+/// Stack - array of a sequence of Methods
+/// ----
+///   - @constructor
 function Stack() {
     // initialize array
     Array.call(this);
 }
-// Inherit prototype from Array
+/// - Inherit prototype from Array
 Stack.prototype = Object.create(Array.prototype);
 Stack.prototype.constructor = Stack;
 
-// Copy a Stack
+/// - Copy a Stack
 Stack.prototype.clone = function (dstStack) {
     for (var i = 0, l = this.length; i < l; i++) {
         dstStack.push(this[i].clone());
     }
 };
 
-// Empty a stack
+/// - Empty a stack
 Stack.prototype.clear = function () {
     this.length = 0;
 };
 
-/// MethodStack inherits from nodejs EventEmitter
-///   convenience for users of the ChainFrame module
-///   since events are not used by ChainFrame itself
+/// ----
+/// MethodStack - maintains current and named chain(s) of Methods
+/// ----
+///  - MethodStack inherits from nodejs EventEmitter
+///  - convenience for users of the ChainFrame module
+///  - events are not used by ChainFrame itself
 const EventEmitter = require('events');
 
-/**
- * MethodStack
- *  object that maintains current and named chain(s) of Methods
- *
- * @param target object which Methods will be bound (ie: 'this')
- * @constructor
- */
+///  - `target` object will be 'this' of functions called by ChainFrame
+///  - `buildStack` current sequence of chained Methods that are being built
+///  - `runStack` current sequence of chained Methods that are currently running
+///  - `namedStacks` Place to store reusable Method stacks named by the module user
+///  - `isRunning` indicator that this ChainFrame's chain is running
+/// Initialize the EventEmitter
+///  - @param target object which Methods will be bound (ie: 'this')
+///  - @constructor
 function MethodStack(target) {
-    // the 'target' object will be 'this' of functions called by ChainFrame
-    // current sequence of chained Methods that are being built
-    // current sequence of chained Methods that are currently running
-    // Place to store reusable Method stacks named by the module user
-    // isRunning indicator that this ChainFrame's chain is running
-    // initialize the EventEmitter
     this.target = target;
     this.buildStack = new Stack();
     this.runStack = new Stack();
@@ -106,16 +103,16 @@ function MethodStack(target) {
     this.isRunning = false;
     EventEmitter.call(this);
 }
-// Inherit prototype from EventEmitter
+/// Inherit prototype from EventEmitter
 MethodStack.prototype = Object.create(EventEmitter.prototype);
 MethodStack.prototype.constructor = MethodStack;
 
-// Push a Method onto buildStack
+/// Push a Method onto buildStack
 MethodStack.prototype.push = function (method) {
     this.buildStack.push(method);
 };
 
-// Sequentially run Methods from runStack
+/// Sequentially run Methods from runStack
 MethodStack.prototype.run = function () {
     this.isRunning = true;
 
@@ -154,7 +151,7 @@ MethodStack.prototype.run = function () {
     this.run(result);
 };
 
-// Store buildStack to a named Method stack
+/// Store buildStack to a named Method stack
 MethodStack.prototype.set = function (name) {
     this.namedStacks[name] = new Stack();
     this.buildStack.clone(this.namedStacks[name]);
@@ -165,34 +162,33 @@ MethodStack.prototype.get = function (name) {
     this.namedStacks[name].clone(this.buildStack);
 };
 
-// Get run flag
+/// Get run flag
 MethodStack.prototype.getRun = function () {
     return this.isRunning;
 };
 
-// Set run flag
+/// Set run flag
 MethodStack.prototype.resetRun = function () {
     this.isRunning = false;
 };
 
-
-/// ChainFrame
-///  object that exposes higher level chaining functions
-///  references an instance of MethodStack
-///
-/// @constructor
+/// ----
+/// ChainFrame - exposes higher level chaining functions
+/// ----
+///  - references an instance of MethodStack
+///  - @constructor
 function ChainFrame() {
     // create a Method stack
     this._methodStack = new MethodStack(this);
 }
 
-// Note: addToPrototype() and addToInstance() do the same thing
-//       except as their names imply -
-//         addToPrototype() adds the chain-able function to the prototype
-//         addToInstance()  adds the chain-able function to the instance pnly
-//       if you are uncertain, you should probably use addToInstance()
+///  - addToPrototype() and addToInstance() do the same thing
+///  - except as their names imply -
+///    - addToPrototype() adds the chain-able function to the prototype
+///    - addToInstance()  adds the chain-able function to the instance pnly
+///  - if you are uncertain, you should probably use addToInstance()
 
-// Add chain-able function(s) to the prototype
+/// Add chain-able function(s) to the prototype
 ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
     // Allow a single function to be added to prototype - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
@@ -216,7 +212,7 @@ ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
     return this;
 };
 
-// Add chain-able functions to an instance
+/// Add chain-able functions to an instance
 ChainFrame.prototype.addToInstance = function (methods, callbackParam) {
     // Allow a single function to be added to instance - just make array with one function
     if (Object.prototype.toString.call(methods) === '[object Function]') {
@@ -240,7 +236,7 @@ ChainFrame.prototype.addToInstance = function (methods, callbackParam) {
     return this;
 };
 
-// Run the chained Methods
+/// Run the chained Methods
 ChainFrame.prototype.runChain = function () {
     // can only run a single chain at a time
     if (this.getRun()) throw new Error('a chain is already running!');
@@ -259,36 +255,36 @@ ChainFrame.prototype.runChain = function () {
     return this;
 };
 
-// Give a name to the Methods on the build stack
+/// Give a name to the Methods on the build stack
 ChainFrame.prototype.setChain = function (name) {
     this._methodStack.set(name);
     return this;
 };
 
-// Add the Methods named 'name' to the build stack
+/// Add the Methods named 'name' to the build stack
 ChainFrame.prototype.getChain = function (name) {
     this._methodStack.get(name);
     return this;
 };
 
-// Get the running flag
+/// Get the running flag
 ChainFrame.prototype.getRun = function () {
     return this._methodStack.getRun();
 };
 
-// Reset the running flag
+/// Reset the running flag
 ChainFrame.prototype.resetRun = function () {
     this._methodStack.resetRun();
     return this;
 };
 
-// Add an EventEmitter event listener
+/// Add an EventEmitter event listener
 ChainFrame.prototype.on = function (event, fn) {
     this._methodStack.on(event, fn);
     return this;
 };
 
-// Emit to Event Emitter listener function(s)
+/// Emit to Event Emitter listener function(s)
 ChainFrame.prototype.emit = function () {
     // need to apply() to 'this._methodStack' (instead of 'this')
     //  (EventEmitter is kinda touchy in referencing it's event listeners)
@@ -300,5 +296,5 @@ ChainFrame.prototype.emit = function () {
     return this;
 };
 
-/// Expose ChainFrame's prototype - (sounds kinda naughty :)
+/// Expose ChainFrame
 module.exports = ChainFrame;
