@@ -37,10 +37,10 @@ Examples best show the capabilities of ChainFrame
     // Create instance 'helloWorld' of ChainFrame
     var helloWorld = new ChainFrame();
     
-    // Synchronous function (with a parameter) to be chain-able
+    // Synchronous function (with a parameter) to be chained
     function log(text) { console.log(text); }
     
-    // Add the above log() function to the helloWorld instance
+    // Add the above function to the helloWorld instance
     helloWorld.addToInstance(log);
     
     // Build method chain
@@ -139,23 +139,6 @@ and write a method chain which passes the value returned by `sayHello()` to the 
     // Run chain
     helloWorld.runChain();
 
-
-    var fluffy = new Kitten();
-    fluffy
-        .setName('Fluffy')
-        .setColor('black')
-        .setGender('questionable')
-        .save();
-
-
-Some of the design goals :
-
-  - No builds, external packages, events, or promises
-  - All JavaScript
-  - Transparent to functions being chained
-  - Non-invasive, predictable, and easy to use
-  - Concise and lightweight
-  - Well documented (ok, five out of the six goals - not bad!)
 
 ###Why ChainFrame?
 ChainFrame is an attempt to allow easy implementation of a sequence of code in Nodejs/JavaScript,
