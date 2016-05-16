@@ -103,6 +103,6 @@
 
     }
 
-    /// Expose function to parse raw code into markdown
+    /// Expose function to parse code into markdown
     ahg_ns['parseCode'] = parse;
 })();

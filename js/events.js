@@ -23,7 +23,14 @@
     }
 
     // Insure code blocks has the highlight.js class
-    function processCodeBlocks() {
+    function processCodeBlocks(link, data) {
+        $('#PageFrame').animate({scrollTop: 0}, 100);
+        if (/\.md$/.test(link)) {
+            $('#contents').html(marked(data));
+        }
+        else {
+            $('#contents').html(data);
+        }
         $('pre code').addClass('hljs');
         $('.hljs').css('overflow-x', 'auto');
     }
@@ -64,14 +71,8 @@
         $('#rsrc-change').html($(what).attr('rsrc'));
         ahg_ns.updateHistory($(what).attr('rsrc'));
         $.get($(what).attr('rsrc'), function (data) {
-            $('#PageFrame').animate({scrollTop: 0}, 200);
-            if (/\.md$/.test($(what).attr('rsrc'))) {
-                $('#contents').html(marked(data));
-            }
-            else {
-                $('#contents').html(data);
-            }
-            processCodeBlocks();
+            $('#PageFrame').animate({scrollTop: 0}, 100);
+            processCodeBlocks($(what).attr('rsrc'), data);
         });
     };
 
@@ -101,8 +102,6 @@
             return false;
         }
 
-        $('#rsrc-change').html(href);
-
         /// - get the link path and possibly the anchor if there is one
         var linkref = href.split('?')[0].split('#');
         var link = linkref[0];
@@ -129,13 +128,7 @@
         ///     assigned for highlighting
         ahg_ns.updateHistory(href);
         $.get('/' + link, function (data) {
-            if (/\.md$/.test(link)) {
-                $('#contents').html(marked(data));
-            }
-            else {
-                $('#contents').html(data);
-            }
-            processCodeBlocks();
+            processCodeBlocks(link, data);
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
             }
@@ -176,7 +169,7 @@
     $(document).ready(function () {
 
         /// Show/hide site menu
-        $('#toggle-menu').click(function(){
+        $('#toggle-menu').click(function () {
             toggleMenuClick();
         });
 
@@ -215,12 +208,8 @@
             $('#menu-contents a').attr('href', 'javascript:;');
 
             // Get the welcome page
-            $.get('pages/welcome/welcome.md', function (data) {
-                $('#contents').html(data);
-                processCodeBlocks();
-                clickTopMenu($("#menu-home"));
-                $('[rsrc="pages/welcome/welcome.md"]').trigger('click');
-            });
+            clickTopMenu($("#menu-home"));
+            $('[rsrc="pages/welcome/welcome.md"]').trigger('click');
         });
         ///
     });
