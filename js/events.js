@@ -1,6 +1,27 @@
 (function () {
     "use strict";
 
+    var toggleMenuClicked = false, contentMargin = null;
+
+    /// Show/hide site menu
+    function toggleMenuClick() {
+        if (toggleMenuClicked == true) {
+            $('#contents').animate({'margin-left': contentMargin}, 'fast');
+            $('#menu-contents').slideDown("fast", function () {
+                $('#toggle-menu').attr('src', 'menu/images/menu_up.png');
+                toggleMenuClicked = false;
+            });
+        }
+        else {
+            contentMargin = $('#contents').css('margin-left');
+            $('#contents').animate({'margin-left': '12px'}, 'fast');
+            $('#menu-contents').slideUp("fast", function () {
+                $('#toggle-menu').attr('src', 'menu/images/menu_down.png');
+                toggleMenuClicked = true;
+            });
+        }
+    }
+
     // Insure code blocks has the highlight.js class
     function processCodeBlocks() {
         $('pre code').addClass('hljs');
@@ -34,12 +55,13 @@
     var clickSubMenu = function (what) {
         $('#cssmenu a').removeClass('subactive');
         $(what).addClass('subactive');
-        $('#rsrc-change').html($(what).attr('rsrc'));
         if ($(what).attr('rsrc').substring(0, 5) === 'call/') {
+            $('#rsrc-change').html($(what).attr('rsrc').replace('call/', ''));
             eval('ahg_ns.' + $(what).attr('rsrc').substring(5));
             return;
         }
 
+        $('#rsrc-change').html($(what).attr('rsrc'));
         ahg_ns.updateHistory($(what).attr('rsrc'));
         $.get($(what).attr('rsrc'), function (data) {
             $('#PageFrame').animate({scrollTop: 0}, 200);
@@ -64,20 +86,23 @@
             window.open(what.href, '_blank');
             return;
         }
+        // Remove the protocol and host from the url
         ref.shift();
         ref.shift();
-
         var href = ref.join('/');
 
-        $('#rsrc-change').html(href);
 
         /// - if a `call` - then just call the function
         ///   that must be in the ahg namespace
         /// - see [namespace.js](js/namespace.js)
         if (href.substring(0, 5) === 'call/') {
+            $('#rsrc-change').html(href.replace('call/', ''));
             eval('ahg_ns.' + href.substring(5));
             return false;
         }
+
+        $('#rsrc-change').html(href);
+
         /// - get the link path and possibly the anchor if there is one
         var linkref = href.split('?')[0].split('#');
         var link = linkref[0];
@@ -150,27 +175,10 @@
 /// ----
     $(document).ready(function () {
 
-        var toggleMenuClicked = false, contentMargin = null;
-
         /// Show/hide site menu
-        $('#toggle-menu').click(function () {
-            if (toggleMenuClicked == true) {
-                $('#contents').animate({'margin-left': contentMargin}, 'fast');
-                $('#menu-contents').slideDown("fast", function () {
-                    $('#toggle-menu').attr('src', 'menu/images/menu_up.png');
-                    toggleMenuClicked = false;
-                });
-            }
-            else {
-                contentMargin = $('#contents').css('margin-left');
-                $('#contents').animate({'margin-left': '12px'}, 'fast');
-                $('#menu-contents').slideUp("fast", function () {
-                    $('#toggle-menu').attr('src', 'menu/images/menu_down.png');
-                    toggleMenuClicked = true;
-                });
-            }
+        $('#toggle-menu').click(function(){
+            toggleMenuClick();
         });
-
 
         /// Main menu item clicked - collapse current and expand clicked
         $('#menu-contents').on('click', '#cssmenu > ul > li > a', function () {
@@ -189,47 +197,32 @@
             clickContentsLink(this);
         });
 
-        /// Form submitted on content page
-        //  post request to menu option
-        $(document).on('submit', function (event) {
-            event.preventDefault();
-            // Get all the forms elements and their values in one step
-            var form = $(event.target);
-            var formValues = form.serialize();
-
-            var ref = form.context.action.split('/');
-            if (!(ref[3] === 'api' && ref[4] === 'submit')) {
-                return true;
-            }
-            for (var i = 0; i < 5; i++) {
-                ref.shift();
-            }
-            $.post('/' + ref.join('/'), formValues, function (data) {
-                $('#contents').html(data);
-                processCodeBlocks();
-            });
-            return false;
-        });
+        // Set the display of the starting theme and highlighter
+        var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
+        var themename = themeshref[themeshref.length - 1];
+        $('#theme-change').html(themename);
+        var hilighthref = $('#hilightsheet').attr('href').replace('.css', '').split('/');
+        var hilightname = hilighthref[hilighthref.length - 1];
+        $('#hilight-change').html(hilightname);
 
         /// Get menu html and bring up default content on load
         $.get('menu/menu.html', function (data) {
+            // Change the 'href' attribute name to 'rsrc'
             var adjdata = data.replace(/href/g, 'rsrc');
+            // Show the menu
             $('#menu-contents').html(adjdata);
+            // Add 'href' attribute to point to nothing
             $('#menu-contents a').attr('href', 'javascript:;');
+
+            // Get the welcome page
             $.get('pages/welcome/welcome.md', function (data) {
                 $('#contents').html(data);
-                $('#contents > pre > code').addClass('hljs');
+                processCodeBlocks();
                 clickTopMenu($("#menu-home"));
                 $('[rsrc="pages/welcome/welcome.md"]').trigger('click');
             });
         });
         ///
-    });
-
-    marked.setOptions({
-        highlight: function (code, lang) {
-            return hljs.highlightAuto(code).value;
-        }
     });
 
     /// Expose clickContentsLink and processCodeBlocks

@@ -31,13 +31,11 @@
     <!-- Initial page settings -->
     <script>
         $(document).ready(function () {
-            // Set the display of the starting theme and highlighter
-            var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
-            var themename = themeshref[themeshref.length - 1];
-            $('#theme-change').html(themename);
-            var hilighthref = $('#hilightsheet').attr('href').replace('.css', '').split('/');
-            var hilightname = hilighthref[hilighthref.length - 1];
-            $('#hilight-change').html(hilightname);
+            marked.setOptions({
+                highlight: function (code, lang) {
+                    return hljs.highlightAuto(code).value;
+                }
+            });
         });
     </script>
 

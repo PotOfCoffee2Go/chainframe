@@ -1,7 +1,9 @@
 ## ChainFrame
 <img src="images/under-construction.png" width=64 style="float:left;" />
 > ChainFrame is not ready for prime-time yet - there are features that are
- being added, still needs a test suite, etc. Comments are welcome.
+ being added, still needs a test suite, etc.
+ Will be uploaded to [npm](https://www.npmjs.com/) when ready for release.
+ Comments are welcome.
 
 <br />
 
@@ -27,43 +29,7 @@ the chain can be entered as parameters or passed from the return value of the pr
     - However, an async task can be launched from a chain (see Advanced Usage)
   - Documented (well, we try!)
 
-### How is ChainFrame used
-Examples best show the capabilities of ChainFrame
-
 #### Hello World
-
-    var ChainFrame = require('ChainFrame');
-    
-    // Create instance 'helloWorld' of ChainFrame
-    var helloWorld = new ChainFrame();
-    
-    // Synchronous function (with a parameter) to be chained
-    function log(text) { console.log(text); }
-    
-    // Add the above function to the helloWorld instance
-    helloWorld.addToInstance(log);
-    
-    // Build method chain
-    helloWorld.log( 'Hello World!' );
-    
-    // Run the chain
-    helloWorld.runChain();
-
-Notice that in the above example the parameter to the `log` function is being passed with in the
-chain itself. `helloWorld.log(` **'Hello World!'** `);`
-
-#### Parameter passing from previous chained method
-We will add the following function which returns a string 
-and write a method chain which passes the value returned by `sayHello()` to the `log()` function :
-
-    function sayHello() { return 'I say Hello World!'; }
-    ...
-    helloWorld.addToInstance(sayHello);
-    ...
-    helloWorld.sayHello().log();
-
-
-Like so:
 
     var ChainFrame = require('ChainFrame');
 
@@ -72,24 +38,27 @@ Like so:
 
     // Synchronous functions
     function log(text)  { console.log(text); }
-    function sayHello() { return 'I say Hello World!'; } // <----
+    function sayHello() { return 'I say Hello World!'; }
 
     // Add the functions to the helloWorld instance
     helloWorld.addToInstance(log);
-    helloWorld.addToInstance(sayHello); // <----
+    helloWorld.addToInstance(sayHello);
 
     // Build method chain
-    helloWorld.sayHello().log(); // <----
+    helloWorld.sayHello().log();
 
     // Run the chain
     helloWorld.runChain();
 
-The above example passes the arguments returned by the sayHello() function to the log() function.
+The above example passes the values returned by the sayHello() function to the log() function.
 
-
-
+Normally, to chain methods in JavaScript the functions being chained need to
+return `this`. ChainFrame handles that for you, allowing functions to return
+a value - which ChainFrame will pass on as arguments to the next function in the
+chain.
 
 #### Handling of asynchronous functions
+Below I am creating a set of functions to demonstrate 
 We will add the following asynchronous function (using a timer) which returns a string 
 and write a method chain which passes the value returned by `sayHello()` to the `log()` function :
 
@@ -140,20 +109,22 @@ and write a method chain which passes the value returned by `sayHello()` to the 
     helloWorld.runChain();
 
 
-###Why ChainFrame?
+## Why ChainFrame?
 ChainFrame is an attempt to allow easy implementation of a sequence of code in Nodejs/JavaScript,
 be the functions synchronous, asynchronous, or a combination of both.
 
 A very common sequence of tasks are :
 
-1.  Get data from somewhere
-2.  Transform to make usable by JavaScript (into data objects)
-3.  Consume, correlate, and process the data objects into useful information
-3.  Insert/update database(s) with the information
+1. Get data from somewhere
+2. Transform to make usable by JavaScript (into data objects)
+3. Consume, correlate, and process the data objects into useful information
+4. Insert/update database(s) with the information
+5. Display results
 
-These four steps are a simple sequence.  However in Nodejs it is easy to end up in Callback Hell, Pyramid of Doom;
-stringing together events and promises; or resorting to [step](https://www.npmjs.com/package/step) or
+These steps are a simple sequence.  However in Nodejs it is easy to end up in Callback Hell, Pyramid of Doom;
+stringing together events and promises; or using [step](https://www.npmjs.com/package/step) or
 [async](https://www.npmjs.com/package/async) modules.
+
 Meanwhile buried somewhere in all this code that's handling arrays of 'callbacks', 'on's, 'when's, 'then's, 'series',
 'parallel's, and 'waterfall's are the few lines that are actually doing the work!
 When there are problems, it is not uncommon for the problem to have nothing to do with the code doing the
@@ -161,7 +132,7 @@ task - but a mistake in my implementation of async stuff.
 
 Remember, all I want to do is :
 
-    fluffy.getData().transform().process().updateMyDatabase();
+    fluffy.getData().transform().process().updateMyDatabase().reportResults();
 
 ###Example of what a method chain looks like
 
