@@ -7,12 +7,15 @@
 
     <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
 
-    <!--
-          <link rel="stylesheet" href="css/mdthemes/markdown-alt.css" id="mdsheet">
-    -->
+    <!-- site base styles -->
+    <link rel="stylesheet" href="css/mdthemes/markdown-alt.css" id="mdsheet">
     <link rel="stylesheet" href="css/site.css" id="sitesheet">
 
+    <!-- code highlight styles & scripts -->
+    <link rel="stylesheet" href="highlight/styles/kimbie.dark.css" id="hilightsheet">
     <script src="highlight/highlight.pack.js"></script>
+
+    <!-- markdown markup - most content is in markdown -->
     <script src="lib/marked.js"></script>
 
     <!-- app-http-gui scripts -->
@@ -25,9 +28,19 @@
     <script src="js/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <!-- Initial page settings -->
+    <script>
+        $(document).ready(function () {
+            // Set the display of the starting theme and highlighter
+            var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
+            var themename = themeshref[themeshref.length - 1];
+            $('#theme-change').html(themename);
+            var hilighthref = $('#hilightsheet').attr('href').replace('.css', '').split('/');
+            var hilightname = hilighthref[hilighthref.length - 1];
+            $('#hilight-change').html(hilightname);
+        });
+    </script>
+
 </head>
 <body>
 

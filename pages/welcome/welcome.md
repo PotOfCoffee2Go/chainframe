@@ -1,38 +1,53 @@
-
-<img src="images/under-construction.png" width=64 style="float:left;" />
-
 ## ChainFrame
-ChainFrame is a framework which allows building of [fluent interfaces](https://en.wikipedia.org/wiki/Fluent_interface)
+<img src="images/under-construction.png" width=64 style="float:left;" />
+> ChainFrame is not ready for prime-time yet - there are features that are
+ being added, still needs a test suite, etc. Comments are welcome.
+
+<br />
+
+### Summary
+ChainFrame is a nodejs framework which allows building of [fluent interfaces](https://en.wikipedia.org/wiki/Fluent_interface)
 to asynchronous and synchronous functions using JavaScript Dot Notation.
 No special coding is required when composing functions to make them _chainable_. Arguments to methods in
 the chain can be entered as parameters or passed from the return value of the previous method.
 
-> ChainFrame is not ready for prime-time yet - there are features that are
- being added, still needs a test suite, etc. Comments are welcome.
+### Design goals
+  - Non-invasive, predictable, and easy to use
+  - Single, concise, and lightweight source code file
+  - All JavaScript
+    - No builds or packages external to nodejs
+    - No events or promises used by ChainFrame
+      - (though your functions can use them)
+  - Transparent to functions being chained
+    - Functions return values for next method in chain
+      - returning of `this` for chaining is transparent
+      - returned values are passed as arguments to next method in chain
+  - Serialization of asynchronous functions
+    - Chain is executed in sequence regardless of async or sync
+    - However, an async task can be launched from a chain (see Advanced Usage)
+  - Documented (well, we try!)
 
 ### How is ChainFrame used
 Examples best show the capabilities of ChainFrame
 
 #### Hello World
 
-```
     var ChainFrame = require('ChainFrame');
-
+    
     // Create instance 'helloWorld' of ChainFrame
     var helloWorld = new ChainFrame();
-
+    
     // Synchronous function (with a parameter) to be chain-able
     function log(text) { console.log(text); }
-
+    
     // Add the above log() function to the helloWorld instance
     helloWorld.addToInstance(log);
-
+    
     // Build method chain
     helloWorld.log( 'Hello World!' );
-
+    
     // Run the chain
     helloWorld.runChain();
-```
 
 Notice that in the above example the parameter to the `log` function is being passed with in the
 chain itself. `helloWorld.log(` **'Hello World!'** `);`
