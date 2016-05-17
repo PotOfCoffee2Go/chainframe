@@ -1,24 +1,19 @@
 /**
- * Created by PotOfCoffee2Go on 1/18/2016.
+ * Created by PotOfCoffee2Go on 1/19/2016.
  *
  */
-
 /// kudos to jsonplaceholder for making available a REST API for testing
-///   http://jsonplaceholder.typicode.com/
-///
-/// Quick and dirty task:
-///   Get the To Do List from jsonplaceholder site and output to a csv file.
-///
-/// ChainFrame allows me to do it without ending up in Callback Hell/Pyramid of Doom;
-///  using npm modules like 'step' or 'async'; nor using events, promises... etc.
-///
+/// http://jsonplaceholder.typicode.com/
+///  - Quick and dirty task:
+///    - Get the To Do List from jsonplaceholder site and output to a csv file.
+///  - ChainFrame allows me to do it without ending up in Callback Hell/Pyramid of Doom;
+///    using npm modules like 'step' or 'async'; nor using events, promises... etc.
 
-"use strict";
+'use strict';
 
 var util = require('util');
 var http = require('http');
 var fs = require('fs');
-
 var ChainFrame = require('../../ChainFrame');
 
 /// A canned log function - use it a lot
