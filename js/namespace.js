@@ -80,7 +80,7 @@
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
             ahg_ns.parseCode(src, input, function (output) {
-                ahg_ns.processContents('code.md',marked(output.join('\n')));
+                ahg_ns.processContents('code.md',output.join('\n'));
             })
         },'text')
     }
