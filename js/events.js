@@ -23,7 +23,7 @@
     }
 
     // Insure code blocks has the highlight.js class
-    function processCodeBlocks(link, data) {
+    function processContents(link, data) {
         $('#PageFrame').animate({scrollTop: 0}, 100);
         if (/\.md$/.test(link)) {
             $('#contents').html(marked(data));
@@ -72,7 +72,7 @@
         ahg_ns.updateHistory($(what).attr('rsrc'));
         $.get($(what).attr('rsrc'), function (data) {
             $('#PageFrame').animate({scrollTop: 0}, 100);
-            processCodeBlocks($(what).attr('rsrc'), data);
+            processContents($(what).attr('rsrc'), data);
         });
     };
 
@@ -128,7 +128,7 @@
         ///     assigned for highlighting
         ahg_ns.updateHistory(href);
         $.get('/' + link, function (data) {
-            processCodeBlocks(link, data);
+            processContents(link, data);
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
             }
@@ -214,7 +214,7 @@
         ///
     });
 
-    /// Expose clickContentsLink and processCodeBlocks
+    /// Expose clickContentsLink and processContents
     ahg_ns['clickContentsLink'] = clickContentsLink;
-    ahg_ns['processCodeBlocks'] = processCodeBlocks;
+    ahg_ns['processContents'] = processContents;
 })();

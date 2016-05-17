@@ -79,9 +79,8 @@
         //var src = 'http://localhost:8080/';
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
-            ahg_ns.parseCode(src, input, function (toc, output) {
-                $('#contents').html(marked(toc.concat(output).join('\n')));
-                ahg_ns.processCodeBlocks();
+            ahg_ns.parseCode(src, input, function (output) {
+                ahg_ns.processContents('code.md',marked(output.join('\n')));
             })
         },'text')
     }
