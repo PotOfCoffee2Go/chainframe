@@ -4,7 +4,7 @@
  */
 var ChainFrame = require('../../ChainFrame');
 
-// Create some functions to be chained:
+/// Create some functions to be chained:
 function log(text) {
     console.log(text);
 }
@@ -23,17 +23,17 @@ function callbackExample(callback) {
     callback('callbackExample says - hello world');
 }
 
-// Create instance ‘helloWorld’ of ChainFrame
+/// Create instance `helloWorld` of ChainFrame
 var helloWorld = new ChainFrame();
 
-// Add functions to the helloWorld instance
+/// Add functions to the helloWorld instance
 helloWorld
         .addToInstance(log)
         .addToInstance(returnExample)
         .addToInstance(callbackExample)
         .addToInstance(asyncExample);
 
-// Build method chain
+/// Build method chain
 helloWorld
         .log('beginning hello world example')
         .returnExample()
@@ -46,6 +46,6 @@ helloWorld
         .log('')
         .log('All of the above functions were virtually identical to ChainFrame');
 
-// Run chain
+/// Run chain
 helloWorld.runChain();
 

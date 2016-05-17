@@ -2,14 +2,14 @@
  * Created by PotOfCoffee2Go on 1/19/2016.
  *
  */
+'use strict';
+
 /// kudos to jsonplaceholder for making available a REST API for testing
 /// http://jsonplaceholder.typicode.com/
 ///  - Quick and dirty task:
 ///    - Get the To Do List from jsonplaceholder site and output to a csv file.
 ///  - ChainFrame allows me to do it without ending up in Callback Hell/Pyramid of Doom;
 ///    using npm modules like 'step' or 'async'; nor using events, promises... etc.
-
-'use strict';
 
 var util = require('util');
 var http = require('http');
