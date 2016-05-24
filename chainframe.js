@@ -6,17 +6,16 @@
 
 /// This file contains four object definitions:
 ///  * **Method**       - information about function to be chained
-///  * **Queue**        - inherit of Array with a few custom functions added
-///  * **MethodStack**  - stacks of Method chains
-///  * **ChainFrame**   - High level interface to MethodStack
+///  * **Queue**        - inherit of Array making a FIFO queue
+///  * **MethodQueue**  - queues of Method chains
+///  * **ChainFrame**   - High level interface to MethodQueue
 
 /// ----
 /// Method - object which can be chained with other Method objects
 /// ----
-///   - @param callbackParam     name of callback in fn function signature
-///   - @param fn                function that this Method calls
-///   - @param aArgs             arguments passed to 'fn'
-///   - @constructor
+///   - `callbackParam`     name of callback in fn function signature
+///   - `fn`                function that this Method calls
+///   - `aArgs`             arguments passed to 'fn'
 function Method(callbackParam, fn, aArgs) {
     // callbackParam indicates parameter that is callback in fn signature
     // function to run - if not given then use a placeholder
@@ -58,7 +57,6 @@ Method.prototype.clone = function () {
 /// ----
 /// Queue - array of a sequence of Methods
 /// ----
-///   - @constructor
 function Queue() {
     // initialize array
     Array.call(this);
@@ -68,21 +66,21 @@ Queue.prototype = Object.create(Array.prototype);
 Queue.prototype.constructor = Queue;
 
 /// - Copy a Queue
-Queue.prototype.clone = function (dstStack) {
+Queue.prototype.clone = function (dstQueue) {
     for (var i = 0, l = this.length; i < l; i++) {
-        dstStack.push(this[i].clone());
+        dstQueue.push(this[i].clone());
     }
 };
 
-/// - Empty a stack
+/// - Empty a queue
 Queue.prototype.clear = function () {
     this.length = 0;
 };
 
 /// ----
-/// MethodStack - maintains current and named chain(s) of Methods
+/// MethodQueue - maintains current and named chain(s) of Methods
 /// ----
-///  - MethodStack inherits from nodejs EventEmitter
+///  - MethodQueue inherits from nodejs EventEmitter
 ///  - convenience for users of the ChainFrame module
 ///  - events are not used by ChainFrame itself
 const EventEmitter = require('events');
@@ -90,12 +88,10 @@ const EventEmitter = require('events');
 ///  - `target` object will be 'this' of functions called by ChainFrame
 ///  - `buildQueue` current sequence of chained Methods that are being built
 ///  - `runQueue` current sequence of chained Methods that are currently running
-///  - `namedQueues` Place to store reusable Method stacks
+///  - `namedQueues` Place to store reusable Method queues
 ///  - `isRunning` indicator that this ChainFrame's chain is running
-/// Initialize the EventEmitter
-///  - @param target object which Methods will be bound (ie: 'this')
-///  - @constructor
-function MethodStack(target) {
+///  - Initialize the EventEmitter
+function MethodQueue(target) {
     this.target = target;
     this.buildQueue = new Queue();
     this.runQueue = new Queue();
@@ -104,16 +100,16 @@ function MethodStack(target) {
     EventEmitter.call(this);
 }
 /// Inherit prototype from EventEmitter
-MethodStack.prototype = Object.create(EventEmitter.prototype);
-MethodStack.prototype.constructor = MethodStack;
+MethodQueue.prototype = Object.create(EventEmitter.prototype);
+MethodQueue.prototype.constructor = MethodQueue;
 
 /// Push a Method onto buildQueue
-MethodStack.prototype.push = function (method) {
+MethodQueue.prototype.push = function (method) {
     this.buildQueue.push(method);
 };
 
 /// Sequentially run Methods from runQueue
-MethodStack.prototype.run = function () {
+MethodQueue.prototype.run = function () {
     this.isRunning = true;
 
     // runQueue is empty so all done
@@ -130,7 +126,7 @@ MethodStack.prototype.run = function () {
 
     // callbackParam indicates the Method is asynchronous
     //  insert our self 'this.run()' as callback parameter into argument list
-    //  done with Method so remove from stack
+    //  done with Method so remove from queue
     //  run the async fn
     if (method.callbackParam) {
         var idx = method.signature.indexOf(method.callbackParam);
@@ -143,7 +139,7 @@ MethodStack.prototype.run = function () {
     }
 
     // otherwise, is synchronous so run the 'fn'
-    //  done with Method so remove from stack
+    //  done with Method so remove from queue
     //  call our self 'this.run()' to process next Method
     var result = method.fn.apply(this.target, method.aArgs);
     this.runQueue.shift();
@@ -151,35 +147,34 @@ MethodStack.prototype.run = function () {
     this.run(result);
 };
 
-/// Store buildQueue to a named Method stack
-MethodStack.prototype.set = function (name) {
+/// Store buildQueue to a named Method queue
+MethodQueue.prototype.set = function (name) {
     this.namedQueues[name] = new Queue();
     this.buildQueue.clone(this.namedQueues[name]);
 };
 
-// Get a named Method stack into buildQueue
-MethodStack.prototype.get = function (name) {
+// Get a named Method queue into buildQueue
+MethodQueue.prototype.get = function (name) {
     this.namedQueues[name].clone(this.buildQueue);
 };
 
 /// Get run flag
-MethodStack.prototype.getRun = function () {
+MethodQueue.prototype.getRun = function () {
     return this.isRunning;
 };
 
 /// Set run flag
-MethodStack.prototype.resetRun = function () {
+MethodQueue.prototype.resetRun = function () {
     this.isRunning = false;
 };
 
 /// ----
 /// ChainFrame - higher level chaining functions
 /// ----
-///  - references an instance of MethodStack
-///  - @constructor
+///  - references an instance of MethodQueue
 function ChainFrame() {
-    // create a Method stack
-    this._methodStack = new MethodStack(this);
+    // create a Method queue
+    this._methodQueue = new MethodQueue(this);
 }
 
 ///  - addToPrototype() and addToInstance() do the same thing
@@ -200,7 +195,7 @@ ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
     //  the chain is not actually run until 'runChain()' is called
     methods.forEach(function (method) {
         ctor.prototype[method.fn.name] = function () {
-            this._methodStack.push(
+            this._methodQueue.push(
                     new Method(
                             method.callbackParam == null ? null : method.callbackParam,
                             method.fn,
@@ -225,7 +220,7 @@ ChainFrame.prototype.addToInstance = function (methods, callbackParam) {
     methods.forEach(function (method) {
         // Wrapper around the function that returns 'this' - allows chaining
         this[method.fn.name] = function () {
-            this._methodStack.push(
+            this._methodQueue.push(
                     new Method(
                             method.callbackParam == null ? null : method.callbackParam,
                             method.fn,
@@ -241,57 +236,57 @@ ChainFrame.prototype.runChain = function () {
     // can only run a single chain at a time
     if (this.getRun()) throw new Error('a chain is already running!');
 
-    // move the Methods on the build stack to the run stack
+    // move the Methods from the build queue to the run queue
     // push function to reset the running indicator
-    this._methodStack.buildQueue.clone(this._methodStack.runQueue);
-    this._methodStack.runQueue.push(
+    this._methodQueue.buildQueue.clone(this._methodQueue.runQueue);
+    this._methodQueue.runQueue.push(
             new Method(
                     null,
                     function () {this.resetRun();},
                     arguments));
 
     // run the chain
-    this._methodStack.run();
+    this._methodQueue.run();
     return this;
 };
 
-/// Give a name to the Methods on the build stack
+/// Give a name to the Methods on the build queue
 ChainFrame.prototype.setChain = function (name) {
-    this._methodStack.set(name);
+    this._methodQueue.set(name);
     return this;
 };
 
-/// Add the Methods named 'name' to the build stack
+/// Add the Methods named 'name' to the build queue
 ChainFrame.prototype.getChain = function (name) {
-    this._methodStack.get(name);
+    this._methodQueue.get(name);
     return this;
 };
 
 /// Get the running flag
 ChainFrame.prototype.getRun = function () {
-    return this._methodStack.getRun();
+    return this._methodQueue.getRun();
 };
 
 /// Reset the running flag
 ChainFrame.prototype.resetRun = function () {
-    this._methodStack.resetRun();
+    this._methodQueue.resetRun();
     return this;
 };
 
 /// Add an EventEmitter event listener
 ChainFrame.prototype.on = function (event, fn) {
-    this._methodStack.on(event, fn);
+    this._methodQueue.on(event, fn);
     return this;
 };
 
 /// Emit to Event Emitter listener function(s)
 ChainFrame.prototype.emit = function () {
-    // need to apply() to 'this._methodStack' (instead of 'this')
+    // need to apply() to 'this._methodQueue' (instead of 'this')
     //  (EventEmitter is kinda touchy in referencing it's event listeners)
-    this._methodStack.push(
+    this._methodQueue.push(
             new Method(
                     null,
-                    function () {this._methodStack.emit.apply(this._methodStack, arguments)}.bind(this),
+                    function () {this._methodQueue.emit.apply(this._methodQueue, arguments)}.bind(this),
                     arguments));
     return this;
 };
