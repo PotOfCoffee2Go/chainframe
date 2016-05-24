@@ -87,3 +87,37 @@
 })();
 
 
+(function () {
+    "use strict";
+
+    var socket = io.connect('http://ahg-potofcoffee2go.rhcloud.com/');
+    socket.on('connection', function (socket) {
+        changeIoIndicator('red');
+    });
+    socket.on('disconnect', function () {
+        changeIoIndicator('red');
+    });
+
+    socket.on('connected', function (msg) {onConnected(msg);});
+
+    // Export variables and functions
+
+    // --- Connection has been established to server ----
+    function onConnected(msg) {
+        console.log('OnConnected: ' + JSON.stringify(msg));
+        emitConnected();
+    }
+
+    function emitConnected() {
+        socket.emit('connected', {data: {clientconfirmconnected: 'yes'}});
+        changeIoIndicator('green');
+    }
+
+    // -----------------------
+
+    function changeIoIndicator(color) {
+        $('#headerleft > #socketio-change > img').
+                attr('src', 'images/io-' + color + '.png');
+    }
+
+}());
