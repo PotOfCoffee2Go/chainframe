@@ -71,8 +71,10 @@
     var input = []; // Array of source lines
 
     function gendoc(source) {
-        var src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/master/';
-        //var src = 'http://localhost:8080/';
+        var src = 'http://localhost:8080/';
+        if ('localhost' !== window.location.hostname) {
+            src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/master/';
+        }
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
             ahg_ns.parseCode(src, input, function (output) {
@@ -87,6 +89,7 @@
 })();
 
 
+/// WebSocket to nodejs server for additional content
 (function () {
     "use strict";
 
