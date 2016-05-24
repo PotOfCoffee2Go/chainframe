@@ -82,7 +82,7 @@ and write a method chain which passes the value returned by `sayHello()` to the 
 
     function callbackExample(callback) { callback('callbackExample says - hello world'); }
     
-    // Create instance ‘helloWorld’ of ChainFrame
+    // Create instance 'helloWorld' of ChainFrame
     var helloWorld = new ChainFrame();
     
     // Add functions to the helloWorld instance
