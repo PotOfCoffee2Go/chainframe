@@ -16,13 +16,13 @@
 ///   - `callbackParam`     name of callback in fn function signature
 ///   - `fn`                function that this Method calls
 ///   - `aArgs`             arguments passed to 'fn'
-function Method(callbackParam, fn, aArgs) {
-    // callbackParam indicates parameter that is callback in fn signature
+function Method(fn, aArgs, callbackParam) {
     // function to run - if not given then use a placeholder
     // arguments to pass to fn
-    this.callbackParam = callbackParam || null;
+    // callbackParam indicates parameter that is callback in fn signature
     this.fn = fn || function () {};
     this.aArgs = aArgs || null;
+    this.callbackParam = callbackParam || null;
 
     // for async functions, insure name of the callback is in the signature
     //  get the first line of 'fn's definition
@@ -196,10 +196,7 @@ ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
     methods.forEach(function (method) {
         ctor.prototype[method.fn.name] = function () {
             this._methodQueue.push(
-                    new Method(
-                            method.callbackParam == null ? null : method.callbackParam,
-                            method.fn,
-                            arguments));
+                    new Method(method.fn, arguments, method.callbackParam == null ? null : method.callbackParam));
             return this; // return this to allow Methods to be chained
         };
     });
@@ -221,10 +218,7 @@ ChainFrame.prototype.addToInstance = function (methods, callbackParam) {
         // Wrapper around the function that returns 'this' - allows chaining
         this[method.fn.name] = function () {
             this._methodQueue.push(
-                    new Method(
-                            method.callbackParam == null ? null : method.callbackParam,
-                            method.fn,
-                            arguments));
+                    new Method(method.fn, arguments, method.callbackParam == null ? null : method.callbackParam));
             return this;
         };
     }.bind(this));
@@ -240,10 +234,7 @@ ChainFrame.prototype.runChain = function () {
     // push function to reset the running indicator
     this._methodQueue.buildQueue.clone(this._methodQueue.runQueue);
     this._methodQueue.runQueue.push(
-            new Method(
-                    null,
-                    function () {this.resetRun();},
-                    arguments));
+            new Method(function () {this.resetRun();}, arguments, null));
 
     // run the chain
     this._methodQueue.run();
@@ -284,10 +275,7 @@ ChainFrame.prototype.emit = function () {
     // need to apply() to 'this._methodQueue' (instead of 'this')
     //  (EventEmitter is kinda touchy in referencing it's event listeners)
     this._methodQueue.push(
-            new Method(
-                    null,
-                    function () {this._methodQueue.emit.apply(this._methodQueue, arguments)}.bind(this),
-                    arguments));
+            new Method(function () {this._methodQueue.emit.apply(this._methodQueue, arguments)}.bind(this), arguments, null));
     return this;
 };
 
