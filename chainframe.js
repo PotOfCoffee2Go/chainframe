@@ -90,7 +90,7 @@ const EventEmitter = require('events');
 ///  - `target` object will be 'this' of functions called by ChainFrame
 ///  - `buildStack` current sequence of chained Methods that are being built
 ///  - `runStack` current sequence of chained Methods that are currently running
-///  - `namedStacks` Place to store reusable Method stacks named by the module user
+///  - `namedStacks` Place to store reusable Method stacks
 ///  - `isRunning` indicator that this ChainFrame's chain is running
 /// Initialize the EventEmitter
 ///  - @param target object which Methods will be bound (ie: 'this')
@@ -173,7 +173,7 @@ MethodStack.prototype.resetRun = function () {
 };
 
 /// ----
-/// ChainFrame - exposes higher level chaining functions
+/// ChainFrame - higher level chaining functions
 /// ----
 ///  - references an instance of MethodStack
 ///  - @constructor
@@ -185,7 +185,7 @@ function ChainFrame() {
 ///  - addToPrototype() and addToInstance() do the same thing
 ///  - except as their names imply -
 ///    - addToPrototype() adds the chain-able function to the prototype
-///    - addToInstance()  adds the chain-able function to the instance pnly
+///    - addToInstance()  adds the chain-able function to the instance only
 ///  - if you are uncertain, you should probably use addToInstance()
 
 /// Add chain-able function(s) to the prototype
@@ -247,7 +247,7 @@ ChainFrame.prototype.runChain = function () {
     this._methodStack.runStack.push(
             new Method(
                     null,
-                    function() {this.resetRun();},
+                    function () {this.resetRun();},
                     arguments));
 
     // run the chain
