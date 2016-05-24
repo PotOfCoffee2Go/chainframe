@@ -13,9 +13,9 @@
 /// ----
 /// Method - object which can be chained with other Method objects
 /// ----
-///   - `callbackParam`     name of callback in fn function signature
 ///   - `fn`                function that this Method calls
 ///   - `aArgs`             arguments passed to 'fn'
+///   - `callbackParam`     name of callback parameter in 'fn' signature
 function Method(fn, aArgs, callbackParam) {
     // function to run - if not given then use a placeholder
     // arguments to pass to fn
