@@ -71,8 +71,8 @@
     var input = []; // Array of source lines
 
     function gendoc(source) {
-        //var src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/master/';
-        var src = 'http://localhost:8080/';
+        var src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/master/';
+        //var src = 'http://localhost:8080/';
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
             ahg_ns.parseCode(src, input, function (output) {
