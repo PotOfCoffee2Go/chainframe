@@ -7,8 +7,8 @@
 /// This file contains four object definitions:
 ///  * **Method**       - information about function to be chained
 ///  * **Queue**        - inherit of Array making a FIFO queue
-///  * **MethodQueue**  - queues of Method chains
-///  * **ChainFrame**   - High level interface to MethodQueue
+///  * **MethodQueues**  - queues of Method chains
+///  * **ChainFrame**   - High level interface to MethodQueues
 
 /// ----
 /// Method - object which can be chained with other Method objects
@@ -78,11 +78,11 @@ Queue.prototype.clear = function () {
 };
 
 /// ----
-/// MethodQueue - maintains current and named chain(s) of Methods
+/// MethodQueues - maintains current and named chain(s) of Methods
 /// ----
-///  - MethodQueue inherits from nodejs EventEmitter
-///  - convenience for users of the ChainFrame module
-///  - events are not used by ChainFrame itself
+///  - MethodQueues inherits from nodejs EventEmitter
+///    - convenience for users of the ChainFrame module
+///    - events are not used by ChainFrame itself
 const EventEmitter = require('events');
 
 ///  - `target` object will be 'this' of functions called by ChainFrame
@@ -91,7 +91,7 @@ const EventEmitter = require('events');
 ///  - `namedQueues` Place to store reusable Method queues
 ///  - `isRunning` indicator that this ChainFrame's chain is running
 ///  - Initialize the EventEmitter
-function MethodQueue(target) {
+function MethodQueues(target) {
     this.target = target;
     this.buildQueue = new Queue();
     this.runQueue = new Queue();
@@ -100,16 +100,16 @@ function MethodQueue(target) {
     EventEmitter.call(this);
 }
 /// Inherit prototype from EventEmitter
-MethodQueue.prototype = Object.create(EventEmitter.prototype);
-MethodQueue.prototype.constructor = MethodQueue;
+MethodQueues.prototype = Object.create(EventEmitter.prototype);
+MethodQueues.prototype.constructor = MethodQueues;
 
 /// Push a Method onto buildQueue
-MethodQueue.prototype.push = function (method) {
+MethodQueues.prototype.push = function (method) {
     this.buildQueue.push(method);
 };
 
 /// Sequentially run Methods from runQueue
-MethodQueue.prototype.run = function () {
+MethodQueues.prototype.run = function () {
     this.isRunning = true;
 
     // runQueue is empty so all done
@@ -148,33 +148,33 @@ MethodQueue.prototype.run = function () {
 };
 
 /// Store buildQueue to a named Method queue
-MethodQueue.prototype.set = function (name) {
+MethodQueues.prototype.set = function (name) {
     this.namedQueues[name] = new Queue();
     this.buildQueue.clone(this.namedQueues[name]);
 };
 
 // Get a named Method queue into buildQueue
-MethodQueue.prototype.get = function (name) {
+MethodQueues.prototype.get = function (name) {
     this.namedQueues[name].clone(this.buildQueue);
 };
 
 /// Get run flag
-MethodQueue.prototype.getRun = function () {
+MethodQueues.prototype.getRun = function () {
     return this.isRunning;
 };
 
 /// Set run flag
-MethodQueue.prototype.resetRun = function () {
+MethodQueues.prototype.resetRun = function () {
     this.isRunning = false;
 };
 
 /// ----
 /// ChainFrame - higher level chaining functions
 /// ----
-///  - references an instance of MethodQueue
+///  - references an instance of MethodQueues
 function ChainFrame() {
     // create a Method queue
-    this._methodQueue = new MethodQueue(this);
+    this._methodQueue = new MethodQueues(this);
 }
 
 ///  - addToPrototype() and addToInstance() do the same thing
@@ -199,7 +199,7 @@ ChainFrame.prototype.addToPrototype = function (ctor, methods, callbackParam) {
                     new Method(method.fn, arguments, method.callbackParam == null ? null : method.callbackParam));
             return this; // return this to allow Methods to be chained
         };
-    });
+    }.bind(this));
     // return this to allow 'addToPrototype()'s to be chained
     return this;
 };

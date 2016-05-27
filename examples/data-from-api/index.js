@@ -4,8 +4,7 @@
  */
 'use strict';
 
-/// kudos to jsonplaceholder for making available a REST API for testing
-/// http://jsonplaceholder.typicode.com/
+/// Kudos to [jsonplaceholder](http://jsonplaceholder.typicode.com/) for making available a REST API for testing
 ///  - Quick and dirty task:
 ///    - Get the To Do List from jsonplaceholder site and output to a csv file.
 ///  - ChainFrame allows me to do it without ending up in Callback Hell/Pyramid of Doom;
