@@ -93,7 +93,8 @@
 (function () {
     "use strict";
 
-    var socket = io.connect('http://ahg-potofcoffee2go.rhcloud.com/');
+    var socket = io.connect('http://bbwebsock-potofcoffee2go.rhcloud.com:8000/');
+    //var socket = io.connect('http://localhost:3000/');
     socket.on('connection', function (socket) {
         changeIoIndicator('red');
     });
@@ -112,7 +113,14 @@
     }
 
     function emitConnected() {
-        socket.emit('connected', {data: {clientconfirmconnected: 'yes'}});
+        socket.emit('connected',
+                {
+                    data: {
+                        ClientId: 'kim2',
+                        clientconfirmconnected: 'yes'
+                    }
+                }
+        );
         changeIoIndicator('green');
     }
 
