@@ -53,5 +53,5 @@
     }
 
     /// Expose function to parse code into markdown
-    ahg_ns['parseCode'] = parse;
+    site_ns['parseCode'] = parse;
 })();

@@ -1,28 +1,19 @@
+/// ## Content handler
+/// The site content is received using JQuery ajax $.get() and loaded
+/// into the #contents div. Since most of the site content is written
+/// in Markdown it must be transformed to HTML for display in the browser.
+/// Code blocks highlighting is performed as well as special handling of
+/// links contained in the content as well as having the site menu display
+/// the content that is being displayed.
+
+/// ----
+/// ### Site content handling
+/// ----
 (function () {
     "use strict";
 
-    var toggleMenuClicked = false, contentMargin = null;
-
-    /// Show/hide site menu
-    function toggleMenuClick() {
-        if (toggleMenuClicked == true) {
-            $('#contents').animate({'margin-left': contentMargin}, 'fast');
-            $('#menu-contents').slideDown("fast", function () {
-                $('#toggle-menu').attr('src', 'menu/images/menu_up.png');
-                toggleMenuClicked = false;
-            });
-        }
-        else {
-            contentMargin = $('#contents').css('margin-left');
-            $('#contents').animate({'margin-left': '12px'}, 'fast');
-            $('#menu-contents').slideUp("fast", function () {
-                $('#toggle-menu').attr('src', 'menu/images/menu_down.png');
-                toggleMenuClicked = true;
-            });
-        }
-    }
-
-    // Insure code blocks has the highlight.js class
+    /// If a markdown file then transform to html and
+    /// insure code blocks hav the highlight.js class
     function processContents(link, data) {
         $('#PageFrame').animate({scrollTop: 0}, 100);
         if (/\.md$/.test(link)) {
@@ -32,50 +23,11 @@
             $('#contents').html(data);
         }
         $('pre code').addClass('hljs');
+        // Some themes do not have overflow-x set - so set it
         $('.hljs').css('overflow-x', 'auto');
     }
 
-    /// ----
-    /// ### Menu system
-    /// ----
-    /// - Expand/collapse of **site** menu
-    ///   - 'what' is 'this' of the menu to expand
-    var clickTopMenu = function (what) {
-        var checkElement = $(what).next();
-        var $cssmenu_li = $('#cssmenu li');
-        if ((checkElement.is('ul')) && (checkElement.is(':visible'))) {
-            $(what).closest('li').removeClass('active');
-            checkElement.slideUp('normal', function () {
-                $cssmenu_li.removeClass('active');
-            });
-        }
-        if ((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
-            $('#cssmenu ul ul:visible').slideUp('normal');
-            checkElement.slideDown('normal');
-            $cssmenu_li.removeClass('active');
-        }
-        $cssmenu_li.removeClass('active');
-        $(what).closest('li').addClass('active');
-    };
-
-    /// - Sub-menu processing
-    var clickSubMenu = function (what) {
-        $('#cssmenu a').removeClass('subactive');
-        $(what).addClass('subactive');
-        if ($(what).attr('rsrc').substring(0, 5) === 'call/') {
-            $('#rsrc-change').html($(what).attr('rsrc').replace('call/', ''));
-            eval('ahg_ns.' + $(what).attr('rsrc').substring(5));
-            return;
-        }
-
-        $('#rsrc-change').html($(what).attr('rsrc'));
-        ahg_ns.updateHistory($(what).attr('rsrc'));
-        $.get($(what).attr('rsrc'), function (data) {
-            $('#PageFrame').animate({scrollTop: 0}, 100);
-            processContents($(what).attr('rsrc'), data);
-        });
-    };
-
+    /// Handle clinking a link in the site content
     var clickContentsLink = function (what, scrollPos) {
         scrollPos = scrollPos || 0;
         /// - Solve problem (IMO) with Markdown where external
@@ -92,13 +44,12 @@
         ref.shift();
         var href = ref.join('/');
 
-
         /// - if a `call` - then just call the function
         ///   that must be in the ahg namespace
         /// - see [namespace.js](js/namespace.js)
         if (href.substring(0, 5) === 'call/') {
             $('#rsrc-change').html(href.replace('call/', ''));
-            eval('ahg_ns.' + href.substring(5));
+            eval('site_ns.' + href.substring(5));
             return false;
         }
 
@@ -126,7 +77,7 @@
         /// - get the page and put it in the content
         ///   - the code blocks have to have the 'hljs' class
         ///     assigned for highlighting
-        ahg_ns.updateHistory(href);
+        site_ns.updateHistory(href);
         $.get('/' + link, function (data) {
             processContents(link, data);
             if (scrollPos) {
@@ -164,39 +115,15 @@
     };
 
 /// ----
-/// ### JQuery Onload
+/// ### Onload set up click on link handler, get the menu and welcome page
 /// ----
     $(document).ready(function () {
-
-        /// Show/hide site menu
-        $('#toggle-menu').click(function () {
-            toggleMenuClick();
-        });
-
-        /// Main menu item clicked - collapse current and expand clicked
-        $('#menu-contents').on('click', '#cssmenu > ul > li > a', function () {
-            clickTopMenu(this);
-        });
-
-        /// Sub-menu item clicked
-        /// - change menu presentation to show sub-menu selected
-        $('#menu-contents').on('click', '#cssmenu > ul > li > ul > li > a', function () {
-            clickSubMenu(this);
-        });
 
         /// - Link was clicked on a page that is in the #contents div
         $('#contents').on('click', 'a', function (event) {
             event.preventDefault();
             clickContentsLink(this);
         });
-
-        // Set the display of the starting theme and highlighter
-        var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
-        var themename = themeshref[themeshref.length - 1];
-        $('#theme-change').html(themename);
-        var hilighthref = $('#hilightsheet').attr('href').replace('.css', '').split('/');
-        var hilightname = hilighthref[hilighthref.length - 1];
-        $('#hilight-change').html(hilightname);
 
         /// Get menu html and bring up default content on load
         $.get('menu/menu.html', function (data) {
@@ -208,13 +135,13 @@
             $('#menu-contents a').attr('href', 'javascript:;');
 
             // Get the welcome page
-            clickTopMenu($("#menu-home"));
+            site_ns.clickTopMenu($("#menu-home"));
             $('[rsrc="pages/welcome/welcome.md"]').trigger('click');
         });
         ///
     });
 
     /// Expose clickContentsLink and processContents
-    ahg_ns['clickContentsLink'] = clickContentsLink;
-    ahg_ns['processContents'] = processContents;
+    site_ns['clickContentsLink'] = clickContentsLink;
+    site_ns['processContents'] = processContents;
 })();

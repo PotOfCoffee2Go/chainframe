@@ -1,9 +1,11 @@
-/// ## ahg_ns Namespace
-/// The namespace contains functions which are accessable by
-/// from anywhere in the app-http-gui application by prefixing
-/// the variable or function with `ahg_ns` ie: ahg_ns.something();
+/// ## site_ns Namespace
+/// The site namespace contains functions which are accessible
+/// anywhere in the web application by prefixing the variable or
+/// function with `site_ns` ie: site_ns.something();
 
-/// Change the site theme and code highlight
+/// ----
+/// Site theme and code highlight
+/// ----
 (function () {
     "use strict";
 
@@ -29,12 +31,24 @@
                 '<link href="highlight/styles/' + hilight + '" rel="stylesheet" id="hilightsheet" />');
     }
 
+    /// OnLoad display name of starting theme and highlighter
+    $(document).ready(function () {
+        var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
+        var themename = themeshref[themeshref.length - 1];
+        $('#theme-change').html(themename);
+        var hilighthref = $('#hilightsheet').attr('href').replace('.css', '').split('/');
+        var hilightname = hilighthref[hilighthref.length - 1];
+        $('#hilight-change').html(hilightname);
+    });
+
     // Put the above functions into namespace
-    ahg_ns['themeChange'] = themeChange;
-    ahg_ns['hilightChange'] = hilightChange;
+    site_ns['themeChange'] = themeChange;
+    site_ns['hilightChange'] = hilightChange;
 })();
 
+/// ----
 /// Update browser history
+/// ----
 (function () {
     "use strict";
     var inHistory = false;
@@ -47,7 +61,6 @@
                     $scrollFrame.offset().top - $('#AbsoluteHeader').height()
             );
             window.history.replaceState({rsrc: inRsrc, pagePos: inPagePos}, '');
-
             window.history.pushState({rsrc: link, pagePos: 0}, '');
         }
         inRsrc = link;
@@ -57,15 +70,17 @@
         inHistory = true;
         var backlink = event.state.rsrc;
         var linkDom = '<a href="' + backlink + '"></a>';
-        ahg_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos);
+        site_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos);
         inHistory = false;
     };
 
     /// Expose function to update browser history
-    ahg_ns['updateHistory'] = updateHistory;
+    site_ns['updateHistory'] = updateHistory;
 })();
 
-/// Generate markup of source code
+/// ----
+// Generate markup of source code
+/// ----
 (function () {
     "use strict";
     var input = []; // Array of source lines
@@ -77,19 +92,20 @@
         }
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
-            ahg_ns.parseCode(src, input, function (output) {
-                ahg_ns.processContents('code.md', output.join('\n'));
+            site_ns.parseCode(src, input, function (output) {
+                site_ns.processContents('code.md', output.join('\n'));
             })
         }, 'text')
     }
 
     /// Expose function to generate markup of source code
-    ahg_ns['gendoc'] = gendoc;
-
+    site_ns['gendoc'] = gendoc;
 })();
 
 
+/// ----
 /// WebSocket to nodejs server for additional content
+/// ----
 (function () {
     "use strict";
 
@@ -130,5 +146,4 @@
         $('#headerleft > #socketio-change > img').
                 attr('src', 'images/io-' + color + '.png');
     }
-
 }());
