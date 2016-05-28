@@ -70,7 +70,7 @@
         inHistory = true;
         var backlink = event.state.rsrc;
         var linkDom = '<a href="' + backlink + '"></a>';
-        site_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos);
+        site_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos, true);
         inHistory = false;
     };
 

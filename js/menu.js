@@ -50,6 +50,7 @@
     var clickSubMenu = function (what) {
         $('#cssmenu a').removeClass('subactive');
         $(what).addClass('subactive');
+        site_ns.updateHistory($(what).attr('rsrc'));
         if ($(what).attr('rsrc').substring(0, 5) === 'call/') {
             $('#rsrc-change').html($(what).attr('rsrc').replace('call/', ''));
             eval('site_ns.' + $(what).attr('rsrc').substring(5));
@@ -57,7 +58,6 @@
         }
 
         $('#rsrc-change').html($(what).attr('rsrc'));
-        site_ns.updateHistory($(what).attr('rsrc'));
         $.get($(what).attr('rsrc'), function (data) {
             $('#PageFrame').animate({scrollTop: 0}, 100);
             site_ns.processContents($(what).attr('rsrc'), data);

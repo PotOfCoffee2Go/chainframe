@@ -28,7 +28,7 @@
     }
 
     /// Handle clinking a link in the site content
-    var clickContentsLink = function (what, scrollPos) {
+    var clickContentsLink = function (what, scrollPos, skipHistory) {
         scrollPos = scrollPos || 0;
         /// - Solve problem (IMO) with Markdown where external
         ///   links do not open in a new tab - so...
@@ -43,6 +43,10 @@
         ref.shift();
         ref.shift();
         var href = ref.join('/');
+
+        if (skipHistory == null) {
+            site_ns.updateHistory(href);
+        }
 
         /// - if a `call` - then just call the function
         ///   that must be in the ahg namespace
@@ -77,7 +81,6 @@
         /// - get the page and put it in the content
         ///   - the code blocks have to have the 'hljs' class
         ///     assigned for highlighting
-        site_ns.updateHistory(href);
         $.get('/' + link, function (data) {
             processContents(link, data);
             if (scrollPos) {
@@ -91,7 +94,7 @@
 
             // switch the main menu item if that has changed
             if ($(menuid).parent().hasClass('active') === false) {
-                clickTopMenu(menuid);
+                site_ns.clickTopMenu(menuid);
             }
 
             /// - insure that we scroll to the top of the page
