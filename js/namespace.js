@@ -88,7 +88,12 @@
     function gendoc(source) {
         var src = 'http://localhost:8080/';
         if ('localhost' !== window.location.hostname) {
-            src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/master/';
+            // We are on GitHub - so use the source from there
+            src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/';
+            // GitHub source in master unless is gh-pages
+            if (source.indexOf('gh-pages') !== 0) {
+                src += 'master/'
+            }
         }
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
