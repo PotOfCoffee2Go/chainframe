@@ -30,6 +30,7 @@
     /// Handle clinking a link in the site content
     var clickContentsLink = function (what, scrollPos, skipHistory) {
         scrollPos = scrollPos || 0;
+
         /// - Solve problem (IMO) with Markdown where external
         ///   links do not open in a new tab - so...
         /// - when href is not our domain
@@ -39,9 +40,21 @@
             window.open(what.href, '_blank');
             return;
         }
-        // Remove the protocol and host from the url
-        ref.shift();
-        ref.shift();
+
+        /// - protocol://hostname/basePathName/link
+        ///   - protocol = http or https
+        ///   - hostname = localhost or ip address or domain
+        ///   - basePathName = path to site directory, examples: / or /my/site/
+        ///   - link = subdirectory/filename
+        /// - [test page](pages/welcome/welcome.md)
+        var basePathName = document.location.pathname;
+        var basePathLen = basePathName.split('/').length;
+
+        // Remove the protocol, host and pathname from url
+        for (var i = 0; i < basePathLen; i++) {
+            ref.shift();
+        }
+
         var href = ref.join('/');
 
         if (skipHistory == null) {
@@ -49,7 +62,7 @@
         }
 
         /// - if a `call` - then just call the function
-        ///   that must be in the ahg namespace
+        ///   that must be in the site_ns namespace
         /// - see [namespace.js](js/namespace.js)
         if (href.substring(0, 5) === 'call/') {
             $('#rsrc-change').html(href.replace('call/', ''));
@@ -81,7 +94,7 @@
         /// - get the page and put it in the content
         ///   - the code blocks have to have the 'hljs' class
         ///     assigned for highlighting
-        $.get('/' + link, function (data) {
+        $.get(basePathName + link, function (data) {
             processContents(link, data);
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
