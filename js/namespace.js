@@ -41,7 +41,7 @@
         $('#hilight-change').html(hilightname);
     });
 
-    // Put the above functions into namespace
+    /// Expose functions to generate markup of source code
     site_ns['themeChange'] = themeChange;
     site_ns['hilightChange'] = hilightChange;
 })();
@@ -79,17 +79,20 @@
 })();
 
 /// ----
-// Generate markup of source code
+/// Generate markup of source code
 /// ----
 (function () {
     "use strict";
     var input = []; // Array of source lines
 
-    function gendoc(source) {
-        var src = 'http://localhost:8080/';
+    function gendoc(source, callback) {
+        // Get the site href - http(s)://hostname/pathname/
+        var src = window.location.href;
+
+        // If not on localhost then get source code from GitHub
         if ('localhost' !== window.location.hostname) {
             // We are on GitHub - so use the source from there
-            src = 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/';
+            src = site_ns.source;
             // GitHub source in master unless is gh-pages
             if (source.indexOf('gh-pages') !== 0) {
                 src += 'master/'
@@ -97,10 +100,56 @@
         }
         $.get(src + source, function (data) {
             input = data.toString().split('\n');
-            site_ns.parseCode(src, input, function (output) {
-                site_ns.processContents('code.md', output.join('\n'));
+            parse(src, input, function (output) {
+                callback(output.join('\n'));
             })
         }, 'text')
+    }
+
+    /// ### Parse the input lines. Line is either comment or code
+    function parse(rsrcPath, input, callback) {
+        var output = [];
+        var state = 'comment';  // State of parser 'comment' or 'code'
+
+        // For each line[i]. determine if comment or code
+        for (var i = 0, l = input.length; i < l; i++) {
+
+            // blank line
+            if (input[i].trim() === '') {
+                output.push(input[i].trim());
+            }
+            // meta comment
+            else if (input[i].trim().substring(0, 3) === '///') {
+                testState('comment');
+                output.push(input[i].trim().substring(4)); // remove '/// '
+            }
+            // code
+            else {
+                testState('code');
+                output.push(input[i]);
+            }
+        }
+        // When done insure we close off a code block
+        // by setting state to a comment
+        testState('comment');
+
+        callback(output);
+
+        /// Test line[i]. state transistion
+        /// - state unchanged,
+        /// - to comment
+        /// - or to code
+        function testState(newState) {
+            if (state === newState) return; // No change
+            if (state === 'comment' && newState === 'code') {
+                output.push(''); // insure blank line before code block
+                output.push('```js');
+            }
+            if (state === 'code' && newState === 'comment') {
+                output.push('```');
+            }
+            state = newState;
+        }
     }
 
     /// Expose function to generate markup of source code

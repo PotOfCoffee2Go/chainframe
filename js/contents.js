@@ -12,19 +12,35 @@
 (function () {
     "use strict";
 
-    /// If a markdown file then transform to html and
-    /// insure code blocks hav the highlight.js class
-    function processContents(link, data) {
-        $('#PageFrame').animate({scrollTop: 0}, 100);
-        if (/\.md$/.test(link)) {
-            $('#contents').html(marked(data));
-        }
-        else {
-            $('#contents').html(data);
-        }
+    /// Add class for [highlight.js](https://highlightjs.org/)
+    function setCodeHighlightClass(callback) {
         $('pre code').addClass('hljs');
         // Some themes do not have overflow-x set - so set it
         $('.hljs').css('overflow-x', 'auto');
+        if (callback) callback(codedoc);
+    }
+
+    /// If a markdown file then transform to html and
+    /// insure code blocks hav the highlight.js class
+    function processContents(link, callback) {
+        $('#PageFrame').animate({scrollTop: 0}, 100);
+        if (/\.js$/.test(link)) {
+            site_ns.gendoc(link, function (codedoc) {
+                $('#contents').html(marked(codedoc));
+                setCodeHighlightClass(callback);
+            })
+        }
+        else {
+            $.get(link, function (data) {
+                if (/\.md$/.test(link)) {
+                    $('#contents').html(marked(data));
+                }
+                else {
+                    $('#contents').html(data);
+                }
+                setCodeHighlightClass(callback);
+            })
+        }
     }
 
     /// Handle clinking a link in the site content
@@ -46,7 +62,6 @@
         ///   - hostname = localhost or ip address or domain
         ///   - basePathName = path to site directory, examples: / or /my/site/
         ///   - link = subdirectory/filename
-        /// - [test page](pages/welcome/welcome.md)
         var basePathName = document.location.pathname;
         var basePathLen = basePathName.split('/').length;
 
@@ -94,8 +109,7 @@
         /// - get the page and put it in the content
         ///   - the code blocks have to have the 'hljs' class
         ///     assigned for highlighting
-        $.get(basePathName + link, function (data) {
-            processContents(link, data);
+        processContents(basePathName + link, function (data) {
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
             }

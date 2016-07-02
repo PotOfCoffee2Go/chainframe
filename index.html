@@ -8,14 +8,14 @@
     <title>Chainframe by PotOfCoffee2Go</title>
 
     <!-- JQuery -->
-    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 
     <!-- Theme and site styles -->
     <link rel="stylesheet" href="css/mdthemes/markdown-alt.css" id="mdsheet">
     <link rel="stylesheet" href="css/site.css" id="sitesheet">
 
     <!-- code highlight styles & scripts -->
-    <link rel="stylesheet" href="highlight/styles/kimbie.dark.css" id="hilightsheet">
+    <link rel="stylesheet" href="highlight/styles/docco.css" id="hilightsheet">
     <script src="highlight/highlight.pack.js"></script>
 
     <!-- markdown markup - since most content is in markdown -->
@@ -32,12 +32,16 @@
     <!-- websocket communications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 
-    <!-- site scripts -->
+    <!-- site namespace -->
     <script>
-        var site_ns = {name: 'chainframe'};
+        var site_ns = {
+            name: 'chainframe',
+            source: 'https://raw.githubusercontent.com/PotOfCoffee2Go/chainframe/'
+        };
     </script>
+
+    <!-- site scripts -->
     <script src="js/menu.js"></script>
-    <script src="js/gendoc.js"></script>
     <script src="js/contents.js"></script>
     <script src="js/namespace.js"></script>
 

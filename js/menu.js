@@ -58,10 +58,7 @@
         }
 
         $('#rsrc-change').html($(what).attr('rsrc'));
-        $.get($(what).attr('rsrc'), function (data) {
-            $('#PageFrame').animate({scrollTop: 0}, 100);
-            site_ns.processContents($(what).attr('rsrc'), data);
-        });
+        site_ns.processContents($(what).attr('rsrc'));
     };
 
     /// OnLoad set menu onclick handlers
