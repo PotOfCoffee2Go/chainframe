@@ -94,8 +94,11 @@
             // We are on GitHub - so use the source from there
             src = site_ns.source;
             // GitHub source in master unless is gh-pages
-            if (source.indexOf('gh-pages') !== 0) {
-                src += 'master/'
+            if (source.indexOf('../') > -1) {
+                src += 'master/';
+            }
+            else {
+                src += 'gh-pages/';
             }
         }
         $.get(src + source, function (data) {
@@ -173,8 +176,11 @@
             // We are on GitHub - so use the source from there
             src = site_ns.source;
             // GitHub source in master unless is gh-pages
-            if (source.indexOf('gh-pages') !== 0) {
-                src += 'master/'
+            if (source.indexOf('../') > -1) {
+                src += 'master/';
+            }
+            else {
+                src += 'gh-pages/';
             }
         }
         $.get(src + source, function (data) {
@@ -271,8 +277,11 @@
             // We are on GitHub - so use the source from there
             src = site_ns.source;
             // GitHub source in master unless is gh-pages
-            if (source.indexOf('gh-pages') !== 0) {
-                src += 'master/'
+            if (source.indexOf('../') > -1) {
+                src += 'master/';
+            }
+            else {
+                src += 'gh-pages/';
             }
         }
         $.get(src + source, function (data) {
