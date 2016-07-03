@@ -79,63 +79,39 @@
 })();
 
 /// ----
-/// Convert code to markdown for browser presentation
+/// Format code to markdown for browser presentation
 /// ----
 (function () {
     "use strict";
 
-    /// Generate markup of javascript source code
-    function genJSDoc(source, callback) {
-        var options = {
-            ext: 'js',
-            lineCmntTag: '///',
-            blockCmntBeg: '/**',
-            blockCmntEnd: '*/'
-        };
+    /// ----
+    /// Generate markup of source code
+    function genDoc(type, source, callback) {
+        var options = {};
+        switch (type) {
+            case 'js' :
+                options = {ext: 'js', lineCmntTag: '///', blockCmntBeg: '/**', blockCmntEnd: '*/'};
+                break;
+            case 'html' :
+                options = {ext: 'html', lineCmntTag: null, blockCmntBeg: '<!---', blockCmntEnd: '--->'};
+                break;
+            case 'css' :
+                options = {ext: 'css', lineCmntTag: null, blockCmntBeg: '/**', blockCmntEnd: '**/'};
+                break;
+            case 'json' :
+                options = {ext: 'json', lineCmntTag: null, blockCmntBeg: null, blockCmntEnd: null};
+                break;
+            default:
+                return;
+        }
 
-        // Get the site href - http(s)://hostname/pathname/
+        // Get the source code and format into Markdown
         codeToMarkdown(source, options, function (output) {
             callback(output);
         });
     }
-
     // Expose function to generate markup of source code
-    site_ns['genJSDoc'] = genJSDoc;
-
-
-    /// Generate markup of html source code
-    function genHtmlDoc(source, callback) {
-        var options = {
-            ext: 'html',
-            lineCmntTag: '///ghjgh',
-            blockCmntBeg: '<!---',
-            blockCmntEnd: '--->'
-        };
-        // Get the site href - http(s)://hostname/pathname/
-        codeToMarkdown(source, options, function (output) {
-            callback(output);
-        });
-    }
-
-    // Expose function to generate markup of source code
-    site_ns['genHtmlDoc'] = genHtmlDoc;
-
-    /// Generate markup of CSS source code
-    function genCssDoc(source, callback) {
-        var options = {
-            ext: 'css',
-            lineCmntTag: '///ghjgh',
-            blockCmntBeg: '/**',
-            blockCmntEnd: '**/'
-        };
-        // Get the site href - http(s)://hostname/pathname/
-        codeToMarkdown(source, options, function (output) {
-            callback(output);
-        });
-    }
-
-    // Expose function to generate markup source code
-    site_ns['genCssDoc'] = genCssDoc;
+    site_ns['genDoc'] = genDoc;
 
     /// ----
 
@@ -178,8 +154,8 @@
 
         /// Determine if first line is comment or code
         var expected = ' '; // assume starting with code
-        if (input[0].trim().indexOf(opt.lineCmntTag) === 0 ||
-                input[0].trim().indexOf(opt.blockCmntBeg) === 0) {
+        if ((opt.lineCmntTag && input[0].trim().indexOf(opt.lineCmntTag) === 0) ||
+                (opt.blockCmntBeg && input[0].trim().indexOf(opt.blockCmntBeg) === 0)) {
             expected = 'c'; // is a comment
         }
 
@@ -191,17 +167,17 @@
                 continue;
             }
             // Single line comment
-            if (input[i].trim().indexOf(opt.lineCmntTag) === 0) {
+            if (opt.lineCmntTag && input[i].trim().indexOf(opt.lineCmntTag) === 0) {
                 input[i] = input[i].trim().replace(opt.lineCmntTag, '');
                 flags[i] = 'c'; // comment
                 expected = ' ';
                 continue;
             }
             // Start of block comment
-            if (input[i].trim().indexOf(opt.blockCmntBeg) === 0) {
+            if (opt.blockCmntBeg && input[i].trim().indexOf(opt.blockCmntBeg) === 0) {
                 input[i] = input[i].trim().replace(opt.blockCmntBeg, '');
                 flags[i] = 'c';
-                if (input[i].indexOf(opt.blockCmntEnd) > -1) {
+                if (opt.blockCmntEnd && input[i].indexOf(opt.blockCmntEnd) > -1) {
                     input[i] = input[i].replace(opt.blockCmntEnd, '');
                     expected = ' ';
                 }
@@ -211,7 +187,7 @@
                 continue;
             }
             // End of comment and we are in a comment block
-            if (input[i].indexOf(opt.blockCmntEnd) > -1) {
+            if (opt.blockCmntEnd && input[i].indexOf(opt.blockCmntEnd) > -1) {
                 if (flags[i ? i - 1 : 0] === 'c') {
                     input[i] = input[i].replace(opt.blockCmntEnd, '');
                     flags[i] = 'c'; // comment

@@ -21,28 +21,21 @@
     }
 
     /// If a markdown file then transform to html and
-    /// insure code blocks hav the highlight.js class
+    /// insure code blocks have the highlight.js class
+    var typeList = ['js', 'html', 'css', 'json'];
+    var extPattern = /\.([0-9a-z]+)(?:[\?#]|$)/i;
     function processContents(link, callback) {
         $('#PageFrame').animate({scrollTop: 0}, 100);
-        if (/\.js$/.test(link)) {
-            site_ns.genJSDoc(link, function (codedoc) {
+
+        // Format code => markdown => html
+        var extension = (link).match(extPattern);
+        if (typeList.indexOf(extension[1]) > -1) {
+            site_ns.genDoc(extension[1], link, function (codedoc) {
                 $('#contents').html(marked(codedoc));
                 setCodeHighlightClass(callback);
             })
         }
-        else if (/\.html$/.test(link)) {
-            site_ns.genHtmlDoc(link, function (codedoc) {
-                $('#contents').html(marked(codedoc));
-                setCodeHighlightClass(callback);
-            })
-        }
-        else if (/\.css$/.test(link)) {
-            site_ns.genCssDoc(link, function (codedoc) {
-                $('#contents').html(marked(codedoc));
-                setCodeHighlightClass(callback);
-            })
-        }
-        else {
+        else { // Markdown
             $.get(link, function (data) {
                 if (/\.md$/.test(link)) {
                     $('#contents').html(marked(data));
