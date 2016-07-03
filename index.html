@@ -1,24 +1,26 @@
 <!doctype html>
 <html>
 <head>
+
+    <!--- ## ChainFrame Site --->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <title>Chainframe by PotOfCoffee2Go</title>
 
-    <!-- JQuery -->
+    <!--- ### JQuery --->
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 
-    <!-- Theme and site styles -->
+    <!--- ### Theme and site styles --->
     <link rel="stylesheet" href="css/mdthemes/markdown-alt.css" id="mdsheet">
     <link rel="stylesheet" href="css/site.css" id="sitesheet">
 
-    <!-- code highlight styles & scripts -->
+    <!--- ### Code highlight styles & scripts --->
     <link rel="stylesheet" href="highlight/styles/docco.css" id="hilightsheet">
     <script src="highlight/highlight.pack.js"></script>
 
-    <!-- markdown markup - since most content is in markdown -->
+    <!--- ### Markdown markup --->
     <script src="lib/marked.js"></script>
     <script>
         <!-- markdown code highlighter -->
@@ -29,10 +31,14 @@
         });
     </script>
 
-    <!-- websocket communications -->
+    <!--- ### Websocket communications --->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 
-    <!-- site namespace -->
+    <!---
+    ### Site namespace
+        - name: name of site
+        - source: Base URL to raw source code on GitHub, BitBucket, etc.
+    --->
     <script>
         var site_ns = {
             name: 'chainframe',
@@ -40,7 +46,7 @@
         };
     </script>
 
-    <!-- site scripts -->
+    <!--- ### Site scripts --->
     <script src="js/menu.js"></script>
     <script src="js/contents.js"></script>
     <script src="js/namespace.js"></script>
@@ -51,35 +57,46 @@
 
 <body>
 
+<!---
+## Site layout
+### Header
+--->
 <div id="AbsoluteHeader">
+    <!--- - Red, yellow, green websocket connection status  --->
     <div id="headerleft">
         <div id="socketio-change"><img src="images/io-red.png"/></div>
     </div>
 
+    <!--- - Main title in header  --->
     <div id="headertitle">
         ChainFrame
     </div>
 
+    <!--- - Main menu (un)hide toggle button  --->
     <div id="headersubtitle">
         <img id="toggle-menu" src="menu/images/menu_up.png" alt="up">
         Implements javascript fluent interfaces
     </div>
 
+    <!--- - Highlight, theme, and resource (page being displayed) names  --->
     <div id="headerright">
         <div id="hilight-change"></div>
         <div id="theme-change"></div>
-        <div id="rsrc-change">hi kim</div>
+        <div id="rsrc-change"></div>
     </div>
 </div>
 
+<!--- ### Main menu --->
 <div id="FixedMenu">
     <div id="menu-contents"></div>
 </div>
 
+<!--- ### Current Page Contents --->
 <div id="PageFrame">
     <div id="contents"></div>
 </div>
 
+<!--- ### Footer --->
 <!--
   <footer>
     <p>Project maintained by <a href="https://github.com/PotOfCoffee2Go">PotOfCoffee2Go</a></p>
@@ -87,9 +104,11 @@
   </footer>
   -->
 
+<!--- ## Run fixScale - needed for GitHub but doesn't hurt any site --->
 <!--[if !IE]>
 <script>fixScale(document);</script>
 <![endif]-->
 
+<!---   --->
 </body>
 </html>

@@ -1,6 +1,7 @@
 @charset "UTF-8";
 
-/*@import url("button.css");*/
+/** ## Site stylesheet **/
+
 /* Font Styles */
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600,300);
 
@@ -22,8 +23,7 @@ body {
     overflow: hidden;
 }
 
-/* ******** Page Layout ************ */
-
+/** ### Header **/
 
 #AbsoluteHeader {
     top: 0;
@@ -92,11 +92,17 @@ body {
     padding: 1.5em 0 0 8px;
 }
 
+#toggle-menu {
+    cursor: pointer;
+}
+
+/** ### Fixed area for menu **/
 #FixedMenu {
     position: fixed;
     background: transparent;
 }
 
+/** ### Page content **/
 #PageFrame {
     height: 96%;
     overflow: auto;
@@ -107,13 +113,7 @@ body {
     padding: 0 0 30px 0;
 }
 
-#toggle-menu {
-    cursor: pointer;
-}
-
-
-
-/* ******** Menu ******************* */
+/** ### Menu styles**/
 
 #cssmenu {
     font-family: 'Open Sans', sans-serif;

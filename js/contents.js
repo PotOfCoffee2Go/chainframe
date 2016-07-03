@@ -25,7 +25,19 @@
     function processContents(link, callback) {
         $('#PageFrame').animate({scrollTop: 0}, 100);
         if (/\.js$/.test(link)) {
-            site_ns.gendoc(link, function (codedoc) {
+            site_ns.genJSDoc(link, function (codedoc) {
+                $('#contents').html(marked(codedoc));
+                setCodeHighlightClass(callback);
+            })
+        }
+        else if (/\.html$/.test(link)) {
+            site_ns.genHtmlDoc(link, function (codedoc) {
+                $('#contents').html(marked(codedoc));
+                setCodeHighlightClass(callback);
+            })
+        }
+        else if (/\.css$/.test(link)) {
+            site_ns.genCssDoc(link, function (codedoc) {
                 $('#contents').html(marked(codedoc));
                 setCodeHighlightClass(callback);
             })

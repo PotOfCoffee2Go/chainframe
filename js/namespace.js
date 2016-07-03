@@ -79,13 +79,13 @@
 })();
 
 /// ----
-/// Generate markup of source code
+/// Generate markup of javascript source code
 /// ----
 (function () {
     "use strict";
     var input = []; // Array of source lines
 
-    function gendoc(source, callback) {
+    function genJSDoc(source, callback) {
         // Get the site href - http(s)://hostname/pathname/
         var src = window.location.href;
 
@@ -153,9 +153,205 @@
     }
 
     /// Expose function to generate markup of source code
-    site_ns['gendoc'] = gendoc;
+    site_ns['genJSDoc'] = genJSDoc;
 })();
 
+
+/// ----
+/// Generate markup of html source code
+/// ----
+(function () {
+    "use strict";
+    var input = []; // Array of source lines
+
+    function genHtmlDoc(source, callback) {
+        // Get the site href - http(s)://hostname/pathname/
+        var src = window.location.href;
+
+        // If not on localhost then get source code from GitHub
+        if ('localhost' !== window.location.hostname) {
+            // We are on GitHub - so use the source from there
+            src = site_ns.source;
+            // GitHub source in master unless is gh-pages
+            if (source.indexOf('gh-pages') !== 0) {
+                src += 'master/'
+            }
+        }
+        $.get(src + source, function (data) {
+            input = data.toString().split('\n');
+            parse(src, input, function (output) {
+                callback(output.join('\n'));
+            })
+        }, 'text')
+    }
+
+    /// ### Parse the input lines. Line is either comment or code
+    function parse(rsrcPath, input, callback) {
+        var output = [];
+        var state = 'comment';  // State of parser 'comment' or 'code'
+
+        // For each line[i]. determine if comment or code
+        for (var i = 0, l = input.length; i < l; i++) {
+            var text;
+            // blank line
+            if (input[i].trim() === '') {
+                output.push(input[i].trim());
+            }
+            // meta comment
+            else if (input[i].trim().substring(0, 5) === '<!---') {
+                testState('comment');
+                text = input[i].trim().substring(6); // remove '<!--- '
+                if (text.indexOf('--->') > -1) {
+                    text = text.replace('--->', ''); // remove '---> '
+                    output.push(text);
+                    testState('code');
+                }
+                else {
+                    output.push(text);
+                }
+            }
+            else if (input[i].indexOf('--->') > -1) {
+                text = input[i].replace('--->', ''); // remove '---> '
+                output.push(text);
+                testState('code');
+            }
+            // code
+            else {
+                if (i === 0) {
+                    testState('code');
+                }
+                if (state === 'comment') {
+                    output.push(input[i].trim());
+                }
+                else {
+                    output.push(input[i]);
+                }
+            }
+        }
+        // When done insure we close off a code block
+        // by setting state to a comment
+        testState('comment');
+
+        callback(output);
+
+        /// Test line[i]. state transistion
+        /// - state unchanged,
+        /// - to comment
+        /// - or to code
+        function testState(newState) {
+            if (state === newState) return; // No change
+            if (state === 'comment' && newState === 'code') {
+                output.push(''); // insure blank line before code block
+                output.push('```html');
+            }
+            if (state === 'code' && newState === 'comment') {
+                output.push('```');
+            }
+            state = newState;
+        }
+    }
+
+    /// Expose function to generate markup of source code
+    site_ns['genHtmlDoc'] = genHtmlDoc;
+})();
+
+/// ----
+/// Generate markup of CSS source code
+/// ----
+(function () {
+    "use strict";
+    var input = []; // Array of source lines
+
+    function genCssDoc(source, callback) {
+        // Get the site href - http(s)://hostname/pathname/
+        var src = window.location.href;
+
+        // If not on localhost then get source code from GitHub
+        if ('localhost' !== window.location.hostname) {
+            // We are on GitHub - so use the source from there
+            src = site_ns.source;
+            // GitHub source in master unless is gh-pages
+            if (source.indexOf('gh-pages') !== 0) {
+                src += 'master/'
+            }
+        }
+        $.get(src + source, function (data) {
+            input = data.toString().split('\n');
+            parse(src, input, function (output) {
+                callback(output.join('\n'));
+            })
+        }, 'text')
+    }
+
+    /// ### Parse the input lines. Line is either comment or code
+    function parse(rsrcPath, input, callback) {
+        var output = [];
+        var state = 'comment';  // State of parser 'comment' or 'code'
+
+        // For each line[i]. determine if comment or code
+        for (var i = 0, l = input.length; i < l; i++) {
+            var text;
+            // blank line
+            if (input[i].trim() === '') {
+                output.push(input[i].trim());
+            }
+            // meta comment
+            else if (input[i].trim().substring(0, 3) === '/**') {
+                testState('comment');
+                text = input[i].trim().substring(4); // remove '/** '
+                if (text.indexOf('*/') > -1) {
+                    text = text.replace('**/', '').replace('*/', ''); // remove '---> '
+                    output.push(text);
+                    testState('code');
+                }
+                else {
+                    output.push(text);
+                }
+            }
+            else if (input[i].indexOf('*/') > -1) {
+                text = input[i].replace('**/', '').replace('*/', ''); // remove '**/ '
+                output.push(text);
+                testState('code');
+            }
+            // code
+            else {
+                if (i === 0) {
+                    testState('code');
+                }
+                if (state === 'comment') {
+                    output.push(input[i].trim());
+                }
+                else {
+                    output.push(input[i]);
+                }
+            }
+        }
+        // When done insure we close off a code block
+        // by setting state to a comment
+        testState('comment');
+
+        callback(output);
+
+        /// Test line[i]. state transistion
+        /// - state unchanged,
+        /// - to comment
+        /// - or to code
+        function testState(newState) {
+            if (state === newState) return; // No change
+            if (state === 'comment' && newState === 'code') {
+                output.push(''); // insure blank line before code block
+                output.push('```css');
+            }
+            if (state === 'code' && newState === 'comment') {
+                output.push('```');
+            }
+            state = newState;
+        }
+    }
+
+    /// Expose function to generate markup of source code
+    site_ns['genCssDoc'] = genCssDoc;
+})();
 
 /// ----
 /// WebSocket to nodejs server for additional content
@@ -172,7 +368,9 @@
         changeIoIndicator('red');
     });
 
-    socket.on('connected', function (msg) {onConnected(msg);});
+    socket.on('connected', function (msg) {
+        onConnected(msg);
+    });
 
     // Export variables and functions
 
@@ -197,7 +395,6 @@
     // -----------------------
 
     function changeIoIndicator(color) {
-        $('#headerleft > #socketio-change > img').
-                attr('src', 'images/io-' + color + '.png');
+        $('#headerleft > #socketio-change > img').attr('src', 'images/io-' + color + '.png');
     }
 }());
