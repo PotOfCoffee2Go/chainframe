@@ -41,7 +41,7 @@
         $('#hilight-change').html(hilightname);
     });
 
-    /// Expose functions to generate markup of source code
+    // Expose functions to generate markup of source code
     site_ns['themeChange'] = themeChange;
     site_ns['hilightChange'] = hilightChange;
 })();
@@ -74,207 +74,76 @@
         inHistory = false;
     };
 
-    /// Expose function to update browser history
+    // Expose function to update browser history
     site_ns['updateHistory'] = updateHistory;
 })();
 
 /// ----
-/// Generate markup of javascript source code
+/// Convert code to markdown for browser presentation
 /// ----
 (function () {
     "use strict";
-    var input = []; // Array of source lines
 
+    /// Generate markup of javascript source code
     function genJSDoc(source, callback) {
+        var options = {
+            ext: 'js',
+            lineCmntTag: '///',
+            blockCmntBeg: '/**',
+            blockCmntEnd: '*/'
+        };
+
         // Get the site href - http(s)://hostname/pathname/
-        var src = window.location.href;
-
-        // If not on localhost then get source code from GitHub
-        if ('localhost' !== window.location.hostname) {
-            // We are on GitHub - so use the source from there
-            src = site_ns.source;
-            // GitHub source in master unless is gh-pages
-            if (source.indexOf('../') > -1) {
-                src += 'master/';
-                source = source.replace('../', '');
-            }
-            else {
-                src += 'gh-pages/';
-            }
-        }
-        $.get(src + source, function (data) {
-            input = data.toString().split('\n');
-            parse(src, input, function (output) {
-                callback(output.join('\n'));
-            })
-        }, 'text')
+        codeToMarkdown(source, options, function (output) {
+            callback(output);
+        });
     }
 
-    /// ### Parse the input lines. Line is either comment or code
-    function parse(rsrcPath, input, callback) {
-        var output = [];
-        var state = 'comment';  // State of parser 'comment' or 'code'
-
-        // For each line[i]. determine if comment or code
-        for (var i = 0, l = input.length; i < l; i++) {
-
-            // blank line
-            if (input[i].trim() === '') {
-                output.push(input[i].trim());
-            }
-            // meta comment
-            else if (input[i].trim().substring(0, 3) === '///') {
-                testState('comment');
-                output.push(input[i].trim().substring(4)); // remove '/// '
-            }
-            // code
-            else {
-                testState('code');
-                output.push(input[i]);
-            }
-        }
-        // When done insure we close off a code block
-        // by setting state to a comment
-        testState('comment');
-
-        callback(output);
-
-        /// Test line[i]. state transistion
-        /// - state unchanged,
-        /// - to comment
-        /// - or to code
-        function testState(newState) {
-            if (state === newState) return; // No change
-            if (state === 'comment' && newState === 'code') {
-                output.push(''); // insure blank line before code block
-                output.push('```js');
-            }
-            if (state === 'code' && newState === 'comment') {
-                output.push('```');
-            }
-            state = newState;
-        }
-    }
-
-    /// Expose function to generate markup of source code
+    // Expose function to generate markup of source code
     site_ns['genJSDoc'] = genJSDoc;
-})();
 
 
-/// ----
-/// Generate markup of html source code
-/// ----
-(function () {
-    "use strict";
-    var input = []; // Array of source lines
-
+    /// Generate markup of html source code
     function genHtmlDoc(source, callback) {
+        var options = {
+            ext: 'html',
+            lineCmntTag: '///ghjgh',
+            blockCmntBeg: '<!---',
+            blockCmntEnd: '--->'
+        };
         // Get the site href - http(s)://hostname/pathname/
-        var src = window.location.href;
-
-        // If not on localhost then get source code from GitHub
-        if ('localhost' !== window.location.hostname) {
-            // We are on GitHub - so use the source from there
-            src = site_ns.source;
-            // GitHub source in master unless is gh-pages
-            if (source.indexOf('../') > -1) {
-                src += 'master/';
-                source = source.replace('../', '');
-            }
-            else {
-                src += 'gh-pages/';
-            }
-        }
-        $.get(src + source, function (data) {
-            input = data.toString().split('\n');
-            parse(src, input, function (output) {
-                callback(output.join('\n'));
-            })
-        }, 'text')
+        codeToMarkdown(source, options, function (output) {
+            callback(output);
+        });
     }
 
-    /// ### Parse the input lines. Line is either comment or code
-    function parse(rsrcPath, input, callback) {
-        var output = [];
-        var state = 'comment';  // State of parser 'comment' or 'code'
-
-        // For each line[i]. determine if comment or code
-        for (var i = 0, l = input.length; i < l; i++) {
-            var text;
-            // blank line
-            if (input[i].trim() === '') {
-                output.push(input[i].trim());
-            }
-            // meta comment
-            else if (input[i].trim().substring(0, 5) === '<!---') {
-                testState('comment');
-                text = input[i].trim().substring(6); // remove '<!--- '
-                if (text.indexOf('--->') > -1) {
-                    text = text.replace('--->', ''); // remove '---> '
-                    output.push(text);
-                    testState('code');
-                }
-                else {
-                    output.push(text);
-                }
-            }
-            else if (input[i].indexOf('--->') > -1) {
-                text = input[i].replace('--->', ''); // remove '---> '
-                output.push(text);
-                testState('code');
-            }
-            // code
-            else {
-                if (i === 0) {
-                    testState('code');
-                }
-                if (state === 'comment') {
-                    output.push(input[i].trim());
-                }
-                else {
-                    output.push(input[i]);
-                }
-            }
-        }
-        // When done insure we close off a code block
-        // by setting state to a comment
-        testState('comment');
-
-        callback(output);
-
-        /// Test line[i]. state transistion
-        /// - state unchanged,
-        /// - to comment
-        /// - or to code
-        function testState(newState) {
-            if (state === newState) return; // No change
-            if (state === 'comment' && newState === 'code') {
-                output.push(''); // insure blank line before code block
-                output.push('```html');
-            }
-            if (state === 'code' && newState === 'comment') {
-                output.push('```');
-            }
-            state = newState;
-        }
-    }
-
-    /// Expose function to generate markup of source code
+    // Expose function to generate markup of source code
     site_ns['genHtmlDoc'] = genHtmlDoc;
-})();
 
-/// ----
-/// Generate markup of CSS source code
-/// ----
-(function () {
-    "use strict";
-    var input = []; // Array of source lines
-
+    /// Generate markup of CSS source code
     function genCssDoc(source, callback) {
+        var options = {
+            ext: 'css',
+            lineCmntTag: '///ghjgh',
+            blockCmntBeg: '/**',
+            blockCmntEnd: '**/'
+        };
         // Get the site href - http(s)://hostname/pathname/
-        var src = window.location.href;
+        codeToMarkdown(source, options, function (output) {
+            callback(output);
+        });
+    }
 
-        // If not on localhost then get source code from GitHub
+    // Expose function to generate markup source code
+    site_ns['genCssDoc'] = genCssDoc;
+
+    /// ----
+
+    /// **Determine location and get source code**
+    function codeToMarkdown(source, options, callback) {
+
+        var src = window.location.href;
+        // If site not localhost then get source code from GitHub
         if ('localhost' !== window.location.hostname) {
             // We are on GitHub - so use the source from there
             src = site_ns.source;
@@ -287,83 +156,118 @@
                 src += 'gh-pages/';
             }
         }
+
+        // Get source and convert to Markdown
         $.get(src + source, function (data) {
-            input = data.toString().split('\n');
-            parse(src, input, function (output) {
+            // Array of source lines
+            var input = data.toString().split('\n');
+            metaComments(options, input, function (output) {
                 callback(output.join('\n'));
             })
-        }, 'text')
+        }, 'text');
     }
 
-    /// ### Parse the input lines. Line is either comment or code
-    function parse(rsrcPath, input, callback) {
+    /// Parse for comments which can use Markdown
+    function metaComments(opt, input, callback) {
+        var flags = [];
         var output = [];
-        var state = 'comment';  // State of parser 'comment' or 'code'
-
-        // For each line[i]. determine if comment or code
+        // Assume each line is code
         for (var i = 0, l = input.length; i < l; i++) {
-            var text;
-            // blank line
+            flags.push(' ');
+        }
+
+        /// Determine if first line is comment or code
+        var expected = ' '; // assume starting with code
+        if (input[0].trim().indexOf(opt.lineCmntTag) === 0 ||
+                input[0].trim().indexOf(opt.blockCmntBeg) === 0) {
+            expected = 'c'; // is a comment
+        }
+
+        /// Flag and remove comment tags
+        for (i = 0, l = flags.length; i < l; i++) {
+            // Blank line is flagged same as prior line
             if (input[i].trim() === '') {
-                output.push(input[i].trim());
+                flags[i] = flags[i ? i - 1 : 0];
+                continue;
             }
-            // meta comment
-            else if (input[i].trim().substring(0, 3) === '/**') {
-                testState('comment');
-                text = input[i].trim().substring(4); // remove '/** '
-                if (text.indexOf('*/') > -1) {
-                    text = text.replace('**/', '').replace('*/', ''); // remove '---> '
-                    output.push(text);
-                    testState('code');
+            // Single line comment
+            if (input[i].trim().indexOf(opt.lineCmntTag) === 0) {
+                input[i] = input[i].trim().replace(opt.lineCmntTag, '');
+                flags[i] = 'c'; // comment
+                expected = ' ';
+                continue;
+            }
+            // Start of block comment
+            if (input[i].trim().indexOf(opt.blockCmntBeg) === 0) {
+                input[i] = input[i].trim().replace(opt.blockCmntBeg, '');
+                flags[i] = 'c';
+                if (input[i].indexOf(opt.blockCmntEnd) > -1) {
+                    input[i] = input[i].replace(opt.blockCmntEnd, '');
+                    expected = ' ';
                 }
                 else {
-                    output.push(text);
+                    expected = 'c';
+                }
+                continue;
+            }
+            // End of comment and we are in a comment block
+            if (input[i].indexOf(opt.blockCmntEnd) > -1) {
+                if (flags[i ? i - 1 : 0] === 'c') {
+                    input[i] = input[i].replace(opt.blockCmntEnd, '');
+                    flags[i] = 'c'; // comment
+                    expected = ' ';
+                    continue;
                 }
             }
-            else if (input[i].indexOf('*/') > -1) {
-                text = input[i].replace('**/', '').replace('*/', ''); // remove '**/ '
-                output.push(text);
-                testState('code');
-            }
-            // code
-            else {
-                if (i === 0) {
-                    testState('code');
-                }
-                if (state === 'comment') {
-                    output.push(input[i].trim());
-                }
-                else {
-                    output.push(input[i]);
-                }
-            }
+            // None of the special conditions
+            //  flag with what is expected
+            //  'c' if in a comment block
+            //  ' ' if expecting a code block
+            flags[i] = expected;
         }
-        // When done insure we close off a code block
-        // by setting state to a comment
-        testState('comment');
 
-        callback(output);
-
-        /// Test line[i]. state transistion
-        /// - state unchanged,
-        /// - to comment
-        /// - or to code
-        function testState(newState) {
-            if (state === newState) return; // No change
-            if (state === 'comment' && newState === 'code') {
+        /// Output the markdown text
+        for (i = 0, l = flags.length; i < l; i++) {
+            // Handle the first line
+            //  start a code block when appropriate
+            if (i === 0) {
+                if (flags[i] === ' ') {
+                    output.push('```' + opt.ext);
+                }
+                output.push(input[i]);
+                continue;
+            }
+            // Remain in the comment or code block
+            //  when previous flag and current are the same
+            if (flags[i] === flags[i - 1]) {
+                output.push(flags[i] === 'c' ? input[i].trim() : input[i]);
+                continue;
+            }
+            // Switching from comment to code block
+            if (flags[i] === ' ') {
                 output.push(''); // insure blank line before code block
-                output.push('```css');
+                output.push('```' + opt.ext);
+                output.push(input[i]);
+                continue;
             }
-            if (state === 'code' && newState === 'comment') {
+            // Switching from code to comment block
+            if (flags[i] === 'c') {
                 output.push('```');
+                output.push(input[i].trim());
+                continue;
             }
-            state = newState;
+            // Should never get here
+            throw new Error('Parsing of meta comments error')
         }
-    }
 
-    /// Expose function to generate markup of source code
-    site_ns['genCssDoc'] = genCssDoc;
+        /// Terminate code block at the end
+        if (flags[flags.length - 1] === ' ') {
+            output.push('```');
+        }
+        callback(output);
+    }
 })();
+
 
 /// ----
 /// WebSocket to nodejs server for additional content
