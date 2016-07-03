@@ -96,6 +96,7 @@
             // GitHub source in master unless is gh-pages
             if (source.indexOf('../') > -1) {
                 src += 'master/';
+                source = source.replace('../', '');
             }
             else {
                 src += 'gh-pages/';
@@ -178,6 +179,7 @@
             // GitHub source in master unless is gh-pages
             if (source.indexOf('../') > -1) {
                 src += 'master/';
+                source = source.replace('../', '');
             }
             else {
                 src += 'gh-pages/';
@@ -279,6 +281,7 @@
             // GitHub source in master unless is gh-pages
             if (source.indexOf('../') > -1) {
                 src += 'master/';
+                source = source.replace('../', '');
             }
             else {
                 src += 'gh-pages/';
