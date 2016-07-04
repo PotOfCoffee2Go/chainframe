@@ -46,6 +46,9 @@
     site_ns['hilightChange'] = hilightChange;
 })();
 
+/// ----
+/// Show Raw text in contents area
+/// ----
 (function () {
     "use strict";
 
@@ -57,7 +60,6 @@
         }, 'text');
         return false;
     }
-
     // Expose function to get text of source
     site_ns['showRawText'] = showRawText;
 })();
@@ -151,8 +153,9 @@
             }
         }
 
-        // Get source and convert to Markdown
         $('#tm-raw').attr('href', src + source);
+        $('#tm-raw').show();
+        // Get source and convert to Markdown
         $.get(src + source, function (data) {
             // Array of source lines
             var input = data.toString().split('\n');

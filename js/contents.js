@@ -179,11 +179,6 @@
             // Show the menu
             $('#top-menu').html(data);
         });
-
-        ///   - Raw button clicked
-        $('#rt-raw').onclick(function () {
-            alert('get');
-        });
     });
 
     /// Expose clickContentsLink and processContents

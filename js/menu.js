@@ -5,12 +5,13 @@
 (function () {
     "use strict";
 
-    var toggleMenuClicked = false, contentMargin = null;
+    var toggleMenuClicked = false, contentMargin = null, topMemuPadding = null;
 
     /// Show/hide site menu
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');
+            $('#top-menu').animate({'padding-left': topMemuPadding}, 'fast');
             $('#menu-contents').slideDown("fast", function () {
                 $('#toggle-menu').attr('src', 'menu/images/menu_up.png');
                 toggleMenuClicked = false;
@@ -19,6 +20,8 @@
         else {
             contentMargin = $('#contents').css('margin-left');
             $('#contents').animate({'margin-left': '12px'}, 'fast');
+            topMemuPadding = $('#top-menu').css('padding-left');
+            $('#top-menu').animate({'padding-left': '12px'}, 'fast');
             $('#menu-contents').slideUp("fast", function () {
                 $('#toggle-menu').attr('src', 'menu/images/menu_down.png');
                 toggleMenuClicked = true;
@@ -48,6 +51,7 @@
 
     /// - Sub-menu processing
     var clickSubMenu = function (what) {
+
         $('#cssmenu a').removeClass('subactive');
         $(what).addClass('subactive');
         site_ns.updateHistory($(what).attr('rsrc'));
@@ -56,6 +60,8 @@
             eval('site_ns.' + $(what).attr('rsrc').substring(5));
             return;
         }
+
+        $('#top-menu a').hide();
 
         $('#rsrc-change').html($(what).attr('rsrc'));
         site_ns.processContents($(what).attr('rsrc'));

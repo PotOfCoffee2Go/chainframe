@@ -97,19 +97,20 @@ body {
 }
 
 #top-menu {
-    position: absolute;
+    /*position: absolute;*/
     float: left;
-    padding-left: 182px;
+    padding-left: 130px;
 }
 
 #top-menu a {
-    display: block;
+    display: none;
 }
 
 /** ### Fixed area for menu **/
 #FixedMenu {
     position: fixed;
     background: transparent;
+    margin: 4px 0 0 0;
 }
 
 /** ### Page content **/
@@ -135,7 +136,7 @@ body {
     -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
     -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
-    padding: 4px 0 0 0;
+    padding: 0 0 0 0;
 }
 
 #cssmenu ul,
