@@ -60,7 +60,7 @@
 ## Site layout
 ### Header
 --->
-<div id="AbsoluteHeader">
+<header id="AbsoluteHeader">
     <!--- - Red, yellow, green websocket connection status  --->
     <div id="headerleft">
         <div id="socketio-change"><img src="images/io-red.png"/></div>
@@ -86,7 +86,7 @@
         <div id="theme-change"></div>
         <div id="rsrc-change"></div>
     </div>
-</div>
+</header>
 
 <!--- ### Main menu --->
 <div id="FixedMenu">
@@ -94,17 +94,14 @@
 </div>
 
 <!--- ### Current Page Contents --->
-<div id="PageFrame">
+<main id="PageFrame">
     <div id="contents"></div>
-</div>
+</main>
 
 <!--- ### Footer --->
-<!--
-  <footer>
-    <p>Project maintained by <a href="https://github.com/PotOfCoffee2Go">PotOfCoffee2Go</a></p>
-    <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-  </footer>
-  -->
+<footer id="AbsoluteFooter">
+    Project maintained by <a href="https://github.com/PotOfCoffee2Go">PotOfCoffee2Go</a>
+</footer>
 
 <!--- ## Run fixScale - needed for GitHub but doesn't hurt any site --->
 <!--[if !IE]>

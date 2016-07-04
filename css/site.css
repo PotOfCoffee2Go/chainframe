@@ -21,9 +21,18 @@ body {
     padding: 4px 0 0 0;
     max-width: none;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-/** ### Header **/
+/** ### Fixed area for menu **/
+#FixedMenu {
+    position: fixed;
+    background: transparent;
+    margin: 4px 0 0 0;
+}
+
+/** ### Header, Page, Content, and Footer **/
 
 #AbsoluteHeader {
     top: 0;
@@ -35,6 +44,25 @@ body {
     border-width: 0 0 1px 0;
 }
 
+#PageFrame {
+    overflow: auto;
+    flex: 1;
+}
+
+#contents {
+    margin: 0 0 0 182px;
+}
+
+#AbsoluteFooter {
+    bottom: 0;
+    width: 100%;
+    height: 30px; /* Height of the footer */
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    padding: 4px 0 0 0;
+}
+
+/** ### Header content **/
 #headerleft {
     position: absolute;
     top: 10px;
@@ -57,8 +85,6 @@ body {
 }
 
 #headersubtitle {
-    background-color: inherit;
-    color: inherit;
     font-weight: normal;
     text-decoration: none;
     font-size: 20px;
@@ -97,7 +123,7 @@ body {
 }
 
 #top-menu {
-    /*position: absolute;*/
+    position: relative;
     float: left;
     padding-left: 130px;
 }
@@ -106,29 +132,25 @@ body {
     display: none;
 }
 
-/** ### Fixed area for menu **/
-#FixedMenu {
-    position: fixed;
-    background: transparent;
-    margin: 4px 0 0 0;
+/** #### Give a little space at end of code highlight box **/
+pre {
+    margin-right: 1em;
 }
 
-/** ### Page content **/
-#PageFrame {
-    height: 96%;
-    overflow: auto;
+button {
+    background: inherit;
+    color: inherit;
+    font-size: 10pt;
+    padding: 4px 6px;
+    border-radius: 5px;
+    border: 1px solid inherit;
 }
 
-#contents {
-    margin-left: 182px;
-    padding: 0 0 30px 0;
-}
-
-/** ### Menu styles**/
+/** ### Menu styles **/
 
 #cssmenu {
     font-family: 'Open Sans', sans-serif;
-    color: black;
+    /*color: black;*/
     width: 160px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
@@ -149,7 +171,7 @@ body {
     font-weight: normal;
     text-decoration: none;
     line-height: 1;
-    font-size: 14px;
+    font-size: 11px;
     position: relative;
 }
 
@@ -241,11 +263,8 @@ body {
 }
 
 #cssmenu ul ul a {
-    display: block;
-    color: #595959;
     font-size: 13px;
     padding: 2px;
-    /* font-weight: bold; */
 }
 
 #cssmenu ul ul a:hover {
