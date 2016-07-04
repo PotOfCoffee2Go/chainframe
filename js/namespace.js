@@ -46,6 +46,23 @@
     site_ns['hilightChange'] = hilightChange;
 })();
 
+(function () {
+    "use strict";
+
+    function showRawText(link) {
+        $.get(link, function (data) {
+            // Array of source lines
+            var input = '<pre><code>' + data.toString() + '</code></pre>';
+            $('#contents').html(input);
+        }, 'text');
+        return false;
+    }
+
+    // Expose function to get text of source
+    site_ns['showRawText'] = showRawText;
+})();
+
+
 /// ----
 /// Update browser history
 /// ----
@@ -110,6 +127,7 @@
             callback(output);
         });
     }
+
     // Expose function to generate markup of source code
     site_ns['genDoc'] = genDoc;
 
@@ -118,7 +136,7 @@
     /// **Determine location and get source code**
     function codeToMarkdown(source, options, callback) {
 
-        var src = window.location.href;
+        var src = window.location.href.replace('#', '');
         // If site not localhost then get source code from GitHub
         if ('localhost' !== window.location.hostname) {
             // We are on GitHub - so use the source from there
@@ -134,6 +152,7 @@
         }
 
         // Get source and convert to Markdown
+        $('#tm-raw').attr('href', src + source);
         $.get(src + source, function (data) {
             // Array of source lines
             var input = data.toString().split('\n');

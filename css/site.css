@@ -96,6 +96,16 @@ body {
     cursor: pointer;
 }
 
+#top-menu {
+    position: absolute;
+    float: left;
+    padding-left: 182px;
+}
+
+#top-menu a {
+    display: block;
+}
+
 /** ### Fixed area for menu **/
 #FixedMenu {
     position: fixed;

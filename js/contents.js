@@ -173,7 +173,17 @@
             site_ns.clickTopMenu($("#menu-home"));
             $('[rsrc="pages/welcome/welcome.md"]').trigger('click');
         });
-        ///
+
+        /// Get menu html and bring up default content on load
+        $.get('menu/topmenu.html', function (data) {
+            // Show the menu
+            $('#top-menu').html(data);
+        });
+
+        ///   - Raw button clicked
+        $('#rt-raw').onclick(function () {
+            alert('get');
+        });
     });
 
     /// Expose clickContentsLink and processContents
