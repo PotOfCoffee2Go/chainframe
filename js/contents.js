@@ -111,7 +111,7 @@
         /// - get the page and put it in the content
         ///   - the code blocks have to have the 'hljs' class
         ///     assigned for highlighting
-        processContents(basePathName + link, function (data) {
+        processContents(link, function (data) {
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
             }

@@ -36,10 +36,10 @@
             }
             else {
                 hilight = hilight.replace('highlight/styles/', '');
-            $('head').append(
-                    '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
-                    + hilight
-                    + '" rel="stylesheet" id="hilightsheet" />');
+                $('head').append(
+                        '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
+                        + hilight
+                        + '" rel="stylesheet" id="hilightsheet" />');
             }
             window.setTimeout(function () {
                 $('.hljs').animate({opacity: 1.0}, 40);
@@ -126,16 +126,40 @@
         var options = {};
         switch (type) {
             case 'js' :
-                options = {ext: 'js', lineCmntTag: '///', blockCmntBeg: '/**', blockCmntEnd: '*/'};
+                options = {
+                    ext: 'js',
+                    lineCmntTag: '///',
+                    codeblockCmntBeg: '/*',
+                    blockCmntBeg: '/**',
+                    blockCmntEnd: '*/'
+                };
                 break;
             case 'html' :
-                options = {ext: 'html', lineCmntTag: null, blockCmntBeg: '<!---', blockCmntEnd: '-->'};
+                options = {
+                    ext: 'html',
+                    lineCmntTag: null,
+                    codeblockCmntBeg: '<!--',
+                    blockCmntBeg: '<!---',
+                    blockCmntEnd: '-->'
+                };
                 break;
             case 'css' :
-                options = {ext: 'css', lineCmntTag: null, blockCmntBeg: '/**', blockCmntEnd: '*/'};
+                options = {
+                    ext: 'css',
+                    lineCmntTag: null,
+                    codeblockCmntBeg: '/*',
+                    blockCmntBeg: '/**',
+                    blockCmntEnd: '*/'
+                };
                 break;
             case 'json' :
-                options = {ext: 'json', lineCmntTag: null, blockCmntBeg: null, blockCmntEnd: null};
+                options = {
+                    ext: 'json',
+                    lineCmntTag: null,
+                    codeblockCmntBeg: null,
+                    blockCmntBeg: null,
+                    blockCmntEnd: null
+                };
                 break;
             default:
                 return;
@@ -209,6 +233,13 @@
             if (opt.lineCmntTag && input[i].trim().indexOf(opt.lineCmntTag) === 0) {
                 input[i] = input[i].trim().replace(opt.lineCmntTag, '');
                 flags[i] = 'c'; // comment
+                expected = ' ';
+                continue;
+            }
+            // Start of a code block comment ex: /* for javascript
+            if (opt.codeblockCmntBeg && input[i].indexOf(opt.codeblockCmntBeg) === 0
+                    && opt.blockCmntBeg && input[i].trim().indexOf(opt.blockCmntBeg) === -1) {
+                flags[i] = ' ';
                 expected = ' ';
                 continue;
             }
@@ -296,7 +327,7 @@
     "use strict";
 
     return;
-    
+
     var socket = io.connect('https://bbwebsock-potofcoffee2go.rhcloud.com:8000/');
     //var socket = io.connect('http://localhost:3000/');
 
