@@ -294,8 +294,9 @@
 (function () {
     "use strict";
 
-    var socket = io.connect('http://bbwebsock-potofcoffee2go.rhcloud.com:8000/');
+    //var socket = io.connect('https://bbwebsock-potofcoffee2go.rhcloud.com:8000/');
     //var socket = io.connect('http://localhost:3000/');
+
     socket.on('connection', function (socket) {
         changeIoIndicator('red');
     });
