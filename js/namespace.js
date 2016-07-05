@@ -213,9 +213,11 @@
         // Assume each line is code
         for (var i = 0, l = input.length; i < l; i++) {
             flags.push(' ');
+            input[i] = input[i].replace('\r', '');
         }
 
         /// Determine if first line is comment or code
+        var jsdocBeg = false;
         var expected = ' '; // assume starting with code
         if ((opt.lineCmntTag && input[0].trim().indexOf(opt.lineCmntTag) === 0) ||
                 (opt.blockCmntBeg && input[0].trim().indexOf(opt.blockCmntBeg) === 0)) {
@@ -236,6 +238,34 @@
                 expected = ' ';
                 continue;
             }
+            // JSDoc comment block
+            if (flags[i ? i - 1 : 0] === 'c') {
+                // JSDoc comment
+                if (input[i].substring(0, 3) === ' * ') {
+                    // Previous is blank - this one is the title
+                    if (jsdocBeg
+                            && input[i].length > 3
+                            && input[i][3] !== '@') {
+                        input[i] = '**' + input[i].substring(3) + '**';
+                    }
+                    else {
+                        input[i] = input[i].replace(' * ', '  - ');
+                    }
+                    flags[i] = 'c'; // comment
+                    expected = 'c';
+                    jsdocBeg = false;
+                    continue;
+                }
+                // Blank JSDoc comment
+                if (input[i] === ' *') {
+                    input[i] = '';
+                    flags[i] = 'c'; // comment
+                    expected = 'c';
+                    jsdocBeg = false;
+                    continue;
+                }
+            }
+            jsdocBeg = false;
             // Start of a code block comment ex: /* for javascript
             if (opt.codeblockCmntBeg && input[i].indexOf(opt.codeblockCmntBeg) === 0
                     && opt.blockCmntBeg && input[i].trim().indexOf(opt.blockCmntBeg) === -1) {
@@ -254,6 +284,7 @@
                     expected = ' ';
                 }
                 else {
+                    jsdocBeg = true;
                     expected = 'c';
                 }
                 continue;
