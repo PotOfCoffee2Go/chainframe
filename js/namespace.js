@@ -25,11 +25,25 @@
     }
 
     function hilightChange(hilight) {
-        $.get('highlight/styles/' + hilight, function (data) {
-            $('#hilight-change').html(hilight.replace('.css', ''));
+        $('.hljs').animate({opacity: 0.01}, 40, function () {
+            $('#hilight-change').html(hilight.replace('.min.css', '').replace('.css', ''));
             $('#hilightsheet').remove();
+            if (hilight.indexOf('highlight/styles/') > -1) {
+                $('head').append(
+                        '<link href="'
+                        + hilight
+                        + '" rel="stylesheet" id="hilightsheet" />');
+            }
+            else {
+                hilight = hilight.replace('highlight/styles/', '');
             $('head').append(
-                    '<link href="highlight/styles/' + hilight + '" rel="stylesheet" id="hilightsheet" />');
+                    '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
+                    + hilight
+                    + '" rel="stylesheet" id="hilightsheet" />');
+            }
+            window.setTimeout(function () {
+                $('.hljs').animate({opacity: 1.0}, 40);
+            }, 200)
         });
     }
 
@@ -38,7 +52,7 @@
         var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
         var themename = themeshref[themeshref.length - 1];
         $('#theme-change').html(themename);
-        var hilighthref = $('#hilightsheet').attr('href').replace('.css', '').split('/');
+        var hilighthref = $('#hilightsheet').attr('href').replace('.min.css', '').replace('.css', '').split('/');
         var hilightname = hilighthref[hilighthref.length - 1];
         $('#hilight-change').html(hilightname);
     });
@@ -115,10 +129,10 @@
                 options = {ext: 'js', lineCmntTag: '///', blockCmntBeg: '/**', blockCmntEnd: '*/'};
                 break;
             case 'html' :
-                options = {ext: 'html', lineCmntTag: null, blockCmntBeg: '<!---', blockCmntEnd: '--->'};
+                options = {ext: 'html', lineCmntTag: null, blockCmntBeg: '<!---', blockCmntEnd: '-->'};
                 break;
             case 'css' :
-                options = {ext: 'css', lineCmntTag: null, blockCmntBeg: '/**', blockCmntEnd: '**/'};
+                options = {ext: 'css', lineCmntTag: null, blockCmntBeg: '/**', blockCmntEnd: '*/'};
                 break;
             case 'json' :
                 options = {ext: 'json', lineCmntTag: null, blockCmntBeg: null, blockCmntEnd: null};
@@ -203,7 +217,9 @@
                 input[i] = input[i].trim().replace(opt.blockCmntBeg, '');
                 flags[i] = 'c';
                 if (opt.blockCmntEnd && input[i].indexOf(opt.blockCmntEnd) > -1) {
-                    input[i] = input[i].replace(opt.blockCmntEnd, '');
+                    input[i] = input[i]
+                            .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                            .replace(opt.blockCmntEnd, '');
                     expected = ' ';
                 }
                 else {
@@ -214,7 +230,9 @@
             // End of comment and we are in a comment block
             if (opt.blockCmntEnd && input[i].indexOf(opt.blockCmntEnd) > -1) {
                 if (flags[i ? i - 1 : 0] === 'c') {
-                    input[i] = input[i].replace(opt.blockCmntEnd, '');
+                    input[i] = input[i]
+                            .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                            .replace(opt.blockCmntEnd, '');
                     flags[i] = 'c'; // comment
                     expected = ' ';
                     continue;
