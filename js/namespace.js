@@ -10,7 +10,7 @@
     "use strict";
 
     function themeChange(theme) {
-        $('html').fadeOut(300, function () {
+        $('html').animate({opacity: 0.01}, 400, function () {
             $('#theme-change').html(theme.replace('.css', ''));
             $('#mdsheet').remove();
             $('#sitesheet').remove();
@@ -18,17 +18,19 @@
                     '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
             $('head').append(
                     '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
-            window.setTimeout(function () {
-                $('html').fadeIn(500);
+            setTimeout(function () {
+                $('html').animate({opacity: 1.0}, 400);
             }, 200)
         });
     }
 
     function hilightChange(hilight) {
-        $('#hilight-change').html(hilight.replace('.css', ''));
-        $('#hilightsheet').remove();
-        $('head').append(
-                '<link href="highlight/styles/' + hilight + '" rel="stylesheet" id="hilightsheet" />');
+        $.get('highlight/styles/' + hilight, function (data) {
+            $('#hilight-change').html(hilight.replace('.css', ''));
+            $('#hilightsheet').remove();
+            $('head').append(
+                    '<link href="highlight/styles/' + hilight + '" rel="stylesheet" id="hilightsheet" />');
+        });
     }
 
     /// OnLoad display name of starting theme and highlighter
@@ -60,6 +62,7 @@
         }, 'text');
         return false;
     }
+
     // Expose function to get text of source
     site_ns['showRawText'] = showRawText;
 })();

@@ -102,6 +102,7 @@ body {
     top: 10px;
     right: 0;
     font-size: 14px;
+    line-height: 1em;
 }
 
 #headerright > #theme-change {
@@ -115,6 +116,7 @@ body {
 }
 
 #headerright > #rsrc-change {
+    margin-right: 1em;
     padding: 1.5em 0 0 8px;
 }
 
@@ -142,7 +144,7 @@ button {
     color: inherit;
     font-size: 10pt;
     padding: 4px 6px;
-    border-radius: 5px;
+    border-radius: 3px;
     border: 1px solid inherit;
 }
 
@@ -173,6 +175,7 @@ button {
     line-height: 1;
     font-size: 11px;
     position: relative;
+    cursor: pointer;
 }
 
 #cssmenu a {

@@ -25,8 +25,6 @@
     var typeList = ['js', 'html', 'css', 'json'];
     var extPattern = /\.([0-9a-z]+)(?:[\?#]|$)/i;
     function processContents(link, callback) {
-        $('#PageFrame').animate({scrollTop: 0}, 100);
-
         // Format code => markdown => html
         var extension = (link).match(extPattern);
         if (typeList.indexOf(extension[1]) > -1) {
@@ -85,7 +83,6 @@
         ///   that must be in the site_ns namespace
         /// - see [namespace.js](js/namespace.js)
         if (href.substring(0, 5) === 'call/') {
-            $('#rsrc-change').html(href.replace('call/', ''));
             eval('site_ns.' + href.substring(5));
             return false;
         }
@@ -117,6 +114,9 @@
         processContents(basePathName + link, function (data) {
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
+            }
+            else {
+                $('#PageFrame').animate({scrollTop: 0}, 100);
             }
 
             // switch the active submenu item to the one that represents

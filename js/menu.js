@@ -56,14 +56,13 @@
         $(what).addClass('subactive');
         site_ns.updateHistory($(what).attr('rsrc'));
         if ($(what).attr('rsrc').substring(0, 5) === 'call/') {
-            $('#rsrc-change').html($(what).attr('rsrc').replace('call/', ''));
             eval('site_ns.' + $(what).attr('rsrc').substring(5));
             return;
         }
 
         $('#top-menu a').hide();
-
         $('#rsrc-change').html($(what).attr('rsrc'));
+        $('#PageFrame').animate({scrollTop: 0}, 200);
         site_ns.processContents($(what).attr('rsrc'));
     };
 
