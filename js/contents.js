@@ -17,7 +17,7 @@
         $('pre code').addClass('hljs');
         // Some themes do not have overflow-x set - so set it
         $('.hljs').css('overflow-x', 'auto');
-        if (callback) callback(codedoc);
+        if (callback) callback();
     }
 
     /// If a markdown file then transform to html and
