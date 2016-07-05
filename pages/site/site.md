@@ -5,8 +5,7 @@
 
 Some theme/code highlight combos :
 
-<a href="call/themeChange('swiss.css');site_ns.hilightChange('vs.css');">swiss / vs</a>, &nbsp;&nbsp;&nbsp;&nbsp; 
-<a href="call/themeChange('screen.css');site_ns.hilightChange('kimbie.dark.css');">screen / kimbie.dark</a>, &nbsp;&nbsp;&nbsp;&nbsp; 
-<a href="call/themeChange('markdown5.css');site_ns.hilightChange('foundation.css');">markdown5 / foundation</a>, &nbsp;&nbsp;&nbsp;&nbsp; 
-<a href="call/hilightChange('highlight/styles/atelier-cave-dark.css');">atelier-cave-dark</a>&nbsp;&nbsp;&nbsp;&nbsp; 
+<a href="call/themeChange('swiss.css');site_ns.hilightChange('vs.min.css');">swiss / vs</a>, &nbsp;&nbsp;&nbsp;&nbsp; 
+<a href="call/themeChange('screen.css');site_ns.hilightChange('kimbie.dark.min.css');">screen / kimbie.dark</a>, &nbsp;&nbsp;&nbsp;&nbsp; 
+<a href="call/themeChange('markdown5.css');site_ns.hilightChange('foundation.min.css');">markdown5 / foundation</a>, &nbsp;&nbsp;&nbsp;&nbsp; 
 
