@@ -1,10 +1,12 @@
-/// ## Content handler
-/// The site content is received using JQuery ajax $.get() and loaded
-/// into the #contents div. Since most of the site content is written
-/// in Markdown it must be transformed to HTML for display in the browser.
-/// Code blocks highlighting is performed as well as special handling of
-/// links contained in the content as well as having the site menu display
-/// the content that is being displayed.
+/**
+ ## Content handler
+ The site content is received using JQuery ajax $.get() and loaded
+ into the #contents div. Since most of the site content is written
+ in Markdown it must be transformed to HTML for display in the browser.
+ Code blocks highlighting is performed as well as special handling of
+ links contained in the content as well as having the site menu display
+ the content that is being displayed.
+ */
 
 /// ----
 /// ### Site content handling
