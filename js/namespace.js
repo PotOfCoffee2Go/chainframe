@@ -63,26 +63,6 @@
 })();
 
 /// ----
-/// Show Raw text in contents area
-/// ----
-(function () {
-    "use strict";
-
-    function showRawText(link) {
-        $.get(link, function (data) {
-            // Array of source lines
-            var input = '<pre><code>' + data.toString() + '</code></pre>';
-            $('#contents').html(input);
-        }, 'text');
-        return false;
-    }
-
-    // Expose function to get text of source
-    site_ns['showRawText'] = showRawText;
-})();
-
-
-/// ----
 /// Update browser history
 /// ----
 (function () {
@@ -114,6 +94,35 @@
     site_ns['updateHistory'] = updateHistory;
 })();
 
+/// ### Determine location of source code
+/// - If site not localhost then get source code from GitHub
+///   - `../` indicates moving down into the project files
+///     - so the GitHub source is in **master**
+///     - otherwise is page in **gh-pages**
+(function () {
+    function getCodeUrl(filepath) {
+        /// - If site not localhost then get source code from GitHub
+        ///   - `../` indicates moving down into the project files
+        ///     - so the GitHub source is in **master**
+        ///     - otherwise is page in **gh-pages**
+        var src = window.location.href.replace('#', '');
+        if ('localhost' !== window.location.hostname) {
+            src = site_ns.source;
+            if (filepath.indexOf('../') > -1) {
+                src += 'master/';
+                filepath = filepath.replace('../', '');
+            }
+            else {
+                src += 'gh-pages/';
+            }
+        }
+        return src + filepath;
+    }
+
+    // Expose function to get code URL
+    site_ns['getCodeUrl'] = getCodeUrl;
+})();
+
 
 /// ----
 /// WebSocket to nodejs server for additional content
@@ -122,9 +131,7 @@
 (function () {
     "use strict";
 
-    return;
-
-    var socket = io.connect('https://bbwebsock-potofcoffee2go.rhcloud.com:8000/');
+    var socket = io.connect('https://bbwebsock-potofcoffee2go.rhcloud.com:8443/');
     //var socket = io.connect('http://localhost:3000/');
 
     socket.on('connection', function (socket) {

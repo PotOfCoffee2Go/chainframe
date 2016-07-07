@@ -1,33 +1,69 @@
 /**
- * Created by PotOfCoffee2Go on 7/6/2016.
+ <img src="//codescullery.net/favicon.ico" style="width: 24px;height: 24px;vertical-align: middle;">
+ Created by PotOfCoffee2Go on 7/6/2016.
  */
 
 /**
- ## Format code files to markdown then HTML for browser presentation
+ ## Format code files to markdown
  Text from a `.js`, `.html`, `.css`, `.json` files is parsed and formatted for presentation
  as a web page. Markdown and most HTML tags are allowed in the comments, Markdown
  should take care of most your needs.
 
- > Most [block-level tags](//developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements)
- like &lt;div&gt; will have issues (though you might sometimes get away with it).
- whereas - [inline elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements) are fine.
- For example, use &lt;span&gt; instead of &lt;div&gt;.
+ > Excuse the over documentation of this code. It should be re-written using regex expressions
+ so commented heavily to assist in that rewrite - time permitting.
  */
 
-/// <style> h3 { text-decoration: underline; } </style>
+/**
+ <style>
+ h3 { text-decoration: underline; }
+ </style>
+ */
 
 (function () {
     "use strict";
 
     /// ### Entry point to generate markup of source code
     function genDoc(type, filepath, callback) {
+        var codeUrl = site_ns.getCodeUrl(filepath);
+
+        /// - Display the <button>Raw</button> button in the top-menu
+        $('#tm-raw').attr('href', codeUrl);
+        $('#tm-raw').show();
+
+        /// Get default options
+        var options = parserOptions(type);
+
+        /// - Get the source code and format into Markdown
+        markupSource(codeUrl, options, function (output) {
+            callback(output);
+        });
+    }
+
+    /// Expose the function that generates markup of source code
+    site_ns['genDoc'] = genDoc;
+    /// ----
+
+    /// ----
+
+    /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
+    function markupSource(codeUrl, options, callback) {
+        /// - Get array of source lines
+        ///   - and convert to Markdown
+        $.get(codeUrl, function (data) {
+            var input = data.toString().split('\n');
+            codeToMarkdown(options, input, function (output) {
+                callback(output);
+            })
+        }, 'text');
+    }
+
+    /// ### Helper functions
+
+    /// Get parser options based on the file extension
+    /// - Javascript, HTML, Style Sheets, JSON
+    function parserOptions(type) {
         var options = {};
 
-        /// - Set parser options based on the file extension
-        ///   - Javascript
-        ///   - HTML
-        ///   - Style Sheets
-        ///   - JSON
         switch (type) {
             case 'js' :
                 options = {
@@ -66,20 +102,11 @@
                 };
                 break;
             default:
-                return;
+                break;
         }
-
-        /// - Get the source code and format into Markdown
-        codeToMarkdown(filepath, options, function (output) {
-            callback(output);
-        });
+        return options;
     }
 
-    /// Expose the function that generates markup of source code
-    site_ns['genDoc'] = genDoc;
-    /// ----
-
-    /// ### Helper functions
     /// Is the previous line a comment?
     function isPrevComment(flags, i) {
         return flags[i ? i - 1 : 0] !== ' ';
@@ -102,7 +129,12 @@
 
     /// Is a Code Block comment?
     function isCodeBlockComment(opt, input, i) {
-        return opt.codeblockCmntBeg && input[i].indexOf(opt.codeblockCmntBeg) === 0;
+        return opt.codeblockCmntBeg && input[i].indexOf(opt.codeblockCmntBeg) > -1;
+    }
+
+    /// Is JSDoc comment block?
+    function isPrevJSDocBlockComment(flags, i) {
+        return flags[i ? i - 1 : 0] === 'j';
     }
 
     /// Is JSDoc style comment?
@@ -110,42 +142,11 @@
         return input[i].substring(0, 3) === ' * ';
     }
 
-    /// ----
-
-    /// ### Determine location and get source code
-    function codeToMarkdown(filepath, options, callback) {
-        /// - If site not localhost then get source code from GitHub
-        ///   - `../` indicates moving down into the project files
-        ///     - so the GitHub source is in **master**
-        ///     - otherwise is page in **gh-pages**
-        var src = window.location.href.replace('#', '');
-        if ('localhost' !== window.location.hostname) {
-            src = site_ns.source;
-            if (filepath.indexOf('../') > -1) {
-                src += 'master/';
-                filepath = filepath.replace('../', '');
-            }
-            else {
-                src += 'gh-pages/';
-            }
-        }
-
-        /// - Display the <button>Raw</button> button in the top-menu
-        $('#tm-raw').attr('href', src + filepath);
-        $('#tm-raw').show();
-
-        /// - Get array of source lines
-        ///   - and convert to Markdown
-        $.get(src + filepath, function (data) {
-            var input = data.toString().split('\n');
-            metaComments(options, input, function (output) {
-                callback(output.join('\n'));
-            })
-        }, 'text');
-    }
-
     /// ### Determine what lines are comments and which are code
-    function metaComments(opt, input, callback) {
+    function codeToMarkdown(opt, input, callback) {
+        var expect = ' ';
+        var blockWhitespace = 0;
+
         var flags = [];
         var output = [];
 
@@ -161,8 +162,6 @@
         ///   - Assume first line is code
         ///   - If a Single or start of a Block comment
         ///     - Set first line to a comment
-        var jsdocBeg = false;
-        var expect = ' ';
         if (isSingleComment(opt, input, 0) || isBlockComment(opt, input, 0)) {
             expect = 'c';
         }
@@ -195,25 +194,17 @@
             ///       - set the flags and **to next line**
             if (isPrevComment(flags, i)) {
                 if (isJSDocComment(input, i)) {
-                    if (jsdocBeg && input[i].length > 3 && input[i][3] !== '@') {
-                        input[i] = '**' + input[i].substring(3) + '**';
-                    }
                     flags[i] = 'c'; // line is a comment
                     expect = 'c';   // expect next line will be a comment too
-                    jsdocBeg = false;
                     continue;
                 }
                 if (input[i] === ' *') {
                     input[i] = '';
                     flags[i] = 'c'; // comment
                     expect = 'c';
-                    jsdocBeg = false;
                     continue;
                 }
             }
-
-            /// - Reset the flag indicating beginning of JSDoc comment
-            jsdocBeg = false;
 
             /// - Start of a code block comment ex: /* for javascript
             ///   - Is a *code* block comment `/*` but *not* a block comment `/**`?
@@ -225,6 +216,8 @@
                 continue;
             }
             /// - Start of block comment?
+            ///   - Keep track of leading whitespace to shift text to the left
+            ///     > need to do this because Markdown parser would make the text a code block
             ///   - Remove the comment chars. ex: `/**` for javascript
             ///   - Flag the line as a comment
             ///   - Is there an end of block comment too? (line like: `/** blah blah */`)
@@ -235,6 +228,7 @@
             ///     - and a comment is expected on the next line
             ///   - **to next line**
             if (isBlockComment(opt, input, i)) {
+                blockWhitespace = input[i].search(/\S|$/);
                 input[i] = input[i].trim().replace(opt.blockCmntBeg, '');
                 flags[i] = 'c';
                 if (isEndBlockComment(opt, input, i)) {
@@ -244,27 +238,33 @@
                     expect = ' ';
                 }
                 else {
-                    jsdocBeg = true;
+                    flags[i] = 'j';
                     expect = 'c';
                 }
                 continue;
             }
             /// - End of comment and we are in a comment block
             ///   - Remove the end of comment chars.
+            ///   - Stop removing leading spaces
             ///   - Set this line as a comment and expect next to be code
             ///   - **to next line**
             if (isEndBlockComment(opt, input, i) && isPrevComment(flags, i)) {
                 input[i] = input[i]
                         .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
                         .replace(opt.blockCmntEnd, '');
+                blockWhitespace = 0;
                 flags[i] = 'c'; // comment
                 expect = ' ';
                 continue;
             }
 
             /// - Got here if none of the special conditions above were met
+            ///   - Remove leading chars so Markdown parser doesn't make them a code block
             ///   - Set flag to what this line was expected to be based on the previous line
             ///   - **to next line**
+            if (isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
+                input[i] = input[i].substring(blockWhitespace);
+            }
             flags[i] = expect;
         }
 
@@ -275,6 +275,12 @@
 
         /// Output each line inserting markdown code blocks as we go
         for (i = 0, l = flags.length; i < l; i++) {
+            /// - Set JSDoc comment to a regular block comment
+            ///   > to make the following code easier - at this point a comment is a comment
+            if (flags[i] === 'j') {
+                flags[i] = 'c';
+            }
+
             /// - Output the first line
             ///  - Start a code block when appropriate
             if (i === 0) {
@@ -284,6 +290,7 @@
                 output.push(input[i]);
                 continue;
             }
+
             /// - When previous flag and current are the same
             ///   - Remain in the comment or code block
             if (flags[i] === flags[i - 1]) {
@@ -317,8 +324,7 @@
         }
 
         /// Return with the Markdown markup complete
-        callback(output);
+        callback(output.join('\n'));
     }
-
     /// *piece of cake*
 })();

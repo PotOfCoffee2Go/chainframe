@@ -142,6 +142,7 @@ body {
 
 /** #### Give a little space at end of code highlight box **/
 pre {
+    margin-left: 1em;
     margin-right: 1em;
 }
 
