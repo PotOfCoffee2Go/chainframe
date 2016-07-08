@@ -32,7 +32,7 @@
 
     /// - Expand/collapse of site menu
     ///   - 'what' is 'this' of the menu to expand
-    var clickTopMenu = function (what) {
+    var clickMainMenu = function (what) {
         var checkElement = $(what).next();
         var $cssmenu_li = $('#cssmenu li');
         if ((checkElement.is('ul')) && (checkElement.is(':visible'))) {
@@ -67,6 +67,24 @@
         site_ns.processContents($(what).attr('rsrc'));
     };
 
+    /// - Top-menu processing
+    var clickTopMenu = function (what) {
+
+        site_ns.updateHistory($(what).attr('rsrc'));
+        // if ($(what).attr('rsrc').substring(0, 5) === 'call/') {
+        //     eval('site_ns.' + $(what).attr('rsrc').substring(5));
+        //     return;
+        // }
+
+        var doc = $(what).attr('href');
+        site_ns.processContents(doc);
+        return;
+
+        $('#rsrc-change').html($(what).attr('rsrc'));
+        $('#PageFrame').animate({scrollTop: 0}, 200);
+        site_ns.processContents($(what).attr('rsrc'));
+    };
+
     /// OnLoad set menu onclick handlers
     $(document).ready(function () {
         ///   - Show/hide site menu
@@ -76,13 +94,19 @@
 
         ///   - Main menu item clicked - collapse current and expand clicked
         $('#menu-contents').on('click', '#cssmenu > ul > li > a', function () {
-            clickTopMenu(this);
+            clickMainMenu(this);
         });
 
         ///   - Sub-menu item clicked
         ///     - change menu presentation to show sub-menu selected
         $('#menu-contents').on('click', '#cssmenu > ul > li > ul > li > a', function () {
             clickSubMenu(this);
+        });
+
+        ///   - Top-menu item clicked
+        ///     - change menu presentation to show sub-menu selected
+        $('#top-menu').on('click', 'a', function () {
+            clickTopMenu(this);
         });
     });
 
@@ -91,9 +115,7 @@
     ///   - click top level text
     ///   - click sub level text
     site_ns['toggleMenuShow'] = toggleMenuShow;
-    site_ns['clickTopMenu'] = clickTopMenu;
+    site_ns['clickMainMenu'] = clickMainMenu;
     site_ns['clickSubMenu'] = clickSubMenu;
-
-
 })();
 

@@ -133,11 +133,12 @@ body {
 #top-menu {
     position: relative;
     float: left;
-    padding-left: 130px;
+    padding-left: 30px;
 }
 
 #top-menu a {
     display: none;
+    float: left;
 }
 
 /** #### Give a little space at end of code highlight box **/
@@ -155,6 +156,9 @@ button {
     border: 1px solid inherit;
 }
 
+.markdown-comment {
+    display: none;
+}
 /** ### Menu styles **/
 
 #cssmenu {

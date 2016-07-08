@@ -94,17 +94,32 @@
     site_ns['updateHistory'] = updateHistory;
 })();
 
-/// ### Determine location of source code
-/// - If site not localhost then get source code from GitHub
-///   - `../` indicates moving down into the project files
-///     - so the GitHub source is in **master**
-///     - otherwise is page in **gh-pages**
 (function () {
+    /// ### Entry point to generate markup of source code
+    function genDoc(type, filepath, options, callback) {
+        var codeUrl = getCodeUrl(filepath);
+
+        /// - Display the <button>Raw</button> button in the top-menu
+        $('#tm-raw').attr('href', codeUrl);
+        $('#tm-raw').show();
+        $('#tm-code').show();
+        $('#tm-comments').show();
+
+        /// Get default options
+        var options = site_ns.parserOptions(type, options);
+
+        /// - Get the source code and format into Markdown
+        site_ns.markupSource(codeUrl, options, function (output) {
+            callback(output);
+        });
+    }
+
+    /// ### Determine location of source code
+    /// - If site not localhost then get source code from GitHub
+    ///   - `../` indicates moving down into the project files
+    ///     - so the GitHub source is in **master**
+    ///     - otherwise is page in **gh-pages**
     function getCodeUrl(filepath) {
-        /// - If site not localhost then get source code from GitHub
-        ///   - `../` indicates moving down into the project files
-        ///     - so the GitHub source is in **master**
-        ///     - otherwise is page in **gh-pages**
         var src = window.location.href.replace('#', '');
         if ('localhost' !== window.location.hostname) {
             src = site_ns.source;
@@ -119,8 +134,8 @@
         return src + filepath;
     }
 
-    // Expose function to get code URL
-    site_ns['getCodeUrl'] = getCodeUrl;
+    /// Expose the function that generates markup of source code
+    site_ns['genDoc'] = genDoc;
 })();
 
 
@@ -131,7 +146,7 @@
 (function () {
     "use strict";
 
-    var socket = io.connect('https://bbwebsock-potofcoffee2go.rhcloud.com:8443/');
+    var socket = io.connect(site_ns.ioserver);
     //var socket = io.connect('http://localhost:3000/');
 
     socket.on('connection', function (socket) {

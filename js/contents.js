@@ -15,24 +15,25 @@
     "use strict";
 
     /// Add class for [highlight.js](https://highlightjs.org/)
-    function setCodeHighlightClass(callback) {
+    function setCodeHighlightClass() {
         $('pre code').addClass('hljs');
         // Some themes do not have overflow-x set - so set it
         $('.hljs').css('overflow-x', 'auto');
-        if (callback) callback();
     }
 
     /// If a markdown file then transform to html and
     /// insure code blocks have the highlight.js class
     var typeList = ['js', 'html', 'css', 'json'];
     var extPattern = /\.([0-9a-z]+)(?:[\?#]|$)/i;
-    function processContents(link, callback) {
+
+    function processContents(link, options) {
         // Format code => markdown => html
         var extension = (link).match(extPattern);
         if (typeList.indexOf(extension[1]) > -1) {
-            site_ns.genDoc(extension[1], link, function (codedoc) {
-                $('#contents').html(marked(codedoc));
-                setCodeHighlightClass(callback);
+            site_ns.genDoc(extension[1], link, options, function (codedoc) {
+                var markedup = marked(codedoc);
+                $('#contents').html(markedup);
+                setCodeHighlightClass();
             })
         }
         else { // Markdown
@@ -43,7 +44,7 @@
                 else {
                     $('#contents').html(data);
                 }
-                setCodeHighlightClass(callback);
+                setCodeHighlightClass();
             })
         }
     }
@@ -113,7 +114,7 @@
         /// - get the page and put it in the content
         ///   - the code blocks have to have the 'hljs' class
         ///     assigned for highlighting
-        processContents(link, function (data) {
+        processContents(link, {}, function (data) {
             if (scrollPos) {
                 $('#PageFrame').animate({scrollTop: scrollPos}, 200);
             }
@@ -128,7 +129,7 @@
 
             // switch the main menu item if that has changed
             if ($(menuid).parent().hasClass('active') === false) {
-                site_ns.clickTopMenu(menuid);
+                site_ns.clickMainMenu(menuid);
             }
 
             /// - insure that we scroll to the top of the page
@@ -172,7 +173,7 @@
             $('#menu-contents a').attr('href', 'javascript:;');
 
             // Get the welcome page
-            site_ns.clickTopMenu($("#menu-home"));
+            site_ns.clickMainMenu($("#menu-home"));
             $('[rsrc="pages/welcome/welcome.md"]').trigger('click');
         });
 

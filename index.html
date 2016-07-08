@@ -8,6 +8,20 @@
 
     <title>Chainframe by PotOfCoffee2Go</title>
 
+    <!---
+    ### Site namespace
+      - name: Name of site
+      - source: Base URL to raw source code on GitHub, BitBucket, etc.
+      - ioserver: WebSocket connection for storage, analytics, custom processing, etc
+    --->
+    <script>
+        var site_ns = {
+            name: 'chainframe',
+            source: '//raw.githubusercontent.com/PotOfCoffee2Go/chainframe/',
+            ioserver: 'https://bbwebsock-potofcoffee2go.rhcloud.com:8443/'
+        };
+    </script>
+
     <!--- ### JQuery --->
     <script src="//code.jquery.com/jquery-latest.min.js"></script>
 
@@ -34,26 +48,11 @@
     <!--- ### Websocket communications --->
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 
-    <!---
-    ### Site namespace
-      - name: name of site
-      - source: Base URL to raw source code on GitHub, BitBucket, etc.
-    --->
-    <script>
-        var site_ns = {
-            name: 'chainframe',
-            source: '//raw.githubusercontent.com/PotOfCoffee2Go/chainframe/'
-        };
-    </script>
-
     <!--- ### Site scripts --->
     <script src="js/menu.js"></script>
     <script src="js/contents.js"></script>
     <script src="js/namespace.js"></script>
     <script src="js/markupcode.js"></script>
-
-    <!-- Scale fix (provided by github pages) -->
-    <script src="js/scale.fix.js"></script>
 </head>
 
 <body>

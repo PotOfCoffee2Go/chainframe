@@ -22,51 +22,43 @@
 (function () {
     "use strict";
 
-    /// ### Entry point to generate markup of source code
-    function genDoc(type, filepath, callback) {
-        var codeUrl = site_ns.getCodeUrl(filepath);
-
-        /// - Display the <button>Raw</button> button in the top-menu
-        $('#tm-raw').attr('href', codeUrl);
-        $('#tm-raw').show();
-
-        /// Get default options
-        var options = parserOptions(type);
-
-        /// - Get the source code and format into Markdown
-        markupSource(codeUrl, options, function (output) {
-            callback(output);
-        });
-    }
-
-    /// Expose the function that generates markup of source code
-    site_ns['genDoc'] = genDoc;
-    /// ----
-
-    /// ----
-
     /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
+    /// Was using jquery `$.get()` but it was getting confused sometimes within the callback
+    /// lists that it keeps and ugly things started happening.
+    /// So went by to the old school xhttp ajax request which works fine.
+
+    /// > I should build a test setup and fix/send patch to jquery, but is complicated and got
+    /// to much on the plate. They will find it eventually.
+
+    /// - Get array of source lines
+    ///   - and convert to Markdown
     function markupSource(codeUrl, options, callback) {
-        /// - Get array of source lines
-        ///   - and convert to Markdown
-        $.get(codeUrl, function (data) {
-            var input = data.toString().split('\n');
-            codeToMarkdown(options, input, function (output) {
-                callback(output);
-            })
-        }, 'text');
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
+                var input = xhttp.responseText.toString().split('\n');
+                codeToMarkdown(options, input, function (output) {
+                    callback(output);
+                })
+            }
+        };
+
+        xhttp.open("GET", codeUrl, true);
+        xhttp.send();
     }
 
     /// ### Helper functions
 
     /// Get parser options based on the file extension
     /// - Javascript, HTML, Style Sheets, JSON
-    function parserOptions(type) {
-        var options = {};
+    function parserOptions(type, opt) {
+        opt = opt || {};
+        opt.hideCode = opt.hideCode || false;
+        opt.hideComment = opt.hideComment || false;
 
         switch (type) {
             case 'js' :
-                options = {
+                opt = {
                     ext: 'js',
                     lineCmntTag: '///',
                     codeblockCmntBeg: '/*',
@@ -75,7 +67,7 @@
                 };
                 break;
             case 'html' :
-                options = {
+                opt = {
                     ext: 'html',
                     lineCmntTag: null,
                     codeblockCmntBeg: '<!--',
@@ -84,7 +76,7 @@
                 };
                 break;
             case 'css' :
-                options = {
+                opt = {
                     ext: 'css',
                     lineCmntTag: null,
                     codeblockCmntBeg: '/*',
@@ -93,7 +85,7 @@
                 };
                 break;
             case 'json' :
-                options = {
+                opt = {
                     ext: 'json',
                     lineCmntTag: null,
                     codeblockCmntBeg: null,
@@ -104,7 +96,7 @@
             default:
                 break;
         }
-        return options;
+        return opt;
     }
 
     /// Is the previous line a comment?
@@ -259,15 +251,36 @@
             }
 
             /// - Got here if none of the special conditions above were met
-            ///   - Remove leading chars so Markdown parser doesn't make them a code block
             ///   - Set flag to what this line was expected to be based on the previous line
+            ///   - Remove leading chars so Markdown parser doesn't make them a code block
             ///   - **to next line**
-            if (isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
+            flags[i] = expect;
+            if (flags[i] !== ' ' && isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
                 input[i] = input[i].substring(blockWhitespace);
             }
-            flags[i] = expect;
         }
 
+        /// ----
+        /// Hide Comments
+        i = flags.length;
+        if (opt.hideComment) {
+            while (i--) {
+                if (flags[i] !== ' ') {
+                    flags.splice(i, 1);
+                    input.splice(i, 1);
+                }
+            }
+        }
+
+        /// Hide Code
+        if (opt.hideCode) {
+            while (i--) {
+                if (flags[i] === ' ' && input[i].length) {
+                    flags.splice(i, 1);
+                    input.splice(i, 1);
+                }
+            }
+        }
         /// ----
 
         /// #### Output the comment and code lines based on the flags
@@ -314,7 +327,7 @@
                 continue;
             }
 
-            /// - Should never get here!
+            /// - *Should never get here!*
             throw new Error('Parsing of meta comments error')
         }
 
@@ -326,5 +339,9 @@
         /// Return with the Markdown markup complete
         callback(output.join('\n'));
     }
-    /// *piece of cake*
+
+    /// Expose the function that initializes default options
+    site_ns['parserOptions'] = parserOptions;
+    /// Expose the function that generates markup of source code
+    site_ns['markupSource'] = markupSource;
 })();
