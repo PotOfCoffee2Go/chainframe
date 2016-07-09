@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * Created by Kim on 5/28/2016.
  *
  */
@@ -68,22 +68,26 @@
     };
 
     /// - Top-menu processing
+    /// - Top-menu processing
     var clickTopMenu = function (what) {
-
-        site_ns.updateHistory($(what).attr('rsrc'));
+        // site_ns.updateHistory($(what).attr('rsrc'));
         // if ($(what).attr('rsrc').substring(0, 5) === 'call/') {
         //     eval('site_ns.' + $(what).attr('rsrc').substring(5));
         //     return;
         // }
 
-        var doc = $(what).attr('href');
-        site_ns.processContents(doc);
-        return;
-
+        var options = {};
+        if ($(what).attr('id') === 'tm-code') {
+            options = {hideComment: true};
+        }
+        else if ($(what).attr('id') === 'tm-comments') {
+            options = {hideCode: true};
+        }
         $('#rsrc-change').html($(what).attr('rsrc'));
         $('#PageFrame').animate({scrollTop: 0}, 200);
-        site_ns.processContents($(what).attr('rsrc'));
+        site_ns.processContents($(what).attr('rsrc'), options);
     };
+
 
     /// OnLoad set menu onclick handlers
     $(document).ready(function () {

@@ -112,7 +112,9 @@
         /// - Display the <button>Raw</button> button in the top-menu
         $('#tm-raw').attr('href', codeUrl);
         $('#tm-raw').show();
+        $('#tm-code').attr('rsrc', filepath);
         $('#tm-code').show();
+        $('#tm-comments').attr('rsrc', filepath);
         $('#tm-comments').show();
 
         /// Get default options

@@ -37,7 +37,7 @@
         xhttp.onreadystatechange = function () {
             if (xhttp.readyState === 4 && xhttp.status === 200) {
                 var input = xhttp.responseText.toString().split('\n');
-                codeToMarkdown(options, input, function (output) {
+                codeToMarkdown(options, input.split('\n'), function (output) {
                     callback(output);
                 })
             }
@@ -45,6 +45,29 @@
 
         xhttp.open("GET", codeUrl, true);
         xhttp.send();
+    }
+
+    /// ----
+    function markupSourceAjax(codeUrl, options, callback) {
+        $.ajax({
+            url: codeUrl,
+            dataType: 'text'
+        })
+                .done(function (input) {
+                    if (console && console.log) {
+                        codeToMarkdown(options, input.split('\n'), function (output) {
+                            callback(output);
+                        })
+                    }
+                })
+                .fail(function () {
+                    alert("error");
+                });
+        // .always(function () {
+        //     alert("complete");
+        // });
+
+
     }
 
     /// ### Helper functions
@@ -58,40 +81,32 @@
 
         switch (type) {
             case 'js' :
-                opt = {
-                    ext: 'js',
-                    lineCmntTag: '///',
-                    codeblockCmntBeg: '/*',
-                    blockCmntBeg: '/**',
-                    blockCmntEnd: '*/'
-                };
+                opt.ext = 'js';
+                opt.lineCmntTag = '///';
+                opt.codeblockCmntBeg = '/*';
+                opt.blockCmntBeg = '/**';
+                opt.blockCmntEnd = '*/';
                 break;
             case 'html' :
-                opt = {
-                    ext: 'html',
-                    lineCmntTag: null,
-                    codeblockCmntBeg: '<!--',
-                    blockCmntBeg: '<!---',
-                    blockCmntEnd: '-->'
-                };
+                opt.ext = 'html';
+                opt.lineCmntTag = null;
+                opt.codeblockCmntBeg = '<!--';
+                opt.blockCmntBeg = '<!---';
+                opt.blockCmntEnd = '-->';
                 break;
             case 'css' :
-                opt = {
-                    ext: 'css',
-                    lineCmntTag: null,
-                    codeblockCmntBeg: '/*',
-                    blockCmntBeg: '/**',
-                    blockCmntEnd: '*/'
-                };
+                opt.ext = 'css';
+                opt.lineCmntTag = null;
+                opt.codeblockCmntBeg = '/*';
+                opt.blockCmntBeg = '/**';
+                opt.blockCmntEnd = '*/';
                 break;
             case 'json' :
-                opt = {
-                    ext: 'json',
-                    lineCmntTag: null,
-                    codeblockCmntBeg: null,
-                    blockCmntBeg: null,
-                    blockCmntEnd: null
-                };
+                opt.ext = 'json';
+                opt.lineCmntTag = null;
+                opt.codeblockCmntBeg = null;
+                opt.blockCmntBeg = null;
+                opt.blockCmntEnd = null;
                 break;
             default:
                 break;
@@ -343,5 +358,5 @@
     /// Expose the function that initializes default options
     site_ns['parserOptions'] = parserOptions;
     /// Expose the function that generates markup of source code
-    site_ns['markupSource'] = markupSource;
+    site_ns['markupSource'] = markupSourceAjax;
 })();
