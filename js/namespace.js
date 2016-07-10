@@ -116,6 +116,8 @@
         $('#tm-code').show();
         $('#tm-comments').attr('rsrc', filepath);
         $('#tm-comments').show();
+        $('#tm-all').attr('rsrc', filepath);
+        $('#tm-all').show();
 
         /// Get default options
         var options = site_ns.parserOptions(type, options);

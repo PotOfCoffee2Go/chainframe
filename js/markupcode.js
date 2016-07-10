@@ -23,51 +23,16 @@
     "use strict";
 
     /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
-    /// Was using jquery `$.get()` but it was getting confused sometimes within the callback
-    /// lists that it keeps and ugly things started happening.
-    /// So went by to the old school xhttp ajax request which works fine.
-
-    /// > I should build a test setup and fix/send patch to jquery, but is complicated and got
-    /// to much on the plate. They will find it eventually.
-
-    /// - Get array of source lines
-    ///   - and convert to Markdown
-    function markupSource(codeUrl, options, callback) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (xhttp.readyState === 4 && xhttp.status === 200) {
-                var input = xhttp.responseText.toString().split('\n');
-                codeToMarkdown(options, input.split('\n'), function (output) {
-                    callback(output);
-                })
-            }
-        };
-
-        xhttp.open("GET", codeUrl, true);
-        xhttp.send();
-    }
-
-    /// ----
     function markupSourceAjax(codeUrl, options, callback) {
-        $.ajax({
-            url: codeUrl,
-            dataType: 'text'
-        })
+        $.ajax({url: codeUrl, dataType: 'text'})
                 .done(function (input) {
-                    if (console && console.log) {
-                        codeToMarkdown(options, input.split('\n'), function (output) {
-                            callback(output);
-                        })
-                    }
+                    codeToMarkdown(options, input.split('\n'), function (output) {
+                        callback(output);
+                    })
                 })
                 .fail(function () {
                     alert("error");
                 });
-        // .always(function () {
-        //     alert("complete");
-        // });
-
-
     }
 
     /// ### Helper functions
