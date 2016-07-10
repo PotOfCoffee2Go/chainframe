@@ -11,14 +11,21 @@
     <!---
     ### Site namespace
       - name: Name of site
+      - logo: Site logo
       - source: Base URL to raw source code on GitHub, BitBucket, etc.
       - ioserver: WebSocket connection for storage, analytics, custom processing, etc
-    --->
+        - url: WebSocket connection for storage, analytics, custom processing, etc
+        - enable: Enable server
+  --->
     <script>
         var site_ns = {
             name: 'chainframe',
+            logo: 'images/logo.png',
             source: '//raw.githubusercontent.com/PotOfCoffee2Go/chainframe/',
-            ioserver: 'https://bbwebsock-potofcoffee2go.rhcloud.com:8443/'
+            ioserver: {
+                url: 'https://bbwebsock-potofcoffee2go.rhcloud.com:8443/',
+                enable: false
+            }
         };
     </script>
 
@@ -61,6 +68,10 @@
 ## Site layout
 ### Header
 --->
+<div id="FixedLogo"></div>
+
+<!--- ### Main menu --->
+
 <header id="AbsoluteHeader">
     <!--- - Red, yellow, green websocket connection status  --->
     <div id="headerleft">

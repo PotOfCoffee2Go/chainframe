@@ -6,9 +6,8 @@
 (function () {
     "use strict";
 
-    var toggleMenuClicked = false, contentMargin = null, topMemuPadding = null;
-
     /// Show/hide site menu
+    var toggleMenuClicked = false, contentMargin = null, topMemuPadding = null;
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');
@@ -22,7 +21,7 @@
             contentMargin = $('#contents').css('margin-left');
             $('#contents').animate({'margin-left': '12px'}, 'fast');
             topMemuPadding = $('#top-menu').css('padding-left');
-            $('#top-menu').animate({'padding-left': '12px'}, 'fast');
+            $('#top-menu').animate({'padding-left': '66px'}, 'fast');
             $('#menu-contents').slideUp("fast", function () {
                 $('#toggle-menu').attr('src', 'menu/images/menu_down.png');
                 toggleMenuClicked = true;

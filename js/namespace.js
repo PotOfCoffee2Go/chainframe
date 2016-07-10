@@ -4,10 +4,14 @@
 /// function with `site_ns` ie: site_ns.something();
 
 /// ----
-/// Site theme and code highlight
+/// Site Logo, theme, and code highlight
 /// ----
 (function () {
     "use strict";
+
+    function showLogo() {
+        $('#FixedLogo').prepend('<img id="logo" src="' + site_ns.logo + '" />');
+    }
 
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
@@ -57,8 +61,9 @@
 
     }
 
-    /// OnLoad display name of starting theme and highlighter
+    /// OnLoad display logo, name of starting theme, and highlighter
     $(document).ready(function () {
+        showLogo();
         var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
         var themename = themeshref[themeshref.length - 1];
         $('#theme-change').html(themename);
@@ -67,7 +72,7 @@
         $('#hilight-change').html(hilightname);
     });
 
-    // Expose functions to generate markup of source code
+    // Expose functions to change theme and code highlight
     site_ns['themeChange'] = themeChange;
     site_ns['hilightChange'] = hilightChange;
 })();
@@ -156,11 +161,14 @@
 /// ----
 /// WebSocket to nodejs server for additional content
 /// ----
-// turned off = will remove later
 (function () {
     "use strict";
 
-    var socket = io.connect(site_ns.ioserver);
+    if (!site_ns.ioserver.enable) {
+        return;
+    }
+
+    var socket = io.connect(site_ns.ioserver.url);
     //var socket = io.connect('http://localhost:3000/');
 
     socket.on('connection', function (socket) {
