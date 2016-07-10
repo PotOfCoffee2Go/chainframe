@@ -4,10 +4,14 @@
 /// function with `site_ns` ie: site_ns.something();
 
 /// ----
-/// Site theme and code highlight
+/// Site Logo, theme, and code highlight
 /// ----
 (function () {
     "use strict";
+
+    function showLogo() {
+        $('#FixedLogo').prepend('<img id="logo" src="' + site_ns.logo + '" />');
+    }
 
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
@@ -15,9 +19,9 @@
             $('#mdsheet').remove();
             $('#sitesheet').remove();
             $('head').append(
-                    '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
+                '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
             $('head').append(
-                    '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
+                '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
             setTimeout(function () {
                 $('html').animate({opacity: 1.0}, 400);
             }, 200)
@@ -25,30 +29,41 @@
     }
 
     function hilightChange(hilight) {
-        $('.hljs').animate({opacity: 0.01}, 40, function () {
+        function changeHilight() {
             $('#hilight-change').html(hilight.replace('.min.css', '').replace('.css', ''));
             $('#hilightsheet').remove();
             if (hilight.indexOf('highlight/styles/') > -1) {
                 $('head').append(
-                        '<link href="'
-                        + hilight
-                        + '" rel="stylesheet" id="hilightsheet" />');
+                    '<link href="'
+                    + hilight
+                    + '" rel="stylesheet" id="hilightsheet" />');
             }
             else {
                 hilight = hilight.replace('highlight/styles/', '');
                 $('head').append(
-                        '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
-                        + hilight
-                        + '" rel="stylesheet" id="hilightsheet" />');
+                    '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
+                    + hilight
+                    + '" rel="stylesheet" id="hilightsheet" />');
             }
             window.setTimeout(function () {
                 $('.hljs').animate({opacity: 1.0}, 40);
             }, 200)
-        });
+        }
+
+        if ($('.hljs').length) {
+            $('.hljs').animate({opacity: 0.01}, 40, function () {
+                changeHilight();
+            });
+        }
+        else {
+            changeHilight();
+        }
+
     }
 
-    /// OnLoad display name of starting theme and highlighter
+    /// OnLoad display logo, name of starting theme, and highlighter
     $(document).ready(function () {
+        showLogo();
         var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
         var themename = themeshref[themeshref.length - 1];
         $('#theme-change').html(themename);
@@ -57,7 +72,7 @@
         $('#hilight-change').html(hilightname);
     });
 
-    // Expose functions to generate markup of source code
+    // Expose functions to change theme and code highlight
     site_ns['themeChange'] = themeChange;
     site_ns['hilightChange'] = hilightChange;
 })();
@@ -74,7 +89,7 @@
         if (!inHistory) {
             var $scrollFrame = $('#PageFrame');
             var inPagePos = Math.round($scrollFrame.scrollTop() +
-                    $scrollFrame.offset().top - $('#AbsoluteHeader').height()
+                $scrollFrame.offset().top - $('#AbsoluteHeader').height()
             );
             window.history.replaceState({rsrc: inRsrc, pagePos: inPagePos}, '');
             window.history.pushState({rsrc: link, pagePos: 0}, '');
@@ -102,8 +117,12 @@
         /// - Display the <button>Raw</button> button in the top-menu
         $('#tm-raw').attr('href', codeUrl);
         $('#tm-raw').show();
+        $('#tm-code').attr('rsrc', filepath);
         $('#tm-code').show();
+        $('#tm-comments').attr('rsrc', filepath);
         $('#tm-comments').show();
+        $('#tm-all').attr('rsrc', filepath);
+        $('#tm-all').show();
 
         /// Get default options
         var options = site_ns.parserOptions(type, options);
@@ -142,11 +161,14 @@
 /// ----
 /// WebSocket to nodejs server for additional content
 /// ----
-// turned off = will remove later
 (function () {
     "use strict";
 
-    var socket = io.connect(site_ns.ioserver);
+    if (!site_ns.ioserver.enable) {
+        return;
+    }
+
+    var socket = io.connect(site_ns.ioserver.url);
     //var socket = io.connect('http://localhost:3000/');
 
     socket.on('connection', function (socket) {
@@ -170,12 +192,12 @@
 
     function emitConnected() {
         socket.emit('connected',
-                {
-                    data: {
-                        ClientId: 'kim2',
-                        clientconfirmconnected: 'yes'
-                    }
+            {
+                data: {
+                    ClientId: 'kim2',
+                    clientconfirmconnected: 'yes'
                 }
+            }
         );
         changeIoIndicator('green');
     }
