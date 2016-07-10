@@ -123,6 +123,8 @@
         $('#tm-comments').show();
         $('#tm-all').attr('rsrc', filepath);
         $('#tm-all').show();
+        $('#top-menu').animate({opacity: 1}, 'fast');
+
 
         /// Get default options
         var options = site_ns.parserOptions(type, options);

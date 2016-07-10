@@ -147,11 +147,10 @@ body {
 #top-menu {
     position: relative;
     float: left;
-    padding-left: 130px;
+    opacity: 0;
 }
 
 #top-menu a {
-    display: none;
     float: left;
 }
 
