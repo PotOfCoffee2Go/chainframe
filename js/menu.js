@@ -1,17 +1,17 @@
 /**
  *
- * Created by Kim on 5/28/2016.
+ * Created by PotOfCoffee2Go on 5/28/2016.
  *
  */
 (function () {
     "use strict";
 
     /// Show/hide site menu
-    var toggleMenuClicked = false, contentMargin = null, topMemuPadding = null;
+    var toggleMenuClicked = false, contentMargin = null;
+
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');
-            $('#top-menu').animate({'padding-left': topMemuPadding}, 'fast');
             $('#menu-contents').slideDown("fast", function () {
                 $('#toggle-menu').attr('src', 'menu/images/menu_up.png');
                 toggleMenuClicked = false;
@@ -20,8 +20,6 @@
         else {
             contentMargin = $('#contents').css('margin-left');
             $('#contents').animate({'margin-left': '12px'}, 'fast');
-            topMemuPadding = $('#top-menu').css('padding-left');
-            $('#top-menu').animate({'padding-left': '66px'}, 'fast');
             $('#menu-contents').slideUp("fast", function () {
                 $('#toggle-menu').attr('src', 'menu/images/menu_down.png');
                 toggleMenuClicked = true;
@@ -60,13 +58,12 @@
             return;
         }
 
-        $('#top-menu a').hide();
+        $('#top-menu').animate({opacity: 0}, 'fast');
         $('#rsrc-change').html($(what).attr('rsrc'));
         $('#PageFrame').animate({scrollTop: 0}, 200);
         site_ns.processContents($(what).attr('rsrc'));
     };
 
-    /// - Top-menu processing
     /// - Top-menu processing
     var clickTopMenu = function (what) {
         // site_ns.updateHistory($(what).attr('rsrc'));
@@ -76,7 +73,10 @@
         // }
 
         var options = {};
-        if ($(what).attr('id') === 'tm-code') {
+        if ($(what).attr('id') === 'tm-raw') {
+            options = {raw: true};
+        }
+        else if ($(what).attr('id') === 'tm-code') {
             options = {hideComment: true};
         }
         else if ($(what).attr('id') === 'tm-comments') {
