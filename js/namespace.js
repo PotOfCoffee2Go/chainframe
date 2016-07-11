@@ -3,15 +3,33 @@
 /// anywhere in the web application by prefixing the variable or
 /// function with `site_ns` ie: site_ns.something();
 
+
+/// OnLoad display logo, name of starting theme, and highlighter
+(function () {
+    "use strict";
+
+    $(document).ready(function () {
+        $('#FixedLogo').prepend('<img id="logo" src="' + site_ns.logo + '" />');
+
+        var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
+        var themename = themeshref[themeshref.length - 1];
+        $('#theme-change').html(themename);
+        var hilighthref = $('#hilightsheet').attr('href').replace('.min.css', '').replace('.css', '').split('/');
+        var hilightname = hilighthref[hilighthref.length - 1];
+        $('#hilight-change').html(hilightname);
+
+        site_ns.shortcut.add("Ctrl+A", function () {
+            site_ns.selectText('contents');
+        });
+    });
+})();
+
+
 /// ----
 /// Site Logo, theme, and code highlight
 /// ----
 (function () {
     "use strict";
-
-    function showLogo() {
-        $('#FixedLogo').prepend('<img id="logo" src="' + site_ns.logo + '" />');
-    }
 
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
@@ -19,9 +37,9 @@
             $('#mdsheet').remove();
             $('#sitesheet').remove();
             $('head').append(
-                '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
+                    '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
             $('head').append(
-                '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
+                    '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
             setTimeout(function () {
                 $('html').animate({opacity: 1.0}, 400);
             }, 200)
@@ -34,16 +52,16 @@
             $('#hilightsheet').remove();
             if (hilight.indexOf('highlight/styles/') > -1) {
                 $('head').append(
-                    '<link href="'
-                    + hilight
-                    + '" rel="stylesheet" id="hilightsheet" />');
+                        '<link href="'
+                        + hilight
+                        + '" rel="stylesheet" id="hilightsheet" />');
             }
             else {
                 hilight = hilight.replace('highlight/styles/', '');
                 $('head').append(
-                    '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
-                    + hilight
-                    + '" rel="stylesheet" id="hilightsheet" />');
+                        '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
+                        + hilight
+                        + '" rel="stylesheet" id="hilightsheet" />');
             }
             window.setTimeout(function () {
                 $('.hljs').animate({opacity: 1.0}, 40);
@@ -61,16 +79,6 @@
 
     }
 
-    /// OnLoad display logo, name of starting theme, and highlighter
-    $(document).ready(function () {
-        showLogo();
-        var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
-        var themename = themeshref[themeshref.length - 1];
-        $('#theme-change').html(themename);
-        var hilighthref = $('#hilightsheet').attr('href').replace('.min.css', '').replace('.css', '').split('/');
-        var hilightname = hilighthref[hilighthref.length - 1];
-        $('#hilight-change').html(hilightname);
-    });
 
     // Expose functions to change theme and code highlight
     site_ns['themeChange'] = themeChange;
@@ -89,7 +97,7 @@
         if (!inHistory) {
             var $scrollFrame = $('#PageFrame');
             var inPagePos = Math.round($scrollFrame.scrollTop() +
-                $scrollFrame.offset().top - $('#AbsoluteHeader').height()
+                    $scrollFrame.offset().top - $('#AbsoluteHeader').height()
             );
             window.history.replaceState({rsrc: inRsrc, pagePos: inPagePos}, '');
             window.history.pushState({rsrc: link, pagePos: 0}, '');
@@ -98,11 +106,13 @@
     }
 
     window.onpopstate = function (event) {
-        inHistory = true;
-        var backlink = event.state.rsrc;
-        var linkDom = '<a href="' + backlink + '"></a>';
-        site_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos, true);
-        inHistory = false;
+        if (event.state) {
+            inHistory = true;
+            var backlink = event.state.rsrc;
+            var linkDom = '<a href="' + backlink + '"></a>';
+            site_ns.clickContentsLink($.parseHTML(linkDom)[0], event.state.pagePos, true);
+            inHistory = false;
+        }
     };
 
     // Expose function to update browser history
@@ -112,17 +122,12 @@
 (function () {
     /// ### Entry point to generate markup of source code
     function genDoc(type, filepath, options, callback) {
-        var codeUrl = getCodeUrl(filepath);
 
         /// - Display the <button>Raw</button> button in the top-menu
-        $('#tm-raw').attr('href', codeUrl);
-        $('#tm-raw').show();
+        $('#tm-raw').attr('rsrc', filepath);
         $('#tm-code').attr('rsrc', filepath);
-        $('#tm-code').show();
         $('#tm-comments').attr('rsrc', filepath);
-        $('#tm-comments').show();
         $('#tm-all').attr('rsrc', filepath);
-        $('#tm-all').show();
         $('#top-menu').animate({opacity: 1}, 'fast');
 
 
@@ -130,6 +135,7 @@
         var options = site_ns.parserOptions(type, options);
 
         /// - Get the source code and format into Markdown
+        var codeUrl = getCodeUrl(filepath);
         site_ns.markupSource(codeUrl, options, function (output) {
             callback(output);
         });
@@ -194,12 +200,12 @@
 
     function emitConnected() {
         socket.emit('connected',
-            {
-                data: {
-                    ClientId: 'kim2',
-                    clientconfirmconnected: 'yes'
+                {
+                    data: {
+                        ClientId: 'kim2',
+                        clientconfirmconnected: 'yes'
+                    }
                 }
-            }
         );
         changeIoIndicator('green');
     }
@@ -209,4 +215,24 @@
     function changeIoIndicator(color) {
         $('#headerleft > #socketio-change > img').attr('src', 'images/io-' + color + '.png');
     }
+}());
+
+
+(function () {
+    "use strict";
+
+    function selectText(containerid) {
+        if (document.selection) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.getElementById(containerid));
+            range.select();
+        } else if (window.getSelection) {
+            range = document.createRange();
+            range.selectNode(document.getElementById(containerid));
+            window.getSelection().addRange(range);
+        }
+    }
+
+    site_ns['selectText'] = selectText;
+
 }());

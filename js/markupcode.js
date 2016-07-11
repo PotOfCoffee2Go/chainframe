@@ -41,6 +41,7 @@
     /// - Javascript, HTML, Style Sheets, JSON
     function parserOptions(type, opt) {
         opt = opt || {};
+        opt.raw = opt.raw || false;
         opt.hideCode = opt.hideCode || false;
         opt.hideComment = opt.hideComment || false;
 
@@ -130,139 +131,140 @@
             input[i] = input[i].replace('\r', '');
         }
 
-        /// - Determine if first line is comment or code
-        ///   - Assume first line is code
-        ///   - If a Single or start of a Block comment
-        ///     - Set first line to a comment
-        if (isSingleComment(opt, input, 0) || isBlockComment(opt, input, 0)) {
-            expect = 'c';
-        }
+        if (!opt.raw) {
+            /// - Determine if first line is comment or code
+            ///   - Assume first line is code
+            ///   - If a Single or start of a Block comment
+            ///     - Set first line to a comment
+            if (isSingleComment(opt, input, 0) || isBlockComment(opt, input, 0)) {
+                expect = 'c';
+            }
 
-        /// #### Flag each input line as a comment or code
-        for (i = 0, l = flags.length; i < l; i++) {
-            /// - Blank line?
-            ///   - Flag same as prior line
-            ///   - **to next line**
-            if (input[i].trim() === '') {
-                flags[i] = flags[i ? i - 1 : 0];
-                continue;
-            }
-            /// - Single line comment?
-            ///   - Flag as comment and expect next line to be code
-            ///   - **to next line**
-            if (isSingleComment(opt, input, i)) {
-                input[i] = input[i].trim().replace(opt.lineCmntTag, '');
-                flags[i] = 'c'; // comment
-                expect = ' '; // code
-                continue;
-            }
-            /// - Handle JSDoc type comments
-            ///   - In a comment block?
-            ///     - this line is formatted JSDoc style comment?
-            ///       - first line in JSDoc comment block?
-            ///         - then set title of the comment to bold
-            ///       - set the flags and **to next line**
-            ///    - otherwise check for blank JSDoc comment?
-            ///       - set the flags and **to next line**
-            if (isPrevComment(flags, i)) {
-                if (isJSDocComment(input, i)) {
-                    flags[i] = 'c'; // line is a comment
-                    expect = 'c';   // expect next line will be a comment too
+            /// #### Flag each input line as a comment or code
+            for (i = 0, l = flags.length; i < l; i++) {
+                /// - Blank line?
+                ///   - Flag same as prior line
+                ///   - **to next line**
+                if (input[i].trim() === '') {
+                    flags[i] = flags[i ? i - 1 : 0];
                     continue;
                 }
-                if (input[i] === ' *') {
-                    input[i] = '';
+                /// - Single line comment?
+                ///   - Flag as comment and expect next line to be code
+                ///   - **to next line**
+                if (isSingleComment(opt, input, i)) {
+                    input[i] = input[i].trim().replace(opt.lineCmntTag, '');
                     flags[i] = 'c'; // comment
-                    expect = 'c';
+                    expect = ' '; // code
                     continue;
                 }
-            }
+                /// - Handle JSDoc type comments
+                ///   - In a comment block?
+                ///     - this line is formatted JSDoc style comment?
+                ///       - first line in JSDoc comment block?
+                ///         - then set title of the comment to bold
+                ///       - set the flags and **to next line**
+                ///    - otherwise check for blank JSDoc comment?
+                ///       - set the flags and **to next line**
+                if (isPrevComment(flags, i)) {
+                    if (isJSDocComment(input, i)) {
+                        flags[i] = 'c'; // line is a comment
+                        expect = 'c';   // expect next line will be a comment too
+                        continue;
+                    }
+                    if (input[i] === ' *') {
+                        input[i] = '';
+                        flags[i] = 'c'; // comment
+                        expect = 'c';
+                        continue;
+                    }
+                }
 
-            /// - Start of a code block comment ex: /* for javascript
-            ///   - Is a *code* block comment `/*` but *not* a block comment `/**`?
-            ///     - set as code line and expect next line to be code too
-            ///     - **to next line**
-            if (isCodeBlockComment(opt, input, i) && !isBlockComment(opt, input, i)) {
-                flags[i] = ' ';
-                expect = ' ';
-                continue;
-            }
-            /// - Start of block comment?
-            ///   - Keep track of leading whitespace to shift text to the left
-            ///     > need to do this because Markdown parser would make the text a code block
-            ///   - Remove the comment chars. ex: `/**` for javascript
-            ///   - Flag the line as a comment
-            ///   - Is there an end of block comment too? (line like: `/** blah blah */`)
-            ///     - remove the end comment chars.
-            ///     - expect the next line to be a code line
-            ///   - otherwise doesn't have an end block so
-            ///     - could be the beginning of a JSDoc comment
-            ///     - and a comment is expected on the next line
-            ///   - **to next line**
-            if (isBlockComment(opt, input, i)) {
-                blockWhitespace = input[i].search(/\S|$/);
-                input[i] = input[i].trim().replace(opt.blockCmntBeg, '');
-                flags[i] = 'c';
-                if (isEndBlockComment(opt, input, i)) {
+                /// - Start of a code block comment ex: /* for javascript
+                ///   - Is a *code* block comment `/*` but *not* a block comment `/**`?
+                ///     - set as code line and expect next line to be code too
+                ///     - **to next line**
+                if (isCodeBlockComment(opt, input, i) && !isBlockComment(opt, input, i)) {
+                    flags[i] = ' ';
+                    expect = ' ';
+                    continue;
+                }
+                /// - Start of block comment?
+                ///   - Keep track of leading whitespace to shift text to the left
+                ///     > need to do this because Markdown parser would make the text a code block
+                ///   - Remove the comment chars. ex: `/**` for javascript
+                ///   - Flag the line as a comment
+                ///   - Is there an end of block comment too? (line like: `/** blah blah */`)
+                ///     - remove the end comment chars.
+                ///     - expect the next line to be a code line
+                ///   - otherwise doesn't have an end block so
+                ///     - could be the beginning of a JSDoc comment
+                ///     - and a comment is expected on the next line
+                ///   - **to next line**
+                if (isBlockComment(opt, input, i)) {
+                    blockWhitespace = input[i].search(/\S|$/);
+                    input[i] = input[i].trim().replace(opt.blockCmntBeg, '');
+                    flags[i] = 'c';
+                    if (isEndBlockComment(opt, input, i)) {
+                        input[i] = input[i]
+                                .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                                .replace(opt.blockCmntEnd, '');
+                        expect = ' ';
+                    }
+                    else {
+                        flags[i] = 'j';
+                        expect = 'c';
+                    }
+                    continue;
+                }
+                /// - End of comment and we are in a comment block
+                ///   - Remove the end of comment chars.
+                ///   - Stop removing leading spaces
+                ///   - Set this line as a comment and expect next to be code
+                ///   - **to next line**
+                if (isEndBlockComment(opt, input, i) && isPrevComment(flags, i)) {
                     input[i] = input[i]
                             .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
                             .replace(opt.blockCmntEnd, '');
+                    blockWhitespace = 0;
+                    flags[i] = 'c'; // comment
                     expect = ' ';
+                    continue;
                 }
-                else {
-                    flags[i] = 'j';
-                    expect = 'c';
+
+                /// - Got here if none of the special conditions above were met
+                ///   - Set flag to what this line was expected to be based on the previous line
+                ///   - Remove leading chars so Markdown parser doesn't make them a code block
+                ///   - **to next line**
+                flags[i] = expect;
+                if (flags[i] !== ' ' && isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
+                    input[i] = input[i].substring(blockWhitespace);
                 }
-                continue;
-            }
-            /// - End of comment and we are in a comment block
-            ///   - Remove the end of comment chars.
-            ///   - Stop removing leading spaces
-            ///   - Set this line as a comment and expect next to be code
-            ///   - **to next line**
-            if (isEndBlockComment(opt, input, i) && isPrevComment(flags, i)) {
-                input[i] = input[i]
-                        .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
-                        .replace(opt.blockCmntEnd, '');
-                blockWhitespace = 0;
-                flags[i] = 'c'; // comment
-                expect = ' ';
-                continue;
             }
 
-            /// - Got here if none of the special conditions above were met
-            ///   - Set flag to what this line was expected to be based on the previous line
-            ///   - Remove leading chars so Markdown parser doesn't make them a code block
-            ///   - **to next line**
-            flags[i] = expect;
-            if (flags[i] !== ' ' && isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
-                input[i] = input[i].substring(blockWhitespace);
+            /// ----
+            /// Hide Comments
+            i = flags.length;
+            if (opt.hideComment) {
+                while (i--) {
+                    if (flags[i] !== ' ') {
+                        flags.splice(i, 1);
+                        input.splice(i, 1);
+                    }
+                }
             }
+
+            /// Hide Code
+            if (opt.hideCode) {
+                while (i--) {
+                    if (flags[i] === ' ' && input[i].length) {
+                        flags.splice(i, 1);
+                        input.splice(i, 1);
+                    }
+                }
+            }
+            /// ----
         }
-
-        /// ----
-        /// Hide Comments
-        i = flags.length;
-        if (opt.hideComment) {
-            while (i--) {
-                if (flags[i] !== ' ') {
-                    flags.splice(i, 1);
-                    input.splice(i, 1);
-                }
-            }
-        }
-
-        /// Hide Code
-        if (opt.hideCode) {
-            while (i--) {
-                if (flags[i] === ' ' && input[i].length) {
-                    flags.splice(i, 1);
-                    input.splice(i, 1);
-                }
-            }
-        }
-        /// ----
-
         /// #### Output the comment and code lines based on the flags
         /// All of the lines have been flagged as code or comments
 

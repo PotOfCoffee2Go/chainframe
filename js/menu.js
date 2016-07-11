@@ -8,6 +8,7 @@
 
     /// Show/hide site menu
     var toggleMenuClicked = false, contentMargin = null;
+
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');
@@ -72,7 +73,10 @@
         // }
 
         var options = {};
-        if ($(what).attr('id') === 'tm-code') {
+        if ($(what).attr('id') === 'tm-raw') {
+            options = {raw: true};
+        }
+        else if ($(what).attr('id') === 'tm-code') {
             options = {hideComment: true};
         }
         else if ($(what).attr('id') === 'tm-comments') {
