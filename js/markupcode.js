@@ -2,7 +2,8 @@
  <img src="//codescullery.net/favicon.ico" style="width: 24px;height: 24px;vertical-align: middle;">
  Created by PotOfCoffee2Go on 7/6/2016.
  */
-
+/// <a href="//en.wikipedia.org/wiki/Pixabay">
+/// <img style="float: left; margin: 26px 15px 15px 0px;" src="images/art/beakers.svg" width="100" /></a>
 /**
  ## Format code files to markdown
  Text from a `.js`, `.html`, `.css`, `.json` files is parsed and formatted for presentation
@@ -23,7 +24,8 @@
     "use strict";
 
     /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
-    function markupSourceAjax(codeUrl, options, callback) {
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
                 .done(function (input) {
                     codeToMarkdown(options, input.split('\n'), function (output) {
@@ -35,10 +37,9 @@
                 });
     }
 
-    /// ### Helper functions
-
-    /// Get parser options based on the file extension
-    /// - Javascript, HTML, Style Sheets, JSON
+    /// ### Get parser options based on the file extension
+    /// Javascript, HTML, Style Sheets, JSON
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
     function parserOptions(type, opt) {
         opt = opt || {};
         opt.raw = opt.raw || false;
@@ -79,6 +80,8 @@
         }
         return opt;
     }
+
+    /// ### Helper functions
 
     /// Is the previous line a comment?
     function isPrevComment(flags, i) {
@@ -244,6 +247,10 @@
 
             /// ----
             /// Hide Comments
+            ///<div>
+            ///   <a href="//en.wikipedia.org/wiki/Pixabay">
+            ///   <img src="images/art/beaker.svg" class="pics-right" style="width: 180px;"/></a>
+            /// </div>
             i = flags.length;
             if (opt.hideComment) {
                 while (i--) {
@@ -310,7 +317,7 @@
             }
 
             /// - *Should never get here!*
-            throw new Error('Parsing of meta comments error')
+            throw new Error('Markdown parsing of comments error')
         }
 
         /// - If in a code block, end it at file end
@@ -322,8 +329,7 @@
         callback(output.join('\n'));
     }
 
-    /// Expose the function that initializes default options
+    /// Expose the functions that markup source code
+    site_ns['markupSource'] = markupSource;
     site_ns['parserOptions'] = parserOptions;
-    /// Expose the function that generates markup of source code
-    site_ns['markupSource'] = markupSourceAjax;
 })();
