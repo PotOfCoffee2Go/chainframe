@@ -1,10 +1,18 @@
-/// ## site_ns Namespace
-/// The site namespace contains functions which are accessible
-/// anywhere in the web application by prefixing the variable or
-/// function with `site_ns` ie: site_ns.something();
+/// <div class="pics-paper-clip" style="margin-top: 10px;margin-left: 0;"><a href="https://openclipart.org/detail/237316/ornamental-divider-frame-4">
+/// <img src="images/art/point-border1.svg" style="width: 90px;"/></a></div>
 
+/** ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>
 
-/// OnLoad display logo, name of starting theme, and highlighter
+ <br />
+ The site namespace contains functions which are accessible
+ anywhere in the web application by prefixing the variable or
+ function with `site_ns` ie: site_ns.something();
+
+ Functions that do not warrant a separate file are also contained
+ in this file.
+ */
+
+/// ### OnLoad display logo, name of starting theme, and highlighter
 (function () {
     "use strict";
 
@@ -25,12 +33,13 @@
 })();
 
 
-/// ----
-/// Site Logo, theme, and code highlight
-/// ----
+/// ### Site theme and code highlight
 (function () {
     "use strict";
 
+    /// Theme change
+    /// When changing the theme insure the site stylesheet is placed after the theme.
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
             $('#theme-change').html(theme.replace('.css', ''));
@@ -46,6 +55,9 @@
         });
     }
 
+    /// Code highlighting
+    /// Check if a custom highlighter or standard one from web
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
     function hilightChange(hilight) {
         function changeHilight() {
             $('#hilight-change').html(hilight.replace('.min.css', '').replace('.css', ''));
@@ -63,11 +75,13 @@
                         + hilight
                         + '" rel="stylesheet" id="hilightsheet" />');
             }
+            // Un-hide code blocks
             window.setTimeout(function () {
                 $('.hljs').animate({opacity: 1.0}, 40);
             }, 200)
         }
 
+        // Help minimize flicker by hiding code blocks
         if ($('.hljs').length) {
             $('.hljs').animate({opacity: 0.01}, 40, function () {
                 changeHilight();
@@ -85,14 +99,13 @@
     site_ns['hilightChange'] = hilightChange;
 })();
 
-/// ----
-/// Update browser history
-/// ----
+/// ###  Update browser history
 (function () {
     "use strict";
     var inHistory = false;
     var inRsrc = '';
 
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
     function updateHistory(link) {
         if (!inHistory) {
             var $scrollFrame = $('#PageFrame');
@@ -119,27 +132,30 @@
     site_ns['updateHistory'] = updateHistory;
 })();
 
+/// ### Entry point to generate markup of source code
 (function () {
-    /// ### Entry point to generate markup of source code
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
     function genDoc(type, filepath, options, callback) {
-
-        /// - Display the <button>Raw</button> button in the top-menu
+        // Place links into top menu buttons
+        //   and show the menu
         $('#tm-raw').attr('rsrc', filepath);
         $('#tm-code').attr('rsrc', filepath);
         $('#tm-comments').attr('rsrc', filepath);
         $('#tm-all').attr('rsrc', filepath);
         $('#top-menu').animate({opacity: 1}, 'fast');
 
-
-        /// Get default options
+        // Get default markup options
         var options = site_ns.parserOptions(type, options);
 
-        /// - Get the source code and format into Markdown
+        // Get the source code and format into Markdown
         var codeUrl = getCodeUrl(filepath);
         site_ns.markupSource(codeUrl, options, function (output) {
             callback(output);
         });
     }
+
+    // Expose the function that generates markup of source code
+    site_ns['genDoc'] = genDoc;
 
     /// ### Determine location of source code
     /// - If site not localhost then get source code from GitHub
@@ -160,15 +176,10 @@
         }
         return src + filepath;
     }
-
-    /// Expose the function that generates markup of source code
-    site_ns['genDoc'] = genDoc;
 })();
 
 
-/// ----
-/// WebSocket to nodejs server for additional content
-/// ----
+/// ### WebSocket to nodejs server for additional content
 (function () {
     "use strict";
 
@@ -218,9 +229,11 @@
 }());
 
 
+/// ### Select text used during intercept of Cntl-A
 (function () {
     "use strict";
 
+    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
     function selectText(containerid) {
         if (document.selection) {
             var range = document.body.createTextRange();
@@ -234,5 +247,4 @@
     }
 
     site_ns['selectText'] = selectText;
-
 }());
