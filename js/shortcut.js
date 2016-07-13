@@ -14,6 +14,7 @@
     "use strict";
     ///
 
+    /// {{{img.paperclip}}}
     var shortcut = {
         'all_shortcuts': {},//All the shortcuts are stored in this array
         'add': function (shortcut_combination, callback, opt) {

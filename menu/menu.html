@@ -5,21 +5,21 @@
 <div id='cssmenu'>
     <ul>
 
-        <!--- - **Welcome** -->
+        <!--- **Welcome** -->
         <li class='has-sub active'><a id="menu-home"><span>Welcome</span></a>
             <ul>
                 <li><a href="pages/welcome/welcome.md"><span>Welcome!</span></a></li>
                 <li><a href="pages/welcome/usecase.md"><span>Usage</span></a></li>
             </ul>
         </li>
-        <!--- - **ChainFrame** -->
+        <!--- **ChainFrame** -->
         <li class='has-sub'><a id="menu-docs"><span>ChainFrame</span></a>
             <ul>
                 <li><a href="../package.json"><span>package.json</span></a></li>
                 <li><a href="../chainframe.js"><span>chainframe.js</span></a></li>
             </ul>
         </li>
-        <!--- - **Examples** -->
+        <!--- **Examples** -->
         <li class='has-sub'><a id="menu-examples"><span>Examples</span></a>
             <ul>
                 <li><a href="../examples/data-from-api/index.js"><span>data-from-api</span></a></li>
@@ -27,17 +27,18 @@
             </ul>
         </li>
 
-        <!--- - **Separator image** -->
+        <!--- **Separator image** -->
         <div style="margin: 6px 0 6px 0;"><a href="https://openclipart.org/detail/221116/lotus-flower">
             <img src="images/art/lotus-flower.svg"
                  style="width: 50px; display: block; margin-left: auto; margin-right: auto;"/>
         </a></div>
 
-        <!--- - **Themes**
-               > instead of `href` use `rsrc` to run a javascript function.
-               (although href will work fine but would offend those who believe strongly
-               in separation of content from behavior/action. )
-               -->
+        <!--- **Themes**
+        > Instead of `href` use `rsrc` to run a javascript function.
+        Although href will work fine since the code changes all **menu** `href` tags to
+        `rsrc` for you. This saves us from libraries that sometimes do *not* consistently
+         prevent default behavior of `href`.
+        -->
         <li class='has-sub'><a id="menu-themes"><span>Themes</span></a>
             <ul>
                 <li><a rsrc="call/themeChange('avenir-white.css');"><span>avenir-white</span></a></li>
@@ -58,7 +59,7 @@
                 <li><a rsrc="call/themeChange('swiss.css');"><span>swiss</span></a></li>
             </ul>
         </li>
-        <!--- - **Highlight** -->
+        <!--- **Highlight** -->
         <li class='has-sub'><a id="menu-highlight"><span>Highlight</span></a>
             <ul>
                 <li>---------- Light -----------</li> <!-- separator -->
@@ -112,13 +113,13 @@
             </ul>
         </li>
 
-        <!--- - **Separator image** -->
+        <!--- **Separator image** -->
         <div style="margin: 6px 0 6px 0;"><a href="https://openclipart.org/detail/221116/lotus-flower">
             <img src="images/art/lotus-flower.svg"
                  style="width: 50px; display: block; margin-left: auto; margin-right: auto;"/>
         </a></div>
 
-        <!--- - **Pages** --->
+        <!--- **Pages** --->
         <li class='has-sub'><a id="menu-site"><span>Pages</span></a>
             <ul>
                 <li><a href="pages/site/about.md"><span>About</span></a></li>
@@ -137,7 +138,7 @@
                 <li><a href="js/shortcut.js"><span>shortcut.js</span></a></li>
             </ul>
         </li>
-        <!--- - **Credits**  --->
+        <!--- **Credits**  --->
         <li class='has-sub'><a id="menu-credits"><span>Credits</span></a>
             <ul>
                 <li><a href="pages/credits/credits.md"><span>Credits</span></a></li>

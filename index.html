@@ -51,6 +51,11 @@
 <body>
 
 <!--- ### Logo --->
+<!--- See [config.js](js/config.js) and [namespace.js](js/namespace.js)
+  for handling of the logo. [config.js](js/config.js) defines the logo image
+  and URL. The Onload section of [namespace.js](js/namespace.js) handles
+  the presentation to the header.
+  --->
 <div id="FixedLogo"></div>
 
 <!--- ### Header --->
@@ -67,9 +72,6 @@
 
     <!--- Main menu (un)hide toggle button  --->
     <div id="headersubtitle">
-        <div style="position:absolute;">
-            <img id="toggle-menu" src="menu/images/menu_up.png" alt="up">
-        </div>
         Implements javascript fluent interfaces
     </div>
 
@@ -78,6 +80,9 @@
         <div id="hilight-change"></div>
         <div id="theme-change"></div>
         <div id="rsrc-change"></div>
+    </div>
+    <div style="margin-left: 6px;float: left;">
+        <img id="toggle-menu" src="menu/images/menu_up.png" alt="up">
     </div>
     <div id="top-menu"></div>
 </header>
@@ -95,7 +100,7 @@
 <!--- ### Footer --->
 <footer id="AbsoluteFooter">
     <img src="//potofcoffee2go.github.io/favicon.ico">
-    Project maintained by <a href="https://github.com/PotOfCoffee2Go">PotOfCoffee2Go</a>
+    Project maintained by <a href="https://github.com/PotOfCoffee2Go" target="_blank">PotOfCoffee2Go</a>
 </footer>
 
 <!---   --->

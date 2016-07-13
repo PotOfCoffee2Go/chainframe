@@ -1,8 +1,6 @@
-/// <div class="pics-paper-clip" style="margin-top: 10px;margin-left: 0;">
-/// <a href="https://openclipart.org/detail/237316/ornamental-divider-frame-4">
-/// <img src="images/art/point-border1.svg" style="width: 90px;"/></a></div>
-
-/** ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>
+/**
+ {{{ img.namespace1 }}}
+ ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>
 
  <br />
  The site namespace contains functions which are accessible
@@ -18,7 +16,8 @@
     "use strict";
 
     $(document).ready(function () {
-        $('#FixedLogo').prepend('<img id="logo" src="' + site_ns.logo + '" />');
+        $('#FixedLogo').prepend('<a href="' + site_ns.logo.url + '" target="_blank">' +
+            '<img id="logo" src="' + site_ns.logo.img + '" /></a>');
 
         var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
         var themename = themeshref[themeshref.length - 1];
@@ -40,7 +39,7 @@
 
     /// Theme change
     /// When changing the theme insure the site stylesheet is placed after the theme.
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
             $('#theme-change').html(theme.replace('.css', ''));
@@ -58,7 +57,7 @@
 
     /// Code highlighting
     /// Check if a custom highlighter or standard one from web
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function hilightChange(hilight) {
         function changeHilight() {
             $('#hilight-change').html(hilight.replace('.min.css', '').replace('.css', ''));
@@ -106,7 +105,7 @@
     var inHistory = false;
     var inRsrc = '';
 
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function updateHistory(link) {
         if (!inHistory) {
             var $scrollFrame = $('#PageFrame');
@@ -135,7 +134,7 @@
 
 /// ### Entry point to generate markup of source code
 (function () {
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function genDoc(type, filepath, options, callback) {
         // Place links into top menu buttons
         //   and show the menu
@@ -150,8 +149,8 @@
 
         // Get the source code and format into Markdown
         var codeUrl = getCodeUrl(filepath);
-        site_ns.markupSource(codeUrl, options, function (output) {
-            callback(output);
+        site_ns.markupSource(codeUrl, options, function (output, opt) {
+            callback(output, opt);
         });
     }
 
@@ -234,7 +233,7 @@
 (function () {
     "use strict";
 
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function selectText(containerid) {
         if (document.selection) {
             var range = document.body.createTextRange();

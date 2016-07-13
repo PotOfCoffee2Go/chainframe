@@ -20,28 +20,41 @@
         // Some themes do not have overflow-x set - so set it
         $('.hljs').css('overflow-x', 'auto');
     }
-
-    /// If a markdown file then transform to html and
-    /// insure code blocks have the highlight.js class
+    /// Generate the documentation through Markdown and hightlight code blocks
+    ///   - When one of the code files `js`, `html`, etc.
+    ///     - if using the `raw` option
+    ///       - do not want to run through Handlebars
+    ///       - *so that we leave the Handlebars variables alone*
+    ///
+    ///   - Otherwise check for a .md file
+    ///     - Run data through Markdown and Handlebars
+    ///
+    ///   - Since all else a no go
+    ///     - just output the data
     var typeList = ['js', 'html', 'css', 'json'];
     var extPattern = /\.([0-9a-z]+)(?:[\?#]|$)/i;
 
     function processContents(link, options) {
         // Format code => markdown => html
-        var extension = (link).match(extPattern);
+        var extension = link.match(extPattern);
         if (typeList.indexOf(extension[1]) > -1) {
-            site_ns.genDoc(extension[1], link, options, function (codedoc) {
+            site_ns.genDoc(extension[1], link, options, function (codedoc, options) {
                 var markedup = marked(codedoc);
-                var compiled = Handlebars.compile(markedup);
-                var handled = compiled(site_ns.hbars);
-                $('#contents').html(handled);
+                if (!options.raw) {
+                    var compiled = Handlebars.compile(markedup);
+                    markedup = compiled(site_ns.hbars);
+                }
+                $('#contents').html(markedup);
                 setCodeHighlightClass();
             })
         }
-        else { // Markdown
+        else { // Markdown .md file
             $.get(link, function (data) {
                 if (/\.md$/.test(link)) {
-                    $('#contents').html(marked(data));
+                    var markedup = marked(data);
+                    var compiled = Handlebars.compile(markedup);
+                    var handled = compiled(site_ns.hbars);
+                    $('#contents').html(handled);
                 }
                 else {
                     $('#contents').html(data);
@@ -141,12 +154,12 @@
             $('#PageFrame').animate({scrollTop: scrollPos}, 0, function () {
                 if (anchor) {
                     var pos = Math.round($('#PageFrame').scrollTop() +
-                            $(anchor).offset().top -
-                            $('#PageFrame').offset().top - 10
+                        $(anchor).offset().top -
+                        $('#PageFrame').offset().top - 10
                     );
                     $('#PageFrame').animate({scrollTop: pos}, 500, function () {
                         $(anchor).fadeOut(150).fadeIn(150)
-                                .fadeOut(150).fadeIn(150);
+                            .fadeOut(150).fadeIn(150);
                     });
                 }
             });
