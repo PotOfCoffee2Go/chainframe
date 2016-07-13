@@ -32,7 +32,9 @@
         if (typeList.indexOf(extension[1]) > -1) {
             site_ns.genDoc(extension[1], link, options, function (codedoc) {
                 var markedup = marked(codedoc);
-                $('#contents').html(markedup);
+                var compiled = Handlebars.compile(markedup);
+                var handled = compiled(site_ns.hbars);
+                $('#contents').html(handled);
                 setCodeHighlightClass();
             })
         }

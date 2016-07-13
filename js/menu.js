@@ -6,12 +6,10 @@
 (function () {
     "use strict";
 
-    /**
-     <div>
-     <a href="https://openclipart.org/detail/233054/wind">
-     <img src="images/art/windman.svg" class="pics-right" style="width: 130px;"/></a>
-     </div>
-     **/
+    /// <div>
+    ///     <a href="https://openclipart.org/detail/233054/wind">
+    ///     <img src="images/art/windman.svg" class="pics-right" style="width: 130px;"/></a>
+    /// </div>
     /// Show/hide site menu
 
     var toggleMenuClicked = false, contentMargin = null;

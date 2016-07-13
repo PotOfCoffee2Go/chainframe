@@ -1,4 +1,5 @@
-/// <div class="pics-paper-clip" style="margin-top: 10px;margin-left: 0;"><a href="https://openclipart.org/detail/237316/ornamental-divider-frame-4">
+/// <div class="pics-paper-clip" style="margin-top: 10px;margin-left: 0;">
+/// <a href="https://openclipart.org/detail/237316/ornamental-divider-frame-4">
 /// <img src="images/art/point-border1.svg" style="width: 90px;"/></a></div>
 
 /** ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>

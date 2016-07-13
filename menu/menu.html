@@ -1,9 +1,10 @@
-<!--- ## Main Menu
-   This is the menu that is to the left.
-   --->
+<!---  {{{img.main1}}} --->
 
+<!--- ## Main Menu --->
+<!---   This is the menu that is to the left. --->
 <div id='cssmenu'>
     <ul>
+
         <!--- - **Welcome** -->
         <li class='has-sub active'><a id="menu-home"><span>Welcome</span></a>
             <ul>
@@ -11,8 +12,8 @@
                 <li><a href="pages/welcome/usecase.md"><span>Usage</span></a></li>
             </ul>
         </li>
-        <!--- - **Code** -->
-        <li class='has-sub'><a id="menu-docs"><span>Code</span></a>
+        <!--- - **ChainFrame** -->
+        <li class='has-sub'><a id="menu-docs"><span>ChainFrame</span></a>
             <ul>
                 <li><a href="../package.json"><span>package.json</span></a></li>
                 <li><a href="../chainframe.js"><span>chainframe.js</span></a></li>
@@ -25,12 +26,19 @@
                 <li><a href="../examples/returns-and-callbacks/index.js"><span>returns-and-callbacks</span></a></li>
             </ul>
         </li>
-        <!--- - **Theme**
-        > instead of `href` use `rsrc` to run a javascript function.
-        (although href will work fine but would offend those who believe strongly
-        in separation of content from behavior/action. )
-        -->
-        <li class='has-sub'><a id="menu-themes"><span>Theme</span></a>
+
+        <!--- - **Separator image** -->
+        <div style="margin: 6px 0 6px 0;"><a href="https://openclipart.org/detail/221116/lotus-flower">
+            <img src="images/art/lotus-flower.svg"
+                 style="width: 50px; display: block; margin-left: auto; margin-right: auto;"/>
+        </a></div>
+
+        <!--- - **Themes**
+               > instead of `href` use `rsrc` to run a javascript function.
+               (although href will work fine but would offend those who believe strongly
+               in separation of content from behavior/action. )
+               -->
+        <li class='has-sub'><a id="menu-themes"><span>Themes</span></a>
             <ul>
                 <li><a rsrc="call/themeChange('avenir-white.css');"><span>avenir-white</span></a></li>
                 <li><a rsrc="call/themeChange('markdown.css');"><span>markdown</span></a></li>
@@ -50,8 +58,8 @@
                 <li><a rsrc="call/themeChange('swiss.css');"><span>swiss</span></a></li>
             </ul>
         </li>
-        <!--- - **Code Highlight** -->
-        <li class='has-sub'><a id="menu-highlight"><span>Code Highlight</span></a>
+        <!--- - **Highlight** -->
+        <li class='has-sub'><a id="menu-highlight"><span>Highlight</span></a>
             <ul>
                 <li>---------- Light -----------</li> <!-- separator -->
                 <li><a rsrc="call/hilightChange('color-brewer.min.css');"><span>color-brewer</span></a></li>
@@ -103,8 +111,15 @@
                 <li><a rsrc="call/hilightChange('zenburn.min.css');"><span>zenburn</span></a></li>
             </ul>
         </li>
-        <!--- - **This Site** --->
-        <li class='has-sub'><a id="menu-site"><span>This Site</span></a>
+
+        <!--- - **Separator image** -->
+        <div style="margin: 6px 0 6px 0;"><a href="https://openclipart.org/detail/221116/lotus-flower">
+            <img src="images/art/lotus-flower.svg"
+                 style="width: 50px; display: block; margin-left: auto; margin-right: auto;"/>
+        </a></div>
+
+        <!--- - **Pages** --->
+        <li class='has-sub'><a id="menu-site"><span>Pages</span></a>
             <ul>
                 <li><a href="pages/site/about.md"><span>About</span></a></li>
                 <li>---------- Layout ----------</li> <!-- separator -->
@@ -114,6 +129,7 @@
                 <li>---------- Styles ----------</li> <!-- separator -->
                 <li><a href="css/site.css"><span>site.css</span></a></li>
                 <li>----------- Code -----------</li> <!-- separator -->
+                <li><a href="js/config.js"><span>config.js</span></a></li>
                 <li><a href="js/namespace.js"><span>namespace.js</span></a></li>
                 <li><a href="js/menu.js"><span>menu.js</span></a></li>
                 <li><a href="js/contents.js"><span>contents.js</span></a></li>
