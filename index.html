@@ -1,5 +1,6 @@
 <!doctype html>
-<!--- ## This Site --->
+<!--- ## This gh-pages site --->
+<!--- {{{img.index1}}} --->
 <html>
 <head>
     <meta charset="utf-8">
@@ -7,27 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <title>Chainframe by PotOfCoffee2Go</title>
-
-    <!---
-    ### Site namespace
-      - name: Name of site
-      - logo: Site logo
-      - source: Base URL to raw source code on GitHub, BitBucket, etc.
-      - ioserver: WebSocket connection for storage, analytics, custom processing, etc
-        - url: WebSocket connection for storage, analytics, custom processing, etc
-        - enable: Enable server
-  --->
-    <script>
-        var site_ns = {
-            name: 'chainframe',
-            logo: 'images/logo.png',
-            source: '//raw.githubusercontent.com/PotOfCoffee2Go/chainframe/',
-            ioserver: {
-                url: 'https://bbwebsock-potofcoffee2go.rhcloud.com:8443/',
-                enable: false
-            }
-        };
-    </script>
 
     <!--- ### JQuery --->
     <script src="//code.jquery.com/jquery-latest.min.js"></script>
@@ -44,7 +24,6 @@
     <!--- ### Markdown markup --->
     <script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
     <script>
-        <!-- markdown code highlighter -->
         marked.setOptions({
             highlight: function (code, lang) {
                 return hljs.highlightAuto(code).value;
@@ -52,10 +31,15 @@
         });
     </script>
 
+    <!--- ### Handlebars Template Library --->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+
     <!--- ### Websocket communications --->
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 
     <!--- ### Site scripts --->
+    <!--- {{{img.index2}}} --->
+    <script src="js/config.js"></script>
     <script src="js/shortcut.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/contents.js"></script>
@@ -63,36 +47,33 @@
     <script src="js/markupcode.js"></script>
 </head>
 
+<!--- ## Site layout --->
 <body>
 
-<!---
-## Site layout
-### Header
---->
+<!--- ### Logo --->
 <div id="FixedLogo"></div>
 
-<!--- ### Main menu --->
-
+<!--- ### Header --->
 <header id="AbsoluteHeader">
-    <!--- - Red, yellow, green websocket connection status  --->
+    <!--- Red, yellow, green websocket connection status  --->
     <div id="headerleft">
         <div id="socketio-change"><img src="images/io-red.png"/></div>
     </div>
 
-    <!--- - Main title in header  --->
+    <!--- Main title in header  --->
     <div id="headertitle">
         ChainFrame
     </div>
 
-    <!--- - Main menu (un)hide toggle button  --->
+    <!--- Main menu (un)hide toggle button  --->
     <div id="headersubtitle">
         <div style="position:absolute;">
-        <img id="toggle-menu" src="menu/images/menu_up.png" alt="up">
+            <img id="toggle-menu" src="menu/images/menu_up.png" alt="up">
         </div>
         Implements javascript fluent interfaces
     </div>
 
-    <!--- - Highlight, theme, and resource (page being displayed) names  --->
+    <!--- Highlight, theme, and resource (page being displayed) names  --->
     <div id="headerright">
         <div id="hilight-change"></div>
         <div id="theme-change"></div>
