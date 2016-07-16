@@ -69,13 +69,13 @@
 
         $('#contents').html(site_ns.loaderHtml);
         // Un-comment setTimeout to test loader animation
-        setTimeout(function () {
+        // setTimeout(function () {
             $('#top-menu').animate({opacity: 0}, 'fast');
             $('#rsrc-change').html($(what).attr('rsrc'));
             $('#PageFrame').animate({scrollTop: 0}, 200);
             site_ns.processContents($(what).attr('rsrc'));
 
-        }, 5000);
+        // }, 5000);
     };
 
     /// - Top-menu processing
