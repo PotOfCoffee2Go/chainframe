@@ -10,3 +10,5 @@ Put titles on various things for a mouse over description
 
 http://blog.teamtreehouse.com/the-separation-of-structure-presentation-and-behavior-is-dead
 
+every day the same old news - research research research research hopeing something new would come out
+

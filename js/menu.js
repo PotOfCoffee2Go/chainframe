@@ -1,7 +1,7 @@
 /**
- *
- * Created by PotOfCoffee2Go on 5/28/2016.
- *
+
+ Created by PotOfCoffee2Go on 5/28/2016.
+
  */
 (function () {
     "use strict";
@@ -14,6 +14,7 @@
 
     var toggleMenuClicked = false, contentMargin = null;
 
+    /// {{{img.menujs1}}}
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');

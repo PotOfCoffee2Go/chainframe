@@ -154,10 +154,22 @@ body {
     margin-left: 130px;
     float: left;
     opacity: 0;
+    font-family: 'Open Sans', sans-serif;
 }
 
 #top-menu a {
     float: left;
+}
+
+#top-menu button {
+    float: left;
+    display: block;
+    border: 1px solid #034F89;
+    padding: 6px 10px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    font-weight: bold;
 }
 
 /** Images **/

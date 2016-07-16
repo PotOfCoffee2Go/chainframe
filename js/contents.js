@@ -15,6 +15,7 @@
     "use strict";
 
     /// Add class for [highlight.js](https://highlightjs.org/)
+    /// {{{img.contents1}}}
     function setCodeHighlightClass() {
         $('pre code').addClass('hljs');
         // Some themes do not have overflow-x set - so set it
@@ -178,6 +179,7 @@
             clickContentsLink(this);
         });
 
+        /// {{{img.contents2}}}
         /// Get menu html and bring up default content on load
         $.get('menu/menu.html', function (data) {
             // Change the 'href' attribute name to 'rsrc'
