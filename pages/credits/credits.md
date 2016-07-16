@@ -17,7 +17,9 @@ Kudos to
   - [jsonplaceholder](//jsonplaceholder.typicode.com/) for making available a REST API for testing
   - [openclipart](//openclipart.org/) Public domain imagery
   - [pixabay](//en.wikipedia.org/wiki/Pixabay) 	Public domain imagery
-
+  - [Weird Circle Loader](//codepen.io/jonitrythall/pen/GpVryK)
+  
+  
 
 
 

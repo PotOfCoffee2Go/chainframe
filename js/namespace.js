@@ -29,6 +29,12 @@
         site_ns.shortcut.add("Ctrl+A", function () {
             site_ns.selectText('contents');
         });
+
+        /// Get loading in-progress animation
+        $.get('loader.html', function (data) {
+            site_ns['loaderHtml'] = data;
+        });
+
     });
 })();
 
