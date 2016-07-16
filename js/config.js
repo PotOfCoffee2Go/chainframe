@@ -76,8 +76,10 @@ var site_ns = {
             threecircles: '<div class="pics-paper-clip" style="margin-top: 1px;margin-left: 80%;">' +
             '<a href="//openclipart.org/detail/162055/dance-of-the-circles-3">' +
             '<img src="images/art/threecircles.svg" style="width: 110px;"/>' +
-            '</a></div>'
-
+            '</a></div>',
+            freesoftware: '<a href="https://openclipart.org/detail/171002/free-open-source-software-store-logoicon">' +
+            '<img class="pics-left" src="images/art/freesoftware.svg" style="width: 80px;"/>' +
+            '</a>'
         }
     }
 };
