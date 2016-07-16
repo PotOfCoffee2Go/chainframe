@@ -23,7 +23,7 @@ Remember, all I want to do is :
 
     fluffy.getData().transform().process().updateMyDatabase().reportResults();
 
-###Example of what a method chain looks like
+### Example of what a method chain looks like
 
 You probably have already used method chaining, but if not, they look like this:
 
@@ -40,7 +40,7 @@ Method chains are really cool 'cause they simplify using modules - an example wo
 
 Implementing method chaining is really straight forward - as long as all the functions are _synchronous_ - call the function, do the task, return 'this'. The fly-in-the-ointment is chaining _asynchronous_ functions, and guess what... it seems I **always** to have to do things that are asynchronuous!  Read a file, request data from a web site, hit an API, write a file, query a database, update the database, ~~continue rant~~... 
 
-###Creating a simple method chain
+### Creating a simple method chain
 
 Install ChainFrame into your project directory, from command prompt:
 

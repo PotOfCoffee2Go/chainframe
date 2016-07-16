@@ -1,10 +1,7 @@
 /**
- <img src="//codescullery.net/favicon.ico" style="width: 24px;height: 24px;vertical-align: middle;">
- Created by PotOfCoffee2Go on 7/6/2016.
+ {{{img.poc2g}}} Created by PotOfCoffee2Go on 7/6/2016.
  */
-/// <a href="//en.wikipedia.org/wiki/Pixabay">
-/// <img style="float: left; margin: 26px 15px 15px 0px;" src="images/art/beakers.svg" width="100" /></a>
-/**
+/** {{{img.markupcode1}}}
  ## Format code files to markdown
  Text from a `.js`, `.html`, `.css`, `.json` files is parsed and formatted for presentation
  as a web page. Markdown and most HTML tags are allowed in the comments, Markdown
@@ -24,12 +21,12 @@
     "use strict";
 
     /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
                 .done(function (input) {
-                    codeToMarkdown(options, input.split('\n'), function (output) {
-                        callback(output);
+                    codeToMarkdown(options, input.split('\n'), function (output, opt) {
+                        callback(output, opt);
                     })
                 })
                 .fail(function () {
@@ -39,7 +36,7 @@
 
     /// ### Get parser options based on the file extension
     /// Javascript, HTML, Style Sheets, JSON
-    /// <div class="pics-paper-clip"><img src="images/art/paper-clip.svg"/></div>
+    /// {{{img.paperclip}}}
     function parserOptions(type, opt) {
         opt = opt || {};
         opt.raw = opt.raw || false;
@@ -326,7 +323,7 @@
         }
 
         /// Return with the Markdown markup complete
-        callback(output.join('\n'));
+        callback(output.join('\n'), opt);
     }
 
     /// Expose the functions that markup source code

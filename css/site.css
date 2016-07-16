@@ -1,8 +1,8 @@
 @charset "UTF-8";
-/** <a href="https://openclipart.org/detail/1320/any-key">
-    <img class="pics-left" src="images/art/liftarn-Any-key.svg" /></a> */
-/** ## Site stylesheet **/
+
 /**
+{{{ img.sitecss1 }}}
+## Site stylesheet
 This is the main style of the site. Some of the styles are
 set to work with the theme layouts.<br /><br /><br /><br />
 **/
@@ -97,7 +97,6 @@ body {
 
 #headerleft > #socketio-change {
     float: left;
-    padding-left: 8px;
 }
 
 #headerleft > #socketio-change > img {
@@ -146,6 +145,7 @@ body {
 }
 
 #toggle-menu {
+    width: 59%;
     cursor: pointer;
 }
 
@@ -154,10 +154,22 @@ body {
     margin-left: 130px;
     float: left;
     opacity: 0;
+    font-family: 'Open Sans', sans-serif;
 }
 
 #top-menu a {
     float: left;
+}
+
+#top-menu button {
+    float: left;
+    display: block;
+    border: 1px solid #034F89;
+    padding: 6px 10px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    font-weight: bold;
 }
 
 /** Images **/

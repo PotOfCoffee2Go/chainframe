@@ -1,6 +1,7 @@
 ## About this site
 
-<img src="images/under-construction.png" width=64 style="float:none;" />
+{{{ img.coffeepot }}}
+{{{ img.coffeering }}}
 
 
 Some theme/code highlight combos :
