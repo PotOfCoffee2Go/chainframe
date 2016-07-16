@@ -57,10 +57,7 @@
     var clickSubMenu = function (what) {
         // Put the loader animation in the contents area
         //  (will be overwritten by the content when it arrives)
-        $('#contents').html(site_ns.loaderHtml);
 
-        // Un-comment setTimeout to test loader animation
-        // setTimeout(function (){
 
         $('#cssmenu a').removeClass('subactive');
         $(what).addClass('subactive');
@@ -70,12 +67,15 @@
             return;
         }
 
-        $('#top-menu').animate({opacity: 0}, 'fast');
-        $('#rsrc-change').html($(what).attr('rsrc'));
-        $('#PageFrame').animate({scrollTop: 0}, 200);
-        site_ns.processContents($(what).attr('rsrc'));
+        $('#contents').html(site_ns.loaderHtml);
+        // Un-comment setTimeout to test loader animation
+        setTimeout(function () {
+            $('#top-menu').animate({opacity: 0}, 'fast');
+            $('#rsrc-change').html($(what).attr('rsrc'));
+            $('#PageFrame').animate({scrollTop: 0}, 200);
+            site_ns.processContents($(what).attr('rsrc'));
 
-        // },5000);
+        }, 5000);
     };
 
     /// - Top-menu processing
