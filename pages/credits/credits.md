@@ -8,6 +8,7 @@
 
   - [JQuery](//jquery.com/) for being JQuery
   - [Markdown](//daringfireball.net/projects/markdown/) for simple HTML markup
+  - [marked](https://www.npmjs.com/package/marked) Markdown parser and compiler
   - [highlightjs](//highlightjs.org/) for coloring code nice and pretty
   - [Handlebars](http://handlebarsjs.com/) implementing dynamic page content 
   - [socket.io](//socket.io/) WebSockets that allow two way client/server communication
@@ -25,14 +26,16 @@
 ----
 
   - [openclipart](//openclipart.org/) for sharing imagery in the Public Domain 
-  - [pixabay](//en.wikipedia.org/wiki/Pixabay) for sharing imagery in the Public Domain 
+  - [pixabay](//en.wikipedia.org/wiki/Pixabay) for sharing imagery in the Public Domain
+  - [cloudinary](http://cloudinary.com/) Image CDN and image management
+
+----
+
+  - [NetBrains](https://www.jetbrains.com/idea/) Intellij Idea IDE
 
 ----
 
   - [Weird Circle Loader](//codepen.io/jonitrythall/pen/GpVryK) for cool loading in-progress animation
-
-----
-
   - [stack overflow](//stackoverflow.com/) for helping to solve those **WTF!** problems
 
 ----

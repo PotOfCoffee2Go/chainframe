@@ -6,12 +6,7 @@
 (function () {
     "use strict";
 
-    /// <div>
-    ///     <a href="https://openclipart.org/detail/233054/wind">
-    ///     <img src="images/art/windman.svg" class="pics-right" style="width: 130px;"/></a>
-    /// </div>
     /// Show/hide site menu
-
     var toggleMenuClicked = false, contentMargin = null;
 
     /// {{{img.menujs1}}}
@@ -35,6 +30,7 @@
 
     /// - Expand/collapse of site menu
     ///   - 'what' is 'this' of the menu to expand
+    /// {{{img.windman}}}
     var clickMainMenu = function (what) {
         var checkElement = $(what).next();
         var $cssmenu_li = $('#cssmenu li');
@@ -67,7 +63,9 @@
             return;
         }
 
-        $('#contents').html(site_ns.loaderHtml);
+        // Loading in-progress animation
+        $('#contents').html(site_ns.img.loaderHtml);
+
         // Un-comment setTimeout to test loader animation
         // setTimeout(function () {
             $('#top-menu').animate({opacity: 0}, 'fast');

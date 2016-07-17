@@ -1,0 +1,147 @@
+/** ### Menu styles **/
+
+/** {{{img.menukey}}} **/
+#cssmenu {
+    font-family: 'Open Sans', sans-serif;
+    /*color: black;*/
+    width: 160px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    padding: 0 0 0 0;
+}
+
+/** **/
+
+#cssmenu ul,
+#cssmenu li,
+#cssmenu a {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    list-style: none;
+    font-weight: normal;
+    text-decoration: none;
+    line-height: 1;
+    font-size: 11px;
+    position: relative;
+    cursor: pointer;
+}
+
+#cssmenu a {
+    line-height: 1.3;
+}
+
+#cssmenu > ul > li {
+    margin: 0 0 2px 0;
+}
+
+#cssmenu > ul > li:last-child {
+    margin: 0;
+}
+
+/** {{{img.redbacteria}}} **/
+#cssmenu > ul > li > a {
+    font-size: 15px;
+    /*color: #ffffff;*/
+    /*text-shadow: 0 1px 1px #000;*/
+
+    /*
+    background: #034F89;
+    background: -moz-linear-gradient(#034F89 0%, #3572A1 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #034F89), color-stop(100%, #3572A1));
+    background: -webkit-linear-gradient(#034F89 0%, #3572A1 100%);
+    background: linear-gradient(#034F89 0%, #3572A1 100%);
+    border: 1px solid #034F89;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    */
+}
+
+#cssmenu > ul > li > a > span {
+    display: block;
+    border: 1px solid #034F89;
+    padding: 6px 10px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+#cssmenu > ul > li > a:hover {
+    text-decoration: none;
+}
+
+#cssmenu > ul > li.active {
+    border-bottom: none;
+}
+
+#cssmenu > ul > li.active > ul {
+    max-height: 158px;
+    overflow: auto;
+}
+
+#cssmenu > ul > li.active > a {
+    /*
+    background: -moz-linear-gradient(#2d8bbe 0%, #3f97b3 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2d8bbe), color-stop(100%, #3f97b3));
+    background: -webkit-linear-gradient(#2d8bbe 0%, #3f97b3 100%);
+    background: linear-gradient(#2d8bbe 0%, #3f97b3 100%);
+    color: #fff;
+    text-shadow: 0 1px 1px #000;
+    border: 1px solid #3f97b3;
+    */
+}
+
+#cssmenu > ul > li.active > a span {
+    border: 1px solid #2d8bbe;
+}
+
+#cssmenu > ul > li.has-sub > a span {
+    background: url(../menu/images/icon_plus.png) 98% center no-repeat;
+}
+
+#cssmenu > ul > li.has-sub.active > a span {
+    background: url(../menu/images/icon_minus.png) 98% center no-repeat;
+}
+
+/* Sub menu */
+#cssmenu ul ul {
+    padding: 5px 12px;
+    display: none;
+}
+
+#cssmenu ul ul li {
+    padding: 3px;
+}
+
+#cssmenu ul ul a {
+    font-size: 13px;
+    padding: 2px;
+}
+
+#cssmenu ul ul a:hover {
+    color: #3f97b3;
+}
+
+#cssmenu > ul > li > ul > li > a.subactive {
+    background: #2d8bbe;
+    background: -moz-linear-gradient(#2d8bbe 0%, #3f97b3 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2d8bbe), color-stop(100%, #3f97b3));
+    background: -webkit-linear-gradient(#2d8bbe 0%, #3f97b3 100%);
+    background: linear-gradient(#2d8bbe 0%, #3f97b3 100%);
+    color: #fff;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    padding: 2px;
+    /* text-shadow: 0 1px 1px #000;
+    border: 1px solid #3f97b3;
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+     box-shadow: 0 0 5px rgba(0, 0, 0, 0.6); */
+}

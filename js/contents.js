@@ -43,7 +43,7 @@
                 var markedup = marked(codedoc);
                 if (!options.raw) {
                     var compiled = Handlebars.compile(markedup);
-                    markedup = compiled(site_ns.hbars);
+                    markedup = compiled(site_ns);
                 }
                 $('#contents').html(markedup);
                 setCodeHighlightClass();
@@ -54,7 +54,7 @@
                 if (/\.md$/.test(link)) {
                     var markedup = marked(data);
                     var compiled = Handlebars.compile(markedup);
-                    var handled = compiled(site_ns.hbars);
+                    var handled = compiled(site_ns);
                     $('#contents').html(handled);
                 }
                 else {
