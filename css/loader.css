@@ -1,4 +1,9 @@
-/** Image while page loading */
+/** Animation while page loading
+
+See [loader.html](loader.html) for the layout.
+
+{{{img.manatwork}}}
+*/
 .loader {
     position: absolute;
     opacity: .7;

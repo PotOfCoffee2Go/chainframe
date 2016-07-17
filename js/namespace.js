@@ -16,9 +16,12 @@
     "use strict";
 
     $(document).ready(function () {
+        // Place the logo
         $('#FixedLogo').prepend('<a href="' + site_ns.logo.url + '" target="_blank">' +
             '<img id="logo" src="' + site_ns.logo.img + '" /></a>');
 
+        // Determine the starting theme and highlight (set in index.html) and
+        //  display the names in the right side of the header
         var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
         var themename = themeshref[themeshref.length - 1];
         $('#theme-change').html(themename);
@@ -26,16 +29,24 @@
         var hilightname = hilighthref[hilighthref.length - 1];
         $('#hilight-change').html(hilightname);
 
+        // Capture the ctrl-a (select all) so that we only select the content text
         site_ns.shortcut.add("Ctrl+A", function () {
             site_ns.selectText('contents');
         });
 
-        /// Get loading in-progress animation
+        // Get loading in-progress animation
         $.get('loader.html', function (data) {
-            site_ns['loaderHtml'] = data;
+            site_ns.hbars.img['loaderHtml'] = data;
         });
 
-    });
+        // When the window is resized recalc the left and bottom of #side-contents area
+        $(window).resize(function(){
+            var c = $('#contents');
+           $('#FixedSideBar').css('left',
+               (c.outerWidth(true)-parseInt(c.css('margin-right')))+'px');
+        });
+        $(window).resize();
+    })
 })();
 
 
