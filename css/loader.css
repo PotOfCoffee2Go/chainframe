@@ -8,26 +8,28 @@ See [loader.html](loader.html) for the layout.
     position: absolute;
     opacity: .7;
     left: -150px;
+    /*pointer-events: none;*/
 }
 
 .loader circle {
-    animation: draw 4s infinite ease-in-out;
+    animation: draw 5s infinite ease-in-out;
     transform-origin: center;
     transform: rotate(-90deg);
+    animation-delay: .5s;
 }
 
 .loader-2 circle,
 .loader-6 circle {
-    animation-delay: 1s;
+    animation-delay: 2s;
 }
 
 .loader-7 circle {
-    animation-delay: 2s;
+    animation-delay: 3s;
 }
 
 .loader-4 circle,
 .loader-8 circle {
-    animation-delay: 3s;
+    animation-delay: 4s;
 }
 
 .loader-3 {

@@ -64,7 +64,7 @@
         }
 
         // Loading in-progress animation
-        $('#contents').html(site_ns.hbars.img.loaderHtml);
+        $('#contents').html(site_ns.img.loaderHtml);
 
         // Un-comment setTimeout to test loader animation
         // setTimeout(function () {

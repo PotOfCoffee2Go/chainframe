@@ -36,7 +36,7 @@
 
         // Get loading in-progress animation
         $.get('loader.html', function (data) {
-            site_ns.hbars.img['loaderHtml'] = data;
+            site_ns.img['loaderHtml'] = data;
         });
 
         // When the window is resized recalc the left and bottom of #side-contents area
