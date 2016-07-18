@@ -8,7 +8,7 @@ See [loader.html](loader.html) for the layout.
     position: absolute;
     opacity: .7;
     left: -150px;
-    /*pointer-events: none;*/
+    pointer-events: none;
 }
 
 .loader circle {

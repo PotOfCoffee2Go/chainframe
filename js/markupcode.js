@@ -24,14 +24,14 @@
     /// {{{img.paperclip}}}
     function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
-                .done(function (input) {
-                    codeToMarkdown(options, input.split('\n'), function (output, opt) {
-                        callback(output, opt);
-                    })
+            .done(function (input) {
+                codeToMarkdown(options, input.split('\n'), function (output, opt) {
+                    callback(output, opt);
                 })
-                .fail(function () {
-                    alert("error");
-                });
+            })
+            .fail(function () {
+                alert("error");
+            });
     }
 
     /// ### Get parser options based on the file extension
@@ -207,8 +207,8 @@
                     flags[i] = 'c';
                     if (isEndBlockComment(opt, input, i)) {
                         input[i] = input[i]
-                                .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
-                                .replace(opt.blockCmntEnd, '');
+                            .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                            .replace(opt.blockCmntEnd, '');
                         expect = ' ';
                     }
                     else {
@@ -224,8 +224,8 @@
                 ///   - **to next line**
                 if (isEndBlockComment(opt, input, i) && isPrevComment(flags, i)) {
                     input[i] = input[i]
-                            .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
-                            .replace(opt.blockCmntEnd, '');
+                        .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                        .replace(opt.blockCmntEnd, '');
                     blockWhitespace = 0;
                     flags[i] = 'c'; // comment
                     expect = ' ';
@@ -278,6 +278,19 @@
             ///   > to make the following code easier - at this point a comment is a comment
             if (flags[i] === 'j') {
                 flags[i] = 'c';
+            }
+
+            /// Comments that contains a Handlebars variable
+            if (['js','css'].indexOf(opt.ext) > -1) {
+                // Block type comment /* ... */ (that is all on one line)
+                if (/(.*?)\/\* ?(.*{{{.*}}}.*?) ?\*\/ *(.*)/.test(input[i])) {
+                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{{.*}}}.*?) ?\*\/ *(.*)/, '$1$2$3');
+                }
+
+                // Single line type comment '//'
+                if (opt.ext === 'js' && /(.*?)\/\/ ?(.*{{{.*}}}.*?) *(.*)/.test(input[i])) {
+                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{{.*}}}.*?) ?\*\/ *(.*)/, '$1$2$3');
+                }
             }
 
             /// - Output the first line

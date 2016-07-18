@@ -37,19 +37,12 @@ file does not have to run through a documentation builder as that is done
 dynamically on the client side. And of course, no documentation builder configuration
 files needed.
 
-It is assumed that a basic knowledge of Javascript, stylesheets, and HTML is needed
-to customize the site.
+It is assumed that a basic knowledge of Markdown, (very basic) Handlebars, 
+Javascript, stylesheets, and HTML is needed to customize the site.
 
 The site has a set of themes and code highlighters built-in. Access is via a HTML
 menu file so can decide which ones would be available on the site. See site 
 [Layout](pages/site/layout.md) for a discussion of how to modify site presentation.
-
-> Most themes and highlighters play nice together, the theme can
-override some of the highlighter styles so there are a few combinations that
-are not all that visually appealing. The highlighters are directly from the
-[highlightjs](//highlightjs.org/) [cloudflare](//www.cloudflare.com/) CDN.
-The themes however are in css/mdthemes directory of the server, so can be
-modified to play nice with a specific highlighter.
 
 On the left is the menu navigation system. It is a two-click navigation menu with the
 main menu option displays sub-menu options. Clicking a sub-menu will change
