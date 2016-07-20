@@ -280,18 +280,20 @@
                 flags[i] = 'c';
             }
 
+/*
             /// Comments that contains a Handlebars variable
             if (['js','css'].indexOf(opt.ext) > -1) {
-                // Block type comment /* ... */ (that is all on one line)
-                if (/(.*?)\/\* ?(.*{{{.*}}}.*?) ?\*\/ *(.*)/.test(input[i])) {
-                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{{.*}}}.*?) ?\*\/ *(.*)/, '$1$2$3');
+                // Block type comment /!* ... *!/ (that is all on one line)
+                if (/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/.test(input[i])) {
+                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
                 }
 
                 // Single line type comment '//'
-                if (opt.ext === 'js' && /(.*?)\/\/ ?(.*{{{.*}}}.*?) *(.*)/.test(input[i])) {
-                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{{.*}}}.*?) ?\*\/ *(.*)/, '$1$2$3');
+                if (opt.ext === 'js' && /(.*?)\/\/ ?(.*{{.*}}.*?) *(.*)/.test(input[i])) {
+                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
                 }
             }
+*/
 
             /// - Output the first line
             ///  - Start a code block when appropriate

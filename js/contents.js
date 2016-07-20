@@ -41,6 +41,7 @@
         if (typeList.indexOf(extension[1]) > -1) {
             site_ns.genDoc(extension[1], link, options, function (codedoc, options) {
                 var markedup = marked(codedoc);
+                markedup = markedup.replace(/&#39;&#39;/g,"'");
                 if (!options.raw) {
                     var compiled = Handlebars.compile(markedup);
                     markedup = compiled(site_ns);

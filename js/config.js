@@ -102,16 +102,18 @@ var site_ns = {
         freesoftware: '<a href="//openclipart.org/detail/171002/free-open-source-software-store-logoicon">' +
         '<img class="pics-left" src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/freesoftware.svg" style="width: 80px;"/>' +
         '</a>',
-        menukey: '<a href="//openclipart.org/detail/3879/menu-key">' +
-        '<img class="pics-left" src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/menu-key.svg" style="width: 50px;"/>' +
-        '</a>',
+        menukey: {
+            src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/menu-key.svg',
+            href: '//openclipart.org/detail/3879/menu-key'
+        },
         redbacteria: '<div class="pics-paper-clip" style="margin-top: 1px;margin-left: 80%;"> ' +
         '<a href="//openclipart.org/detail/162835/funny-red-bacteria">' +
         '<img src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/redbacteria.svg" style="width: 110px;"/>' +
         '</a></div>',
-        littleredbacteria: '<a href="//openclipart.org/detail/162835/funny-red-bacteria">' +
-        '<img src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/redbacteria.svg" style="width: 3em;vertical-align: middle;"/>' +
-        '</a>',
+        littleredbacteria: {
+            src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/redbacteria.svg',
+            href: '//openclipart.org/detail/162835/funny-red-bacteria'
+        },
         littleredbacteriatext: '{{{img.littleredbacteria}}}',
         manatwork: '<div class="pics-paper-clip" style="margin-top: 1px;margin-left: 70%;"> ' +
         '<a href="//openclipart.org/detail/147823/man-at-work">' +

@@ -20,6 +20,39 @@
         $('#FixedLogo').prepend('<a href="' + site_ns.logo.url + '" target="_blank">' +
             '<img id="logo" src="' + site_ns.logo.img + '" /></a>');
 
+        marked.setOptions({
+            highlight: function (code, lang) {
+                return hljs.highlightAuto(code).value;
+            }
+        });
+
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+
+        Handlebars.registerHelper('image', function(pname, pleft, pwidth, pinCodeBlock) {
+            var src = Handlebars.escapeExpression(pname.src);
+            var ref = Handlebars.escapeExpression(pname.href);
+            var left = Handlebars.escapeExpression(pleft);
+            var width = Handlebars.escapeExpression(pwidth);
+            var inCodeBlock = pinCodeBlock ? true : false;
+
+            console.log('%s %s %s %s',pname, left, width, inCodeBlock ? "true" : "false");
+
+            var retval = '<a href="' + ref + '">' +
+            '<img src="' + src + '" style="left:' + left + '; width:' + width + ';float:left;" />' +
+            '</a>';
+
+            if (inCodeBlock) {
+                retval =
+                    '<div style="left:' + left + '; width:' + width + ';" class="pic-codeblock">' +
+                    '<a href="' + ref + '">' +
+                    '<img src="' + src + '" />' +
+                    '</a>' +
+                    '</div>'
+            }
+            return new Handlebars.SafeString ( retval );
+        });
+
         // Determine the starting theme and highlight (set in index.html) and
         //  display the names in the right side of the header
         var themeshref = $('#mdsheet').attr('href').replace('.css', '').split('/');
