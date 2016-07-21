@@ -20,37 +20,39 @@
         $('#FixedLogo').prepend('<a href="' + site_ns.logo.url + '" target="_blank">' +
             '<img id="logo" src="' + site_ns.logo.img + '" /></a>');
 
+        // Tell marked to highlight code blocks
         marked.setOptions({
             highlight: function (code, lang) {
                 return hljs.highlightAuto(code).value;
             }
         });
 
-        hljs.initHighlightingOnLoad();
-        hljs.initLineNumbersOnLoad();
-
-        Handlebars.registerHelper('image', function(pname, pleft, pwidth, pinCodeBlock) {
+        // Handlebars helper to place images on page
+        Handlebars.registerHelper('image', function (pname, pmargin, pwidth, pinCodeBlock) {
             var src = Handlebars.escapeExpression(pname.src);
             var ref = Handlebars.escapeExpression(pname.href);
-            var left = Handlebars.escapeExpression(pleft);
+            var margin = Handlebars.escapeExpression(pmargin);
             var width = Handlebars.escapeExpression(pwidth);
             var inCodeBlock = pinCodeBlock ? true : false;
 
-            console.log('%s %s %s %s',pname, left, width, inCodeBlock ? "true" : "false");
+            console.log('%s %s %s %s', pname, margin, width, inCodeBlock ? "true" : "false");
 
             var retval = '<a href="' + ref + '">' +
-            '<img src="' + src + '" style="left:' + left + '; width:' + width + ';float:left;" />' +
-            '</a>';
+                '<img src="' + src + '" style="margin:' + margin + '; width:' + width + ';float:left;" />' +
+                '</a>';
 
             if (inCodeBlock) {
+                var margins = margin.split(' ');
+                var divmargin = '0 ' + margins[1] + ' 0 ' + margins[3];
+                var imgmargin = margins[0] + ' 0 ' + margins[2] + ' 0';
                 retval =
-                    '<div style="left:' + left + '; width:' + width + ';" class="pic-codeblock">' +
+                    '<div style="margin:' + divmargin + '; width:' + width + ';" class="pic-codeblock">' +
                     '<a href="' + ref + '">' +
-                    '<img src="' + src + '" />' +
+                    '<img style="margin:' + imgmargin + ';" src="' + src + '" />' +
                     '</a>' +
                     '</div>'
             }
-            return new Handlebars.SafeString ( retval );
+            return new Handlebars.SafeString(retval);
         });
 
         // Determine the starting theme and highlight (set in index.html) and
@@ -73,10 +75,10 @@
         });
 
         // When the window is resized recalc the left and bottom of #side-contents area
-        $(window).resize(function(){
+        $(window).resize(function () {
             var c = $('#contents');
-           $('#FixedSideBar').css('left',
-               (c.outerWidth(true)-parseInt(c.css('margin-right')))+'px');
+            $('#FixedSideBar').css('left',
+                (c.outerWidth(true) - parseInt(c.css('margin-right'))) + 'px');
         });
         $(window).resize();
     })
@@ -96,9 +98,9 @@
             $('#mdsheet').remove();
             $('#sitesheet').remove();
             $('head').append(
-                    '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
+                '<link href="css/mdthemes/' + theme + '" rel="stylesheet" id="mdsheet" />');
             $('head').append(
-                    '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
+                '<link href="css/site.css" rel="stylesheet" id="sitesheet" />');
             setTimeout(function () {
                 $('html').animate({opacity: 1.0}, 400);
             }, 200)
@@ -114,16 +116,16 @@
             $('#hilightsheet').remove();
             if (hilight.indexOf('highlight/styles/') > -1) {
                 $('head').append(
-                        '<link href="'
-                        + hilight
-                        + '" rel="stylesheet" id="hilightsheet" />');
+                    '<link href="'
+                    + hilight
+                    + '" rel="stylesheet" id="hilightsheet" />');
             }
             else {
                 hilight = hilight.replace('highlight/styles/', '');
                 $('head').append(
-                        '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
-                        + hilight
-                        + '" rel="stylesheet" id="hilightsheet" />');
+                    '<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/'
+                    + hilight
+                    + '" rel="stylesheet" id="hilightsheet" />');
             }
             // Un-hide code blocks
             window.setTimeout(function () {
@@ -149,6 +151,56 @@
     site_ns['hilightChange'] = hilightChange;
 })();
 
+/// Code block line numbering
+///
+/// Minor mods of
+///  [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js)
+/// {{{img.paperclip}}}
+(function () {
+    "use strict";
+
+
+    function lineNumbersBlock(element, startNbr) {
+        if (typeof element !== 'object') return;
+
+        startNbr = startNbr || 0;
+        var parent = element.parentNode;
+        var lines = getCountLines(parent.textContent);
+
+        if (lines) {
+            var l = '';
+            for (var i = startNbr, count = lines + startNbr; i < count; i++) {
+                l += (i + 1) + '\n';
+            }
+
+            var linesPanel = document.createElement('code');
+            linesPanel.className = 'hljs hljs-line-numbers';
+            linesPanel.style.float = 'left';
+            linesPanel.textContent = l;
+
+            parent.insertBefore(linesPanel, element);
+        }
+    }
+
+    function getCountLines(text) {
+        if (text.length === 0) return 0;
+
+        var regExp = /\r\n|\r|\n/g;
+        var lines = text.match(regExp);
+        lines = lines ? lines.length : 0;
+
+        if (!text[text.length - 1].match(regExp)) {
+            lines += 1;
+        }
+
+        return lines;
+    }
+
+    // Expose function to update browser history
+    site_ns['lineNumbersBlock'] = lineNumbersBlock;
+})();
+
+
 /// ###  Update browser history
 (function () {
     "use strict";
@@ -160,7 +212,7 @@
         if (!inHistory) {
             var $scrollFrame = $('#PageFrame');
             var inPagePos = Math.round($scrollFrame.scrollTop() +
-                    $scrollFrame.offset().top - $('#AbsoluteHeader').height()
+                $scrollFrame.offset().top - $('#AbsoluteHeader').height()
             );
             window.history.replaceState({rsrc: inRsrc, pagePos: inPagePos}, '');
             window.history.pushState({rsrc: link, pagePos: 0}, '');
@@ -199,8 +251,8 @@
 
         // Get the source code and format into Markdown
         var codeUrl = getCodeUrl(filepath);
-        site_ns.markupSource(codeUrl, options, function (output, opt) {
-            callback(output, opt);
+        site_ns.markupSource(codeUrl, options, function (out, opt) {
+            callback(out, opt);
         });
     }
 
@@ -261,12 +313,12 @@
 
     function emitConnected() {
         socket.emit('connected',
-                {
-                    data: {
-                        ClientId: 'kim2',
-                        clientconfirmconnected: 'yes'
-                    }
+            {
+                data: {
+                    ClientId: 'kim2',
+                    clientconfirmconnected: 'yes'
                 }
+            }
         );
         changeIoIndicator('green');
     }

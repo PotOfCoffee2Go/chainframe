@@ -65,9 +65,10 @@ var site_ns = {
         '<a href="//openclipart.org/detail/170275/green-star">' +
         '<img src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/greenstar.svg" style="width: 80px;"/>' +
         '</a></div>',
-        sitecss1: '<a href="https://openclipart.org/detail/1320/any-key">' +
-        '<img class="pics-left" src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/liftarn-Any-key.svg" />' +
-        '</a>',
+        sitecss1: {
+            src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/liftarn-Any-key.svg',
+            href: '//openclipart.org/detail/1320/any-key'
+        },
         markupcode1: '<a href="//en.wikipedia.org/wiki/Pixabay">' +
         '<img style="float: left; margin: 26px 15px 15px 0px;" src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/beakers.svg" width="100" />' +
         '</a>',
@@ -115,10 +116,10 @@ var site_ns = {
             href: '//openclipart.org/detail/162835/funny-red-bacteria'
         },
         littleredbacteriatext: '{{{img.littleredbacteria}}}',
-        manatwork: '<div class="pics-paper-clip" style="margin-top: 1px;margin-left: 70%;"> ' +
-        '<a href="//openclipart.org/detail/147823/man-at-work">' +
-        '<img src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/manatwork.svg" style="width: 160px;"/>' +
-        '</a></div>',
+        manatwork: {
+            src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/manatwork.svg',
+            href: '//openclipart.org/detail/147823/man-at-work'
+        },
         onemistake: '<a href="//openclipart.org/detail/239007/the-ticket">' +
         '<img class="pics-left" src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/onemistake.svg" style="width: 110px;"/>' +
         '</a>',

@@ -39,8 +39,8 @@
         // Format code => markdown => html
         var extension = link.match(extPattern);
         if (typeList.indexOf(extension[1]) > -1) {
-            site_ns.genDoc(extension[1], link, options, function (codedoc, options) {
-                var markedup = marked(codedoc);
+            site_ns.genDoc(extension[1], link, options, function (out, options) {
+                var markedup = marked(out.lines.join('\n'));
                 markedup = markedup.replace(/&#39;&#39;/g,"'");
                 if (!options.raw) {
                     var compiled = Handlebars.compile(markedup);
@@ -48,6 +48,10 @@
                 }
                 $('#contents').html(markedup);
                 setCodeHighlightClass();
+                $('code.hljs').each(function(i, block) {
+                    site_ns.lineNumbersBlock(block, out.codeBlockStartingNbrs[i]);
+                });
+
             })
         }
         else { // Markdown .md file

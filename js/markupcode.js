@@ -25,8 +25,8 @@
     function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
             .done(function (input) {
-                codeToMarkdown(options, input.split('\n'), function (output, opt) {
-                    callback(output, opt);
+                codeToMarkdown(options, input.split('\n'), function (out, opt) {
+                    callback(out, opt);
                 })
             })
             .fail(function () {
@@ -121,7 +121,6 @@
         var blockWhitespace = 0;
 
         var flags = [];
-        var output = [];
 
         /// - Initialize flags indicating line is a comment or code
         ///   - Assume will be code
@@ -273,6 +272,11 @@
         /// All of the lines have been flagged as code or comments
 
         /// Output each line inserting markdown code blocks as we go
+        var out = {
+            lines: [],
+            codeBlockStartingNbrs: []
+        };
+
         for (i = 0, l = flags.length; i < l; i++) {
             /// - Set JSDoc comment to a regular block comment
             ///   > to make the following code easier - at this point a comment is a comment
@@ -299,32 +303,34 @@
             ///  - Start a code block when appropriate
             if (i === 0) {
                 if (flags[i] === ' ') {
-                    output.push('```' + opt.ext);
+                    out.lines.push('```' + opt.ext);
+                    out.codeBlockStartingNbrs.push(i);
                 }
-                output.push(input[i]);
+                out.lines.push(input[i]);
                 continue;
             }
 
             /// - When previous flag and current are the same
             ///   - Remain in the comment or code block
             if (flags[i] === flags[i - 1]) {
-                output.push(input[i]);
+                out.lines.push(input[i]);
                 continue;
             }
             /// - Switching from comment to code block
             ///   - insure blank line before code block
             ///   - start the code block
             if (flags[i] === ' ') {
-                output.push('');
-                output.push('```' + opt.ext);
-                output.push(input[i]);
+                out.lines.push('');
+                out.lines.push('```' + opt.ext);
+                out.lines.push(input[i]);
+                out.codeBlockStartingNbrs.push(i);
                 continue;
             }
             /// - Switching from code to comment block
             ///   - end the code block
             if (flags[i] === 'c') {
-                output.push('```');
-                output.push(input[i]);
+                out.lines.push('```');
+                out.lines.push(input[i]);
                 continue;
             }
 
@@ -334,11 +340,11 @@
 
         /// - If in a code block, end it at file end
         if (flags[flags.length - 1] === ' ') {
-            output.push('```');
+            out.lines.push('```');
         }
 
         /// Return with the Markdown markup complete
-        callback(output.join('\n'), opt);
+        callback(out, opt);
     }
 
     /// Expose the functions that markup source code

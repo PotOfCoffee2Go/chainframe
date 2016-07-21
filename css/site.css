@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 /**
-{{{ img.sitecss1 }}}
+{{{image img.sitecss1 ''0 10px 0 0'' ''128px'' false}}}
 ## Site stylesheet
 This is the main style of the site. Some of the styles are
 set to work with the theme layouts.<br /><br /><br /><br />
@@ -10,7 +10,7 @@ set to work with the theme layouts.<br /><br /><br /><br />
 @import url(//fonts.googleapis.com/css?family=Open+Sans:400,600,300);
 
 html {
-    width: 100%;/* {{image img.littleredbacteria '200px' '75px'}} */
+    width: 100%;/* {{image img.littleredbacteria '150px 0 0 200px' '75px'}} */
     height: 100%;
     margin: 0 0 0 0;
     padding: 0 0 0 0;
@@ -28,6 +28,12 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+code div img {
+    position: absolute;
+}
+
+
 
 /** ### Fixed area for menu **/
 #FixedMenu {
@@ -189,12 +195,8 @@ body {
 .pic-codeblock {
     position: relative;
     float:left;
-    left:200px;
-    width:100px;
-}
-
-code div img {
-    position: absolute;
+    /*left:200px;*/
+    /*width:100px;*/
 }
 
 .pics-left {
@@ -246,9 +248,5 @@ button {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
-
-.markdown-comment {
-    display: none;
 }
 

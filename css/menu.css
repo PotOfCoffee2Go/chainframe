@@ -1,6 +1,6 @@
 /** ### Menu styles **/
 
-/** {{image img.menukey ''500px'' ''100px'' false}} **/
+/** {{image img.menukey ''0 0 0 0'' ''80px'' false}} **/
 #cssmenu {
     font-family: 'Open Sans', sans-serif;
     /*color: black;*/
@@ -42,15 +42,6 @@
 #cssmenu > ul > li:last-child {
     margin: 0;
 }
-
-/**
-{{image img.littleredbacteria ''200px'' ''80px'' false}}
-hi there
-
-this is
-
-some text
-*/
 
 #cssmenu > ul > li > a {
     font-size: 15px;
