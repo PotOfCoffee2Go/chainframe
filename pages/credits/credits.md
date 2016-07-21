@@ -35,6 +35,7 @@
 
 ----
 
+  - [Code block line numbers](https://github.com/wcoder/highlightjs-line-numbers.js/)
   - [Weird Circle Loader](//codepen.io/jonitrythall/pen/GpVryK) for cool loading in-progress animation
   - [stack overflow](//stackoverflow.com/) for helping to solve those **WTF!** problems
 

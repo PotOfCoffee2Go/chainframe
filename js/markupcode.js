@@ -24,14 +24,14 @@
     /// {{{img.paperclip}}}
     function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
-                .done(function (input) {
-                    codeToMarkdown(options, input.split('\n'), function (output, opt) {
-                        callback(output, opt);
-                    })
+            .done(function (input) {
+                codeToMarkdown(options, input.split('\n'), function (out, opt) {
+                    callback(out, opt);
                 })
-                .fail(function () {
-                    alert("error");
-                });
+            })
+            .fail(function () {
+                alert("error");
+            });
     }
 
     /// ### Get parser options based on the file extension
@@ -121,7 +121,6 @@
         var blockWhitespace = 0;
 
         var flags = [];
-        var output = [];
 
         /// - Initialize flags indicating line is a comment or code
         ///   - Assume will be code
@@ -207,8 +206,8 @@
                     flags[i] = 'c';
                     if (isEndBlockComment(opt, input, i)) {
                         input[i] = input[i]
-                                .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
-                                .replace(opt.blockCmntEnd, '');
+                            .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                            .replace(opt.blockCmntEnd, '');
                         expect = ' ';
                     }
                     else {
@@ -224,8 +223,8 @@
                 ///   - **to next line**
                 if (isEndBlockComment(opt, input, i) && isPrevComment(flags, i)) {
                     input[i] = input[i]
-                            .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
-                            .replace(opt.blockCmntEnd, '');
+                        .replace(opt.blockCmntEnd[0] + opt.blockCmntEnd, '')
+                        .replace(opt.blockCmntEnd, '');
                     blockWhitespace = 0;
                     flags[i] = 'c'; // comment
                     expect = ' ';
@@ -273,6 +272,11 @@
         /// All of the lines have been flagged as code or comments
 
         /// Output each line inserting markdown code blocks as we go
+        var out = {
+            lines: [],
+            codeBlockStartingNbrs: []
+        };
+
         for (i = 0, l = flags.length; i < l; i++) {
             /// - Set JSDoc comment to a regular block comment
             ///   > to make the following code easier - at this point a comment is a comment
@@ -280,36 +284,53 @@
                 flags[i] = 'c';
             }
 
+/*
+            /// Comments that contains a Handlebars variable
+            if (['js','css'].indexOf(opt.ext) > -1) {
+                // Block type comment /!* ... *!/ (that is all on one line)
+                if (/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/.test(input[i])) {
+                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
+                }
+
+                // Single line type comment '//'
+                if (opt.ext === 'js' && /(.*?)\/\/ ?(.*{{.*}}.*?) *(.*)/.test(input[i])) {
+                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
+                }
+            }
+*/
+
             /// - Output the first line
             ///  - Start a code block when appropriate
             if (i === 0) {
                 if (flags[i] === ' ') {
-                    output.push('```' + opt.ext);
+                    out.lines.push('```' + opt.ext);
+                    out.codeBlockStartingNbrs.push(i);
                 }
-                output.push(input[i]);
+                out.lines.push(input[i]);
                 continue;
             }
 
             /// - When previous flag and current are the same
             ///   - Remain in the comment or code block
             if (flags[i] === flags[i - 1]) {
-                output.push(input[i]);
+                out.lines.push(input[i]);
                 continue;
             }
             /// - Switching from comment to code block
             ///   - insure blank line before code block
             ///   - start the code block
             if (flags[i] === ' ') {
-                output.push('');
-                output.push('```' + opt.ext);
-                output.push(input[i]);
+                out.lines.push('');
+                out.lines.push('```' + opt.ext);
+                out.lines.push(input[i]);
+                out.codeBlockStartingNbrs.push(i);
                 continue;
             }
             /// - Switching from code to comment block
             ///   - end the code block
             if (flags[i] === 'c') {
-                output.push('```');
-                output.push(input[i]);
+                out.lines.push('```');
+                out.lines.push(input[i]);
                 continue;
             }
 
@@ -319,11 +340,11 @@
 
         /// - If in a code block, end it at file end
         if (flags[flags.length - 1] === ' ') {
-            output.push('```');
+            out.lines.push('```');
         }
 
         /// Return with the Markdown markup complete
-        callback(output.join('\n'), opt);
+        callback(out, opt);
     }
 
     /// Expose the functions that markup source code

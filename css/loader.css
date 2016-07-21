@@ -1,14 +1,16 @@
-/** Animation while page loading
+/** {{{image img.manatwork ''0 0 0 0'' ''110px'' false}}}
+
+## Animation while page loading
 
 See [loader.html](loader.html) for the layout.
 
-{{{img.manatwork}}}
+<br />
 */
 .loader {
     position: absolute;
     opacity: .7;
     left: -150px;
-    /*pointer-events: none;*/
+    pointer-events: none;
 }
 
 .loader circle {

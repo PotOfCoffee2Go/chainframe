@@ -1,6 +1,6 @@
 /** ### Menu styles **/
 
-/** {{{img.menukey}}} **/
+/** {{image img.menukey ''0 0 0 0'' ''80px'' false}} **/
 #cssmenu {
     font-family: 'Open Sans', sans-serif;
     /*color: black;*/
@@ -43,7 +43,6 @@
     margin: 0;
 }
 
-/** {{{img.redbacteria}}} **/
 #cssmenu > ul > li > a {
     font-size: 15px;
     /*color: #ffffff;*/
