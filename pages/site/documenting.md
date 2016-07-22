@@ -1,6 +1,6 @@
 ## Documenting your code for presentation
 
-{{{img.gear}}}
+{{{image img.gear '0 10px 0 0' '70px'}}}
 Discussions about marking up code can be found at :
 
  Documenting code using [Markdown](pages/site/markdowndoc.md), using
@@ -27,7 +27,7 @@ file for example).
  
  
  **And as a side note:**
- - Probably will not work on IE. Don't care. {{{img.splat}}} It might on Edge.
+ - Probably will not work on IE. Don't care. {{{image-inline img.splat '2em'}}} It might on Edge.
  - A current up to date browser is assumed 
    - that has HTML5, CSS3, ES6 (well some day), etc.
  - Mobile ready is on the radar

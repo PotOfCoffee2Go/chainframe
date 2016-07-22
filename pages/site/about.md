@@ -1,7 +1,7 @@
 ## About this site
 
-{{{ img.coffeepot }}}
-{{{ img.coffeering }}}
+{{{ image img.coffeepot '0 10px 0 0' '80px'}}}
+{{{ image img.coffeering '100px 0 0 300px' '200px'}}}
 
 This site is written in javascript which runs client side in the browser,
 (as opposed to using server side scripts). This allows the site to run on any basic

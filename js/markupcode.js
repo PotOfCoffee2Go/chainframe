@@ -1,7 +1,8 @@
 /**
  {{{img.poc2g}}} Created by PotOfCoffee2Go on 7/6/2016.
  */
-/** {{{img.markupcode1}}}
+/// {{{image img.markupcode1 '26px 15px 15px 0' '100px'}}}
+ /**
  ## Format code files to markdown
  Text from a `.js`, `.html`, `.css`, `.json` files is parsed and formatted for presentation
  as a web page. Markdown and most HTML tags are allowed in the comments, Markdown
@@ -121,6 +122,7 @@
         var blockWhitespace = 0;
 
         var flags = [];
+        var lineNbr = [];
 
         /// - Initialize flags indicating line is a comment or code
         ///   - Assume will be code
@@ -128,6 +130,7 @@
         for (var i = 0, l = input.length; i < l; i++) {
             flags.push(' ');
             input[i] = input[i].replace('\r', '');
+            lineNbr.push(i);
         }
 
         if (!opt.raw) {
@@ -243,15 +246,13 @@
 
             /// ----
             /// Hide Comments
-            ///<div>
-            ///   <a href="//en.wikipedia.org/wiki/Pixabay">
-            ///   <img src="images/art/beaker.svg" class="pics-right" style="width: 180px;"/></a>
-            /// </div>
+            /// {{{ image img.beaker '0 0 0 0' '180px' }}}
             i = flags.length;
             if (opt.hideComment) {
                 while (i--) {
                     if (flags[i] !== ' ') {
                         flags.splice(i, 1);
+                        lineNbr.splice(i, 1);
                         input.splice(i, 1);
                     }
                 }
@@ -262,6 +263,7 @@
                 while (i--) {
                     if (flags[i] === ' ' && input[i].length) {
                         flags.splice(i, 1);
+                        lineNbr.splice(i, 1);
                         input.splice(i, 1);
                     }
                 }
@@ -274,6 +276,7 @@
         /// Output each line inserting markdown code blocks as we go
         var out = {
             lines: [],
+            lineNbrs: lineNbr,
             codeBlockStartingNbrs: []
         };
 
@@ -284,20 +287,11 @@
                 flags[i] = 'c';
             }
 
-/*
-            /// Comments that contains a Handlebars variable
-            if (['js','css'].indexOf(opt.ext) > -1) {
-                // Block type comment /!* ... *!/ (that is all on one line)
-                if (/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/.test(input[i])) {
-                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
-                }
-
-                // Single line type comment '//'
-                if (opt.ext === 'js' && /(.*?)\/\/ ?(.*{{.*}}.*?) *(.*)/.test(input[i])) {
-                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
-                }
+            /// Double quote Handlebars helper params that are in comment blocks
+            //  unless already double quoted
+            if (flags[i] === 'c' && /\{\{\{? *image/i.test(input[i]) && !/''/.test(input[i])) {
+                input[i] = input[i].replace(/'/g,"''");
             }
-*/
 
             /// - Output the first line
             ///  - Start a code block when appropriate

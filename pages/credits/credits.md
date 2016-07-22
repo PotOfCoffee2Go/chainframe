@@ -1,7 +1,7 @@
-{{{img.freesoftware}}}
+{{{image img.freesoftware '0 10px 0 0' '80px'}}}
 ## Credits
   [chainframe logo](//openclipart.org/detail/194568/html5) Public Domain Image
-      <br /><br /><br />
+      <br /><br />
 **Kudos to developers that make the magic work under the hood :**
 
 ----
@@ -27,7 +27,7 @@
 
   - [openclipart](//openclipart.org/) for sharing imagery in the Public Domain 
   - [pixabay](//en.wikipedia.org/wiki/Pixabay) for sharing imagery in the Public Domain
-  - [cloudinary](http://cloudinary.com/) Image CDN and image management
+  - [cloudinary](http://cloudinary.com/) Image CDN and management
 
 ----
 

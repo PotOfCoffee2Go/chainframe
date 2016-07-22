@@ -27,33 +27,8 @@
             }
         });
 
-        // Handlebars helper to place images on page
-        Handlebars.registerHelper('image', function (pname, pmargin, pwidth, pinCodeBlock) {
-            var src = Handlebars.escapeExpression(pname.src);
-            var ref = Handlebars.escapeExpression(pname.href);
-            var margin = Handlebars.escapeExpression(pmargin);
-            var width = Handlebars.escapeExpression(pwidth);
-            var inCodeBlock = pinCodeBlock ? true : false;
-
-            console.log('%s %s %s %s', pname, margin, width, inCodeBlock ? "true" : "false");
-
-            var retval = '<a href="' + ref + '">' +
-                '<img src="' + src + '" style="margin:' + margin + '; width:' + width + ';float:left;" />' +
-                '</a>';
-
-            if (inCodeBlock) {
-                var margins = margin.split(' ');
-                var divmargin = '0 ' + margins[1] + ' 0 ' + margins[3];
-                var imgmargin = margins[0] + ' 0 ' + margins[2] + ' 0';
-                retval =
-                    '<div style="margin:' + divmargin + '; width:' + width + ';" class="pic-codeblock">' +
-                    '<a href="' + ref + '">' +
-                    '<img style="margin:' + imgmargin + ';" src="' + src + '" />' +
-                    '</a>' +
-                    '</div>'
-            }
-            return new Handlebars.SafeString(retval);
-        });
+        // Initialize Handlebars Helpers to inject HTML markup into pages
+        site_ns.handlebarHelpers();
 
         // Determine the starting theme and highlight (set in index.html) and
         //  display the names in the right side of the header
@@ -84,6 +59,60 @@
     })
 })();
 
+/// ### Handlebars helpers
+(function () {
+    "use strict";
+
+    function handlebarHelpers() {
+        /// Handlebars helper to place images on page
+        Handlebars.registerHelper('image', function (pname, pmargin, pwidth) {
+            var src = Handlebars.escapeExpression(pname.src);
+            var ref = Handlebars.escapeExpression(pname.href);
+            var style = Handlebars.escapeExpression(pname.style ? pname.style : '');
+            var margin = Handlebars.escapeExpression(pmargin);
+            var width = Handlebars.escapeExpression(pwidth);
+
+            console.log('%s %s %s', pname, margin, width);
+
+            // The right and left margin is assigned to the containing div
+            //  while the top and bottom margins are assigned to the image
+            var margins = margin.split(' ');
+            var divmargin = '0 ' + margins[1] + ' 0 ' + margins[3];
+            var imgmargin = margins[0] + ' 0 ' + margins[2] + ' 0';
+
+            var divstyle = ['', ''];
+            if (/(float:.*;)/.test(style)) {
+                divstyle = style.match(/(float:.*;)/i);
+            }
+
+            var retval =
+                '<div style="margin:' + divmargin + '; width:' + width + ';' + divstyle[1]  + '" class="pic-codeblock">' +
+                '<a href="' + ref + '">' +
+                '<img style="margin:' + imgmargin + ';' + style + '" src="' + src + '" />' +
+                '</a>' +
+                '</div>';
+            return new Handlebars.SafeString(retval);
+        });
+
+        /// Handlebars helper to place inline images on page
+        Handlebars.registerHelper('image-inline', function (pname, pwidth) {
+            var src = Handlebars.escapeExpression(pname.src);
+            var ref = Handlebars.escapeExpression(pname.href);
+            var style = Handlebars.escapeExpression(pname.style ? pname.style : '');
+            var width = Handlebars.escapeExpression(pwidth);
+
+            console.log('%s %s', pname, width);
+
+            var retval = '<a href="' + ref + '">' +
+                '<img src="' + src + '" style="width:' + width + ';' + style + '" /></a>';
+
+            return new Handlebars.SafeString(retval);
+        });
+    }
+
+    // Expose functions to change theme and code highlight
+    site_ns['handlebarHelpers'] = handlebarHelpers;
+})();
 
 /// ### Site theme and code highlight
 (function () {
@@ -160,17 +189,17 @@
     "use strict";
 
 
-    function lineNumbersBlock(element, startNbr) {
+    function lineNumbersBlock(element, out, idx) {
         if (typeof element !== 'object') return;
 
-        startNbr = startNbr || 0;
+        var startNbr = out.codeBlockStartingNbrs[idx] || 0;
         var parent = element.parentNode;
         var lines = getCountLines(parent.textContent);
 
         if (lines) {
             var l = '';
             for (var i = startNbr, count = lines + startNbr; i < count; i++) {
-                l += (i + 1) + '\n';
+                l += (out.lineNbrs[i] + 1) + '\n';
             }
 
             var linesPanel = document.createElement('code');

@@ -15,7 +15,7 @@
     "use strict";
 
     /// Add class for [highlight.js](https://highlightjs.org/)
-    /// {{{img.contents1}}}
+    /// {{{image img.contents1 '0 10px 0 0' '110px'}}}
     function setCodeHighlightClass() {
         $('pre code').addClass('hljs');
         // Some themes do not have overflow-x set - so set it
@@ -48,19 +48,21 @@
                 }
                 $('#contents').html(markedup);
                 setCodeHighlightClass();
-                $('code.hljs').each(function(i, block) {
-                    site_ns.lineNumbersBlock(block, out.codeBlockStartingNbrs[i]);
-                });
+                if (!options.hideCode) {
+                    $('code.hljs').each(function (i, block) {
+                        site_ns.lineNumbersBlock(block, out, i);
+                    });
+                }
 
             })
         }
         else { // Markdown .md file
             $.get(link, function (data) {
                 if (/\.md$/.test(link)) {
-                    var markedup = marked(data);
-                    var compiled = Handlebars.compile(markedup);
+                    var compiled = Handlebars.compile(data);
                     var handled = compiled(site_ns);
-                    $('#contents').html(handled);
+                    var markedup = marked(handled);
+                    $('#contents').html(markedup);
                 }
                 else {
                     $('#contents').html(data);
@@ -184,7 +186,7 @@
             clickContentsLink(this);
         });
 
-        /// {{{img.contents2}}}
+        /// {{{image img.contents2 '0 0 0 48%' '80px'}}}
         /// Get menu html and bring up default content on load
         $.get('menu/menu.html', function (data) {
             // Change the 'href' attribute name to 'rsrc'

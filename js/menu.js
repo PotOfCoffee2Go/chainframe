@@ -9,7 +9,7 @@
     /// Show/hide site menu
     var toggleMenuClicked = false, contentMargin = null;
 
-    /// {{{img.menujs1}}}
+    /// {{{image img.menujs1 '0 0 0 0' '128px'}}}
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');
@@ -30,7 +30,7 @@
 
     /// - Expand/collapse of site menu
     ///   - 'what' is 'this' of the menu to expand
-    /// {{{img.windman}}}
+    /// {{{image img.windman '0 0 0 0' '130px'}}}
     var clickMainMenu = function (what) {
         var checkElement = $(what).next();
         var $cssmenu_li = $('#cssmenu li');

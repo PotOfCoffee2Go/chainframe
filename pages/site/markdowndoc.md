@@ -10,13 +10,13 @@
  <a href="call/themeChange('swiss.css');site_ns.hilightChange('googlecode.min.css');">click here</a>.
  
  Other pages of interest:
- [Documenting code using Markdown](page/site/markdowndoc.md)
- [Documenting code using Handlebars](page/site/hbarsdoc.md)
+ [Documenting code using Markdown](pages/site/markdowndoc.md)
+ [Documenting code using Handlebars](pages/site/handlebarsdoc.md)
 
  To include Markdown comments in code files add an extra **'/'** to single line
  comments or an extra **'\*'** to block comments - ie: **'///'** or **'/\*\*'** respectively.
 
- Here is a code example with (admittedly horrible{{{img.littleredbacteria}}}) comments :
+ Here is a code example with (admittedly horrible {{image-inline img.littleredbacteria '1.5em'}}) comments :
 
  ----
 
