@@ -4,13 +4,22 @@
 {{{image img.sitecss1 '0 10px 0 0' '128px'}}}
 ## Site stylesheet
 This is the main style of the site. Some of the styles are
-set to work with the theme layouts.<br /><br /><br /><br />
+set to work with the theme layouts.
+
+These styles take into consideration the available themes. To insure site
+consistency, when changing themes, the current theme and site.css sheet is removed,
+the theme css added and **then** site.css re-appended after. This insures that the
+styles of site.css have precedence. The rearranging of theme styles can be visually
+disconcerting, so the contents of the site are faded out/in during the process of
+changing themes.
+> As a side note: the same is not true of code highlighting sheets. Code
+sheets are removed/appended after site.css.
 **/
 /* Font Styles */
 @import url(//fonts.googleapis.com/css?family=Open+Sans:400,600,300);
 
 html {
-    width: 100%;/* {{image img.littleredbacteria '150px 0 0 200px' '75px'}} */
+    width: 100%;/* {{image img.littleredbacteria '50px 0 0 200px' '75px'}} */
     height: 100%;
     margin: 0 0 0 0;
     padding: 0 0 0 0;
@@ -28,12 +37,6 @@ body {
     display: flex;
     flex-direction: column;
 }
-
-code div img {
-    position: absolute;
-}
-
-
 
 /** ### Fixed area for menu **/
 #FixedMenu {
@@ -106,7 +109,11 @@ code div img {
     vertical-align: middle;
 }
 
-/** ### Header content **/
+/**
+### Header content
+Left side of header contains the WebSocket connection status,
+show/hide main menu, and the logo
+*/
 #headerleft {
     position: absolute;
     top: 10px;
@@ -122,6 +129,14 @@ code div img {
     width: 40%;
 }
 
+#toggle-menu {
+    width: 59%;
+    cursor: pointer;
+}
+
+/**
+Center of header contains the title and sub-title
+*/
 #headertitle {
     font-size: 28px;
     padding-top: 4px;
@@ -140,6 +155,10 @@ code div img {
     float: left;
 }
 
+/**
+Right side of header contains the name of the current theme, highlight, and
+source being displayed as the content
+*/
 #headerright {
     position: absolute;
     top: 10px;
@@ -163,11 +182,7 @@ code div img {
     padding: 1.5em 0 0 8px;
 }
 
-#toggle-menu {
-    width: 59%;
-    cursor: pointer;
-}
-
+/** #### Buttons on top-menu */
 #top-menu {
     position: relative;
     margin-left: 130px;
@@ -181,8 +196,9 @@ code div img {
 }
 
 #top-menu button {
-    float: left;
-    display: block;
+    background: inherit;
+    color: inherit;
+    font-size: 10pt;
     border: 1px solid #034F89;
     padding: 6px 10px;
     -webkit-border-radius: 4px;
@@ -192,23 +208,9 @@ code div img {
 }
 
 /** #### Images **/
-.pic-codeblock {
+.pic-parent-div {
     position: relative;
     float:left;
-    /*left:200px;*/
-    /*width:100px;*/
-}
-
-.pics-left {
-    width: 128px;
-    margin-right: 16px;
-    float: left;
-}
-
-.pics-right {
-    width: 128px;
-    margin-left: 16px;
-    float: right;
 }
 
 div.pics-paper-clip {
@@ -222,19 +224,10 @@ div.pics-paper-clip img {
     width: 50px;
 }
 
-/** #### Give a little space at end of code highlight box **/
+/** #### Give a little space at end of code highlight boxes **/
 pre {
     margin-left: 1em;
     margin-right: 1em;
-}
-
-button {
-    background: inherit;
-    color: inherit;
-    font-size: 10pt;
-    padding: 4px 6px;
-    border-radius: 3px;
-    border: 1px solid inherit;
 }
 
 /** #### Style of code block line numbers **/

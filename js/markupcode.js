@@ -12,16 +12,10 @@
  so commented heavily to assist in that rewrite - time permitting.
  */
 
-/**
- <style>
- h3 { text-decoration: underline; }
- </style>
- */
-
 (function () {
     "use strict";
 
-    /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
+    /// ### Markup source code using [Markdown](//daringfireball.net/projects/markdown/)
     /// {{{img.paperclip}}}
     function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
@@ -35,8 +29,25 @@
             });
     }
 
-    /// ### Get parser options based on the file extension
+    /// ### Set parser options based on the file extension
     /// Javascript, HTML, Style Sheets, JSON
+    ///
+    /// Takes a `type` and optional option object
+    ///   - the option object can change the `raw`, `hideCode`, and/or `hideComment` flags
+    ///   > values based on the `type` can not be overridden
+    ///
+    ///
+    /// Options to the parser
+    ///   - raw: markup the file as a single code block
+    ///   - hideCode: Only show the comment blocks
+    ///   - hideComment: Only show the code blocks
+    ///   - type: 'js', 'html', 'css', 'json'
+    ///     - ext: tag to use on the start of code blocks
+    ///     - lineCmntTag: token that is used for single line comment
+    ///     - codeblockCmntBeg: token that is used for block comments in code
+    ///     - blockCmntBeg: token that is used for start of comment block
+    ///     - blockCmntEnd: token that is used for end of comment block
+    ///
     /// {{{img.paperclip}}}
     function parserOptions(type, opt) {
         opt = opt || {};
@@ -237,9 +248,15 @@
                 /// - Got here if none of the special conditions above were met
                 ///   - Set flag to what this line was expected to be based on the previous line
                 ///   - Remove leading chars so Markdown parser doesn't make them a code block
+                ///     - in the event that leading whitespace has not be set
+                ///       > happens when a comment block's first line is indented
+                ///       - set the whitespace
                 ///   - **to next line**
                 flags[i] = expect;
                 if (flags[i] !== ' ' && isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
+                    if (!blockWhitespace) {
+                        blockWhitespace = input[i].search(/\S|$/);
+                    }
                     input[i] = input[i].substring(blockWhitespace);
                 }
             }

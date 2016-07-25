@@ -1,11 +1,12 @@
 /**
- {{{ img.namespace1 }}}
+ {{{ image img.namespace1 '10px 0 0 0' '90px'}}}
  ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>
 
- <br />
+ <div style="margin-left: 76px;">
  The site namespace contains functions which are accessible
  anywhere in the web application by prefixing the variable or
  function with `site_ns` ie: site_ns.something();
+ </div>
 
  Functions that do not warrant a separate file are also contained
  in this file.
@@ -64,7 +65,15 @@
     "use strict";
 
     function handlebarHelpers() {
-        /// Handlebars helper to place images on page
+        /** **Handlebars helper to place images on page**
+
+         Images are placed within a div that is position: relative thus
+         allowing the image to scroll properly and float: left as being the
+         most commonly used image on left side of the text. To float: right
+         place the float:right in the style (see [image.js](js/image.js))
+         The image itself can be styled position: absolute for flexibility
+         of overlaying image above/below text.
+         */
         Handlebars.registerHelper('image', function (pname, pmargin, pwidth) {
             var src = Handlebars.escapeExpression(pname.src);
             var ref = Handlebars.escapeExpression(pname.href);
@@ -72,29 +81,33 @@
             var margin = Handlebars.escapeExpression(pmargin);
             var width = Handlebars.escapeExpression(pwidth);
 
-            console.log('%s %s %s', pname, margin, width);
-
             // The right and left margin is assigned to the containing div
             //  while the top and bottom margins are assigned to the image
             var margins = margin.split(' ');
             var divmargin = '0 ' + margins[1] + ' 0 ' + margins[3];
             var imgmargin = margins[0] + ' 0 ' + margins[2] + ' 0';
 
+            // If the style is a float - place float:xxx into the image's parent div
             var divstyle = ['', ''];
             if (/(float:.*;)/.test(style)) {
                 divstyle = style.match(/(float:.*;)/i);
             }
 
             var retval =
-                '<div style="margin:' + divmargin + '; width:' + width + ';' + divstyle[1]  + '" class="pic-codeblock">' +
+                '<div style="margin:' + divmargin + '; width:' + width + ';' + divstyle[1] +
+                '" class="pic-parent-div">' +
                 '<a href="' + ref + '">' +
-                '<img style="margin:' + imgmargin + ';' + style + '" src="' + src + '" />' +
+                '<img style="margin:' + imgmargin + '; ' +
+                'width:' + width + ';' + style + '" src="' + src + '" />' +
                 '</a>' +
                 '</div>';
             return new Handlebars.SafeString(retval);
         });
 
-        /// Handlebars helper to place inline images on page
+        /** **Handlebars helper to place inline images on page**
+
+         In-line images flow with the text.
+         */
         Handlebars.registerHelper('image-inline', function (pname, pwidth) {
             var src = Handlebars.escapeExpression(pname.src);
             var ref = Handlebars.escapeExpression(pname.href);
@@ -118,9 +131,9 @@
 (function () {
     "use strict";
 
-    /// Theme change
-    /// When changing the theme insure the site stylesheet is placed after the theme.
     /// {{{img.paperclip}}}
+    // Theme change
+    // When changing the theme insure the site stylesheet is placed after the theme.
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
             $('#theme-change').html(theme.replace('.css', ''));
@@ -136,9 +149,9 @@
         });
     }
 
-    /// Code highlighting
-    /// Check if a custom highlighter or standard one from web
     /// {{{img.paperclip}}}
+    // Code highlighting
+    // Check if a custom highlighter or standard one from web
     function hilightChange(hilight) {
         function changeHilight() {
             $('#hilight-change').html(hilight.replace('.min.css', '').replace('.css', ''));
@@ -162,7 +175,7 @@
             }, 200)
         }
 
-        // Help minimize flicker by hiding code blocks
+        // Help minimize flicker during the highlighter switch by hiding code blocks
         if ($('.hljs').length) {
             $('.hljs').animate({opacity: 0.01}, 40, function () {
                 changeHilight();
@@ -171,24 +184,24 @@
         else {
             changeHilight();
         }
-
     }
-
 
     // Expose functions to change theme and code highlight
     site_ns['themeChange'] = themeChange;
     site_ns['hilightChange'] = hilightChange;
 })();
 
-/// Code block line numbering
+/// ### Code block line numbering
 ///
-/// Minor mods of
-///  [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js)
-/// {{{img.paperclip}}}
+/// Core functions of the GitHub project
+/// [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js).
 (function () {
     "use strict";
 
-
+    /// {{{img.paperclip}}}
+    // Given the code block, results of source code markup, and index of
+    //  the code block on the page;
+    // Create display of the code line numbers
     function lineNumbersBlock(element, out, idx) {
         if (typeof element !== 'object') return;
 
@@ -211,6 +224,7 @@
         }
     }
 
+    // Count the number of lines in the code block
     function getCountLines(text) {
         if (text.length === 0) return 0;
 
@@ -225,7 +239,7 @@
         return lines;
     }
 
-    // Expose function to update browser history
+    // Expose function to display code line numbers
     site_ns['lineNumbersBlock'] = lineNumbersBlock;
 })();
 
@@ -288,11 +302,11 @@
     // Expose the function that generates markup of source code
     site_ns['genDoc'] = genDoc;
 
-    /// ### Determine location of source code
-    /// - If site not localhost then get source code from GitHub
-    ///   - `../` indicates moving down into the project files
-    ///     - so the GitHub source is in **master**
-    ///     - otherwise is page in **gh-pages**
+    // Determine location of source code
+    // - If site not localhost then get source code from GitHub
+    //   - `../` indicates moving down into the project files
+    //     - so the GitHub source is in **master**
+    //     - otherwise is page in **gh-pages**
     function getCodeUrl(filepath) {
         var src = window.location.href.replace('#', '');
         if ('localhost' !== window.location.hostname) {
@@ -355,7 +369,7 @@
     // -----------------------
 
     function changeIoIndicator(color) {
-        $('#headerleft > #socketio-change > img').attr('src', 'images/io-' + color + '.png');
+        $('#headerleft #socketio-change img').attr('src', 'images/io-' + color + '.png');
     }
 }());
 

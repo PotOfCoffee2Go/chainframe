@@ -13,3 +13,11 @@ http://blog.teamtreehouse.com/the-separation-of-structure-presentation-and-behav
 menu selection hilight does not change to the proper selection when clicking
 a link to it that is in the content area.
 
+devil pic in index.html
+
+Handlebars.escapeExpression()? needed?
+
+
+Note about leading comments with 4 spaces - markdown will make them code
+blocks
+
