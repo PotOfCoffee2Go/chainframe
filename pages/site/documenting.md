@@ -23,19 +23,21 @@ file for example).
  - Use stuff I already know to customize the site menu, styles, and code
    - HTML, CSS, and Javascript
  - Allow user to display/download raw, code only, and marked up files.
- - Gimme toys! - themes, code highlighters, in-line pictures and video
+ - Toys! - themes, code highlighters, line numbering, in-line pictures and video
  
  
- **And as a side note:**
- - Probably will not work on IE. Don't care. {{{image-inline img.splat '2em'}}} It might on Edge.
+ **As a side note:**
+ - Probably will not work on IE. Don't care. {{{image-inline img.splat '2em'}}}
+   - It might on Edge
+     - but not holding my breath knowing MS history on following standards.
  - A current up to date browser is assumed 
    - that has HTML5, CSS3, ES6 (well some day), etc.
  - Mobile ready is on the radar
 
-An arguement against free-form documentation is the lack of standards.
-Most of the 
+An argument against free-form documentation is the lack of standards.
+Most
 [documentation generators](https://en.wikipedia.org/wiki/Comparison_of_documentation_generators)
-out there have a precise format (using indentation, tokens, or tags) that
+out there have a prescribed format (using indentation, tokens, or tags) that
 must be followed for the documentation to be generated correctly. Much of 
 which can be customized by configuration, stylesheets, plugins, tag files, 
 templates, scripts, etc. All of which have to be studied and learned.

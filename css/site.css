@@ -19,7 +19,7 @@ sheets are removed/appended after site.css.
 @import url(//fonts.googleapis.com/css?family=Open+Sans:400,600,300);
 
 html {
-    width: 100%;/* {{image img.littleredbacteria '50px 0 0 200px' '75px'}} */
+    width: 100%;/* {{{image img.coffeering '0 0 0 200px' '100px'}}} */
     height: 100%;
     margin: 0 0 0 0;
     padding: 0 0 0 0;
@@ -86,7 +86,7 @@ body {
 }
 
 #PageFrame {
-    overflow: auto;
+    overflow: auto; /* {{{image img.penandpaper '0 0 0 200px' '100px'}}} */
     flex: 1;
 }
 
@@ -183,7 +183,7 @@ source being displayed as the content
 }
 
 /** #### Buttons on top-menu */
-#top-menu {
+#top-menu { /* {{{image img.buttons1 '200px 0 0 350px' '150px'}}} */
     position: relative;
     margin-left: 130px;
     float: left;

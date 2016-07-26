@@ -1,5 +1,5 @@
 /**
- {{{ image img.namespace1 '10px 0 0 0' '90px'}}}
+ {{{image img.namespace1 '10px 0 0 0' '90px'}}}
  ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>
 
  <div style="margin-left: 76px;">
@@ -56,6 +56,7 @@
             $('#FixedSideBar').css('left',
                 (c.outerWidth(true) - parseInt(c.css('margin-right'))) + 'px');
         });
+        // and do a resize to start
         $(window).resize();
     })
 })();
@@ -74,12 +75,10 @@
          The image itself can be styled position: absolute for flexibility
          of overlaying image above/below text.
          */
-        Handlebars.registerHelper('image', function (pname, pmargin, pwidth) {
-            var src = Handlebars.escapeExpression(pname.src);
-            var ref = Handlebars.escapeExpression(pname.href);
-            var style = Handlebars.escapeExpression(pname.style ? pname.style : '');
-            var margin = Handlebars.escapeExpression(pmargin);
-            var width = Handlebars.escapeExpression(pwidth);
+        Handlebars.registerHelper('image', function (pic, margin, width) {
+            var src = pic.src;
+            var ref = pic.href;
+            var style = pic.style || '';
 
             // The right and left margin is assigned to the containing div
             //  while the top and bottom margins are assigned to the image
@@ -108,13 +107,10 @@
 
          In-line images flow with the text.
          */
-        Handlebars.registerHelper('image-inline', function (pname, pwidth) {
-            var src = Handlebars.escapeExpression(pname.src);
-            var ref = Handlebars.escapeExpression(pname.href);
-            var style = Handlebars.escapeExpression(pname.style ? pname.style : '');
-            var width = Handlebars.escapeExpression(pwidth);
-
-            console.log('%s %s', pname, width);
+        Handlebars.registerHelper('image-inline', function (pic, width) {
+            var src = pic.src;
+            var ref = pic.href;
+            var style = pic.style || '';
 
             var retval = '<a href="' + ref + '">' +
                 '<img src="' + src + '" style="width:' + width + ';' + style + '" /></a>';
@@ -204,15 +200,14 @@
     // Create display of the code line numbers
     function lineNumbersBlock(element, out, idx) {
         if (typeof element !== 'object') return;
-
-        var startNbr = out.codeBlockStartingNbrs[idx] || 0;
+        var startNbr = out ? out.codeBlockStartingNbrs[idx] : 0;
         var parent = element.parentNode;
         var lines = getCountLines(parent.textContent);
 
-        if (lines) {
+        if ( (out && lines) || (lines > 1)) {
             var l = '';
             for (var i = startNbr, count = lines + startNbr; i < count; i++) {
-                l += (out.lineNbrs[i] + 1) + '\n';
+                l += ((out ? out.lineNbrs[i] : i) + 1) + '\n';
             }
 
             var linesPanel = document.createElement('code');

@@ -4,7 +4,9 @@
  */
 site_ns.img = {
     poc2g: '<img src="favicon.ico" style="width: 24px;height: 24px;vertical-align: middle;">',
-    paperclip: '<div class="pics-paper-clip"><img src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/paper-clip.svg"/></div>',
+    paperclip: '<div class="pics-paper-clip">' +
+    '<img src="//res.cloudinary.com/potofcoffee2go/image/upload/gh/paper-clip.svg"/>' +
+    '</div>',
     index1: {
         src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/js-dom-model.svg',
         href: '//openclipart.org/detail/167038/dom-model'
@@ -56,7 +58,7 @@ site_ns.img = {
     coffeering: {
         src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/coffeering.svg',
         href: '//openclipart.org/detail/185884/coffee-ring',
-        style: 'position: absolute;z-index: -10; opacity:0.5;'
+        style: 'position: absolute;z-index: 10; opacity:0.5;'
     },
     coffeecode: {
         src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/coffeecode.svg',
@@ -81,7 +83,7 @@ site_ns.img = {
     littleredbacteria: {
         src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/redbacteria.svg',
         href: '//openclipart.org/detail/162835/funny-red-bacteria',
-        style: 'position: absolute;z-index: 10;'
+        style: 'z-index: 10;'
     },
     littleredbacteriatext: '{{{img.littleredbacteria}}}',
     manatwork: {
@@ -105,5 +107,15 @@ site_ns.img = {
         src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/windman.svg',
         href: '//openclipart.org/detail/233054/wind',
         style: 'float:right;'
+    },
+    penandpaper: {
+        src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/penandpaper.svg',
+        href: '//en.wikipedia.org/wiki/Pixabay',
+        style: 'position: absolute;z-index: 10; opacity:0.5;'
+    },
+    buttons1: {
+        src: '//res.cloudinary.com/potofcoffee2go/image/upload/gh/buttons1.svg',
+        href: '//en.wikipedia.org/wiki/Pixabay',
+        style: 'position: absolute;z-index: 10; opacity:1;'
     }
 };

@@ -285,8 +285,8 @@
                     }
                 }
             }
-            /// ----
         }
+
         /// #### Output the comment and code lines based on the flags
         /// All of the lines have been flagged as code or comments
 

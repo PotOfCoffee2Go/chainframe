@@ -15,7 +15,7 @@
     "use strict";
 
     /// Add class for [highlight.js](https://highlightjs.org/)
-    /// {{{image img.contents1 '0 10px 0 0' '110px'}}}
+    /// {{{image img.contents1 '0 10px 0 0' '80px'}}}
     function setCodeHighlightClass() {
         $('pre code').addClass('hljs');
         // Some themes do not have overflow-x set - so set it
@@ -68,6 +68,9 @@
                     $('#contents').html(data);
                 }
                 setCodeHighlightClass();
+                $('code.hljs').each(function (i, block) {
+                    site_ns.lineNumbersBlock(block, null, i);
+                });
             })
         }
     }

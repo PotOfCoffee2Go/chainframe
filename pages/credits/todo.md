@@ -21,3 +21,8 @@ Handlebars.escapeExpression()? needed?
 Note about leading comments with 4 spaces - markdown will make them code
 blocks
 
+line numbers do not take in account when a code block overflows - however
+code blocks should not overflow-x - should have a scroll bar
+Happens on theme markdown1/codepen-embedded
+
+

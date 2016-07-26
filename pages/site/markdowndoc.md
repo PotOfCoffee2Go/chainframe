@@ -220,7 +220,7 @@ So that is looking ok, but could use a little sprucing up, let's put
 
  ----
 
- ### Determine location of source code {{{img.littleredbacteria}}}
+ ### Determine location of source code {{{image img.littleredbacteria '0 0 0 0' '40px'}}}
 
  If site not localhost then get source code from [GitHub](https://github.com/)
    - `../` indicates moving down into the project files
@@ -237,7 +237,7 @@ function getCodeUrl(filepath) {
         if (filepath.indexOf('../') > -1) {
             src += 'master/';
         }
-        else {  // {{{img.littleredbacteria}}} <--- I also put it here!
+        else {
             src += 'gh-pages/';
         }
     }
