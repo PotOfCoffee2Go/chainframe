@@ -1,7 +1,8 @@
 /**
  {{{img.poc2g}}} Created by PotOfCoffee2Go on 7/6/2016.
  */
-/** {{{img.markupcode1}}}
+/// {{{image img.markupcode1 '26px 15px 15px 0' '100px'}}}
+ /**
  ## Format code files to markdown
  Text from a `.js`, `.html`, `.css`, `.json` files is parsed and formatted for presentation
  as a web page. Markdown and most HTML tags are allowed in the comments, Markdown
@@ -11,16 +12,10 @@
  so commented heavily to assist in that rewrite - time permitting.
  */
 
-/**
- <style>
- h3 { text-decoration: underline; }
- </style>
- */
-
 (function () {
     "use strict";
 
-    /// ### Get source code and markup into [Markdown](//daringfireball.net/projects/markdown/)
+    /// ### Markup source code using [Markdown](//daringfireball.net/projects/markdown/)
     /// {{{img.paperclip}}}
     function markupSource(codeUrl, options, callback) {
         $.ajax({url: codeUrl, dataType: 'text'})
@@ -34,8 +29,25 @@
             });
     }
 
-    /// ### Get parser options based on the file extension
+    /// ### Set parser options based on the file extension
     /// Javascript, HTML, Style Sheets, JSON
+    ///
+    /// Takes a `type` and optional option object
+    ///   - the option object can change the `raw`, `hideCode`, and/or `hideComment` flags
+    ///   > values based on the `type` can not be overridden
+    ///
+    ///
+    /// Options to the parser
+    ///   - raw: markup the file as a single code block
+    ///   - hideCode: Only show the comment blocks
+    ///   - hideComment: Only show the code blocks
+    ///   - type: 'js', 'html', 'css', 'json'
+    ///     - ext: tag to use on the start of code blocks
+    ///     - lineCmntTag: token that is used for single line comment
+    ///     - codeblockCmntBeg: token that is used for block comments in code
+    ///     - blockCmntBeg: token that is used for start of comment block
+    ///     - blockCmntEnd: token that is used for end of comment block
+    ///
     /// {{{img.paperclip}}}
     function parserOptions(type, opt) {
         opt = opt || {};
@@ -121,6 +133,7 @@
         var blockWhitespace = 0;
 
         var flags = [];
+        var lineNbr = [];
 
         /// - Initialize flags indicating line is a comment or code
         ///   - Assume will be code
@@ -128,6 +141,7 @@
         for (var i = 0, l = input.length; i < l; i++) {
             flags.push(' ');
             input[i] = input[i].replace('\r', '');
+            lineNbr.push(i);
         }
 
         if (!opt.raw) {
@@ -234,24 +248,28 @@
                 /// - Got here if none of the special conditions above were met
                 ///   - Set flag to what this line was expected to be based on the previous line
                 ///   - Remove leading chars so Markdown parser doesn't make them a code block
+                ///     - in the event that leading whitespace has not be set
+                ///       > happens when a comment block's first line is indented
+                ///       - set the whitespace
                 ///   - **to next line**
                 flags[i] = expect;
                 if (flags[i] !== ' ' && isPrevComment(flags, i) && input[i].search(/\S|$/) >= blockWhitespace) {
+                    if (!blockWhitespace) {
+                        blockWhitespace = input[i].search(/\S|$/);
+                    }
                     input[i] = input[i].substring(blockWhitespace);
                 }
             }
 
             /// ----
             /// Hide Comments
-            ///<div>
-            ///   <a href="//en.wikipedia.org/wiki/Pixabay">
-            ///   <img src="images/art/beaker.svg" class="pics-right" style="width: 180px;"/></a>
-            /// </div>
+            /// {{{ image img.beaker '0 0 0 0' '180px' }}}
             i = flags.length;
             if (opt.hideComment) {
                 while (i--) {
                     if (flags[i] !== ' ') {
                         flags.splice(i, 1);
+                        lineNbr.splice(i, 1);
                         input.splice(i, 1);
                     }
                 }
@@ -262,18 +280,20 @@
                 while (i--) {
                     if (flags[i] === ' ' && input[i].length) {
                         flags.splice(i, 1);
+                        lineNbr.splice(i, 1);
                         input.splice(i, 1);
                     }
                 }
             }
-            /// ----
         }
+
         /// #### Output the comment and code lines based on the flags
         /// All of the lines have been flagged as code or comments
 
         /// Output each line inserting markdown code blocks as we go
         var out = {
             lines: [],
+            lineNbrs: lineNbr,
             codeBlockStartingNbrs: []
         };
 
@@ -284,20 +304,11 @@
                 flags[i] = 'c';
             }
 
-/*
-            /// Comments that contains a Handlebars variable
-            if (['js','css'].indexOf(opt.ext) > -1) {
-                // Block type comment /!* ... *!/ (that is all on one line)
-                if (/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/.test(input[i])) {
-                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
-                }
-
-                // Single line type comment '//'
-                if (opt.ext === 'js' && /(.*?)\/\/ ?(.*{{.*}}.*?) *(.*)/.test(input[i])) {
-                    input[i] = input[i].replace(/(.*?)\/\* ?(.*{{.*}}.*?) ?\*\/ *(.*)/, '$1$2$3');
-                }
+            /// Double quote Handlebars helper params that are in comment blocks
+            //  unless already double quoted
+            if (flags[i] === 'c' && /\{\{\{? *image/i.test(input[i]) && !/''/.test(input[i])) {
+                input[i] = input[i].replace(/'/g,"''");
             }
-*/
 
             /// - Output the first line
             ///  - Start a code block when appropriate

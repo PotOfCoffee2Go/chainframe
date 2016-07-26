@@ -10,13 +10,13 @@
  <a href="call/themeChange('swiss.css');site_ns.hilightChange('googlecode.min.css');">click here</a>.
  
  Other pages of interest:
- [Documenting code using Markdown](page/site/markdowndoc.md)
- [Documenting code using Handlebars](page/site/hbarsdoc.md)
+ [Documenting code using Markdown](pages/site/markdowndoc.md)
+ [Documenting code using Handlebars](pages/site/handlebarsdoc.md)
 
  To include Markdown comments in code files add an extra **'/'** to single line
  comments or an extra **'\*'** to block comments - ie: **'///'** or **'/\*\*'** respectively.
 
- Here is a code example with (admittedly horrible{{{img.littleredbacteria}}}) comments :
+ Here is a code example with (admittedly horrible {{image-inline img.littleredbacteria '1.5em'}}) comments :
 
  ----
 
@@ -220,7 +220,7 @@ So that is looking ok, but could use a little sprucing up, let's put
 
  ----
 
- ### Determine location of source code {{{img.littleredbacteria}}}
+ ### Determine location of source code {{{image img.littleredbacteria '0 0 0 0' '40px'}}}
 
  If site not localhost then get source code from [GitHub](https://github.com/)
    - `../` indicates moving down into the project files
@@ -237,7 +237,7 @@ function getCodeUrl(filepath) {
         if (filepath.indexOf('../') > -1) {
             src += 'master/';
         }
-        else {  // {{{img.littleredbacteria}}} <--- I also put it here!
+        else {
             src += 'gh-pages/';
         }
     }

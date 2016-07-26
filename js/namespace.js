@@ -1,11 +1,12 @@
 /**
- {{{ img.namespace1 }}}
+ {{{image img.namespace1 '10px 0 0 0' '90px'}}}
  ## <span style="margin-bottom: 58px;margin-left: 76px;">Namespace site_ns</span>
 
- <br />
+ <div style="margin-left: 76px;">
  The site namespace contains functions which are accessible
  anywhere in the web application by prefixing the variable or
  function with `site_ns` ie: site_ns.something();
+ </div>
 
  Functions that do not warrant a separate file are also contained
  in this file.
@@ -27,33 +28,8 @@
             }
         });
 
-        // Handlebars helper to place images on page
-        Handlebars.registerHelper('image', function (pname, pmargin, pwidth, pinCodeBlock) {
-            var src = Handlebars.escapeExpression(pname.src);
-            var ref = Handlebars.escapeExpression(pname.href);
-            var margin = Handlebars.escapeExpression(pmargin);
-            var width = Handlebars.escapeExpression(pwidth);
-            var inCodeBlock = pinCodeBlock ? true : false;
-
-            console.log('%s %s %s %s', pname, margin, width, inCodeBlock ? "true" : "false");
-
-            var retval = '<a href="' + ref + '">' +
-                '<img src="' + src + '" style="margin:' + margin + '; width:' + width + ';float:left;" />' +
-                '</a>';
-
-            if (inCodeBlock) {
-                var margins = margin.split(' ');
-                var divmargin = '0 ' + margins[1] + ' 0 ' + margins[3];
-                var imgmargin = margins[0] + ' 0 ' + margins[2] + ' 0';
-                retval =
-                    '<div style="margin:' + divmargin + '; width:' + width + ';" class="pic-codeblock">' +
-                    '<a href="' + ref + '">' +
-                    '<img style="margin:' + imgmargin + ';" src="' + src + '" />' +
-                    '</a>' +
-                    '</div>'
-            }
-            return new Handlebars.SafeString(retval);
-        });
+        // Initialize Handlebars Helpers to inject HTML markup into pages
+        site_ns.handlebarHelpers();
 
         // Determine the starting theme and highlight (set in index.html) and
         //  display the names in the right side of the header
@@ -80,18 +56,80 @@
             $('#FixedSideBar').css('left',
                 (c.outerWidth(true) - parseInt(c.css('margin-right'))) + 'px');
         });
+        // and do a resize to start
         $(window).resize();
     })
 })();
 
+/// ### Handlebars helpers
+(function () {
+    "use strict";
+
+    function handlebarHelpers() {
+        /** **Handlebars helper to place images on page**
+
+         Images are placed within a div that is position: relative thus
+         allowing the image to scroll properly and float: left as being the
+         most commonly used image on left side of the text. To float: right
+         place the float:right in the style (see [image.js](js/image.js))
+         The image itself can be styled position: absolute for flexibility
+         of overlaying image above/below text.
+         */
+        Handlebars.registerHelper('image', function (pic, margin, width) {
+            var src = pic.src;
+            var ref = pic.href;
+            var style = pic.style || '';
+
+            // The right and left margin is assigned to the containing div
+            //  while the top and bottom margins are assigned to the image
+            var margins = margin.split(' ');
+            var divmargin = '0 ' + margins[1] + ' 0 ' + margins[3];
+            var imgmargin = margins[0] + ' 0 ' + margins[2] + ' 0';
+
+            // If the style is a float - place float:xxx into the image's parent div
+            var divstyle = ['', ''];
+            if (/(float:.*;)/.test(style)) {
+                divstyle = style.match(/(float:.*;)/i);
+            }
+
+            var retval =
+                '<div style="margin:' + divmargin + '; width:' + width + ';' + divstyle[1] +
+                '" class="pic-parent-div">' +
+                '<a href="' + ref + '">' +
+                '<img style="margin:' + imgmargin + '; ' +
+                'width:' + width + ';' + style + '" src="' + src + '" />' +
+                '</a>' +
+                '</div>';
+            return new Handlebars.SafeString(retval);
+        });
+
+        /** **Handlebars helper to place inline images on page**
+
+         In-line images flow with the text.
+         */
+        Handlebars.registerHelper('image-inline', function (pic, width) {
+            var src = pic.src;
+            var ref = pic.href;
+            var style = pic.style || '';
+
+            var retval = '<a href="' + ref + '">' +
+                '<img src="' + src + '" style="width:' + width + ';' + style + '" /></a>';
+
+            return new Handlebars.SafeString(retval);
+        });
+    }
+
+    // Expose functions to change theme and code highlight
+    site_ns['handlebarHelpers'] = handlebarHelpers;
+})();
 
 /// ### Site theme and code highlight
 (function () {
     "use strict";
 
-    /// Theme change
-    /// When changing the theme insure the site stylesheet is placed after the theme.
     /// {{{img.paperclip}}}
+    // Theme change
+    // When changing the theme insure the site stylesheet is placed after the theme.
     function themeChange(theme) {
         $('html').animate({opacity: 0.01}, 400, function () {
             $('#theme-change').html(theme.replace('.css', ''));
@@ -107,9 +145,9 @@
         });
     }
 
-    /// Code highlighting
-    /// Check if a custom highlighter or standard one from web
     /// {{{img.paperclip}}}
+    // Code highlighting
+    // Check if a custom highlighter or standard one from web
     function hilightChange(hilight) {
         function changeHilight() {
             $('#hilight-change').html(hilight.replace('.min.css', '').replace('.css', ''));
@@ -133,7 +171,7 @@
             }, 200)
         }
 
-        // Help minimize flicker by hiding code blocks
+        // Help minimize flicker during the highlighter switch by hiding code blocks
         if ($('.hljs').length) {
             $('.hljs').animate({opacity: 0.01}, 40, function () {
                 changeHilight();
@@ -142,35 +180,34 @@
         else {
             changeHilight();
         }
-
     }
-
 
     // Expose functions to change theme and code highlight
     site_ns['themeChange'] = themeChange;
     site_ns['hilightChange'] = hilightChange;
 })();
 
-/// Code block line numbering
+/// ### Code block line numbering
 ///
-/// Minor mods of
-///  [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js)
-/// {{{img.paperclip}}}
+/// Core functions of the GitHub project
+/// [highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js).
 (function () {
     "use strict";
 
-
-    function lineNumbersBlock(element, startNbr) {
+    /// {{{img.paperclip}}}
+    // Given the code block, results of source code markup, and index of
+    //  the code block on the page;
+    // Create display of the code line numbers
+    function lineNumbersBlock(element, out, idx) {
         if (typeof element !== 'object') return;
-
-        startNbr = startNbr || 0;
+        var startNbr = out ? out.codeBlockStartingNbrs[idx] : 0;
         var parent = element.parentNode;
         var lines = getCountLines(parent.textContent);
 
-        if (lines) {
+        if ( (out && lines) || (lines > 1)) {
             var l = '';
             for (var i = startNbr, count = lines + startNbr; i < count; i++) {
-                l += (i + 1) + '\n';
+                l += ((out ? out.lineNbrs[i] : i) + 1) + '\n';
             }
 
             var linesPanel = document.createElement('code');
@@ -182,6 +219,7 @@
         }
     }
 
+    // Count the number of lines in the code block
     function getCountLines(text) {
         if (text.length === 0) return 0;
 
@@ -196,7 +234,7 @@
         return lines;
     }
 
-    // Expose function to update browser history
+    // Expose function to display code line numbers
     site_ns['lineNumbersBlock'] = lineNumbersBlock;
 })();
 
@@ -259,11 +297,11 @@
     // Expose the function that generates markup of source code
     site_ns['genDoc'] = genDoc;
 
-    /// ### Determine location of source code
-    /// - If site not localhost then get source code from GitHub
-    ///   - `../` indicates moving down into the project files
-    ///     - so the GitHub source is in **master**
-    ///     - otherwise is page in **gh-pages**
+    // Determine location of source code
+    // - If site not localhost then get source code from GitHub
+    //   - `../` indicates moving down into the project files
+    //     - so the GitHub source is in **master**
+    //     - otherwise is page in **gh-pages**
     function getCodeUrl(filepath) {
         var src = window.location.href.replace('#', '');
         if ('localhost' !== window.location.hostname) {
@@ -326,7 +364,7 @@
     // -----------------------
 
     function changeIoIndicator(color) {
-        $('#headerleft > #socketio-change > img').attr('src', 'images/io-' + color + '.png');
+        $('#headerleft #socketio-change img').attr('src', 'images/io-' + color + '.png');
     }
 }());
 

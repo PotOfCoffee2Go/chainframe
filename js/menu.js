@@ -6,10 +6,35 @@
 (function () {
     "use strict";
 
+    /// OnLoad set menu onclick handlers
+    /// {{{image img.menujs1 '0 0 0 0' '128px'}}}
+    $(document).ready(function () {
+        // Show/hide site menu
+        $('#toggle-menu').click(function () {
+            toggleMenuShow();
+        });
+
+        // Main menu item clicked - collapse current and expand clicked
+        $('#menu-contents').on('click', '#cssmenu > ul > li > a', function () {
+            clickMainMenu(this);
+        });
+
+        // Sub-menu item clicked
+        //  change menu presentation to show sub-menu selected
+        $('#menu-contents').on('click', '#cssmenu > ul > li > ul > li > a', function () {
+            clickSubMenu(this);
+        });
+
+        // Top-menu item clicked
+        //  change menu presentation to show sub-menu selected
+        $('#top-menu').on('click', 'a', function () {
+            clickTopMenu(this);
+        });
+    });
+
     /// Show/hide site menu
     var toggleMenuClicked = false, contentMargin = null;
 
-    /// {{{img.menujs1}}}
     function toggleMenuShow() {
         if (toggleMenuClicked == true) {
             $('#contents').animate({'margin-left': contentMargin}, 'fast');
@@ -30,7 +55,7 @@
 
     /// - Expand/collapse of site menu
     ///   - 'what' is 'this' of the menu to expand
-    /// {{{img.windman}}}
+    /// {{{image img.windman '0 0 0 0' '130px'}}}
     var clickMainMenu = function (what) {
         var checkElement = $(what).next();
         var $cssmenu_li = $('#cssmenu li');
@@ -53,7 +78,6 @@
     var clickSubMenu = function (what) {
         // Put the loader animation in the contents area
         //  (will be overwritten by the content when it arrives)
-
 
         $('#cssmenu a').removeClass('subactive');
         $(what).addClass('subactive');
@@ -98,32 +122,6 @@
         $('#PageFrame').animate({scrollTop: 0}, 200);
         site_ns.processContents($(what).attr('rsrc'), options);
     };
-
-
-    /// OnLoad set menu onclick handlers
-    $(document).ready(function () {
-        ///   - Show/hide site menu
-        $('#toggle-menu').click(function () {
-            toggleMenuShow();
-        });
-
-        ///   - Main menu item clicked - collapse current and expand clicked
-        $('#menu-contents').on('click', '#cssmenu > ul > li > a', function () {
-            clickMainMenu(this);
-        });
-
-        ///   - Sub-menu item clicked
-        ///     - change menu presentation to show sub-menu selected
-        $('#menu-contents').on('click', '#cssmenu > ul > li > ul > li > a', function () {
-            clickSubMenu(this);
-        });
-
-        ///   - Top-menu item clicked
-        ///     - change menu presentation to show sub-menu selected
-        $('#top-menu').on('click', 'a', function () {
-            clickTopMenu(this);
-        });
-    });
 
     /// Expose handy site menu functions
     ///   - hide/show site menu

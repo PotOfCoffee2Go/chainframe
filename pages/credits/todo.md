@@ -13,3 +13,16 @@ http://blog.teamtreehouse.com/the-separation-of-structure-presentation-and-behav
 menu selection hilight does not change to the proper selection when clicking
 a link to it that is in the content area.
 
+devil pic in index.html
+
+Handlebars.escapeExpression()? needed?
+
+
+Note about leading comments with 4 spaces - markdown will make them code
+blocks
+
+line numbers do not take in account when a code block overflows - however
+code blocks should not overflow-x - should have a scroll bar
+Happens on theme markdown1/codepen-embedded
+
+

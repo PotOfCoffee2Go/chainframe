@@ -12,7 +12,6 @@
 ///
 (function () {
     "use strict";
-    ///
 
     /// {{{img.paperclip}}}
     var shortcut = {
@@ -25,7 +24,7 @@
                 'disable_in_input': false,
                 'target': document,
                 'keycode': false
-            }
+            };
             if (!opt) opt = default_options;
             else {
                 for (var dfo in default_options) {
@@ -35,7 +34,7 @@
 
             var ele = opt.target;
             if (typeof opt.target == 'string') ele = document.getElementById(opt.target);
-            var ths = this;
+
             shortcut_combination = shortcut_combination.toLowerCase();
 
             //The function to be called at keypress
@@ -85,7 +84,7 @@
                     ".": ">",
                     "/": "?",
                     "\\": "|"
-                }
+                };
                 //Special Keys - and their codes
                 var special_keys = {
                     'esc': 27,
@@ -139,7 +138,7 @@
                     'f10': 121,
                     'f11': 122,
                     'f12': 123
-                }
+                };
 
                 var modifiers = {
                     shift: {wanted: false, pressed: false},
@@ -207,7 +206,7 @@
                         return false;
                     }
                 }
-            }
+            };
             this.all_shortcuts[shortcut_combination] = {
                 'callback': func,
                 'target': ele,
@@ -223,7 +222,7 @@
         'remove': function (shortcut_combination) {
             shortcut_combination = shortcut_combination.toLowerCase();
             var binding = this.all_shortcuts[shortcut_combination];
-            delete(this.all_shortcuts[shortcut_combination])
+            delete(this.all_shortcuts[shortcut_combination]);
             if (!binding) return;
             var type = binding['event'];
             var ele = binding['target'];
@@ -233,7 +232,7 @@
             else if (ele.removeEventListener) ele.removeEventListener(type, callback, false);
             else ele['on' + type] = false;
         }
-    }
+    };
 
     ///
     site_ns['shortcut'] = shortcut;
